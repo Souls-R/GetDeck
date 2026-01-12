@@ -584,7 +584,7 @@ export default function DeckRecognizer() {
             <header className="h-14 border-b border-gray-800 flex items-center justify-between px-6 bg-gray-900 shrink-0 z-10">
                 <div className="flex items-center gap-3">
                     <h1 className="text-lg font-bold tracking-tight bg-linear-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
-                        Master Duel Deck Recognizer
+                        Master Duel 卡组识别
                     </h1>
                 </div>
                 
