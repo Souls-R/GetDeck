@@ -31,17 +31,24 @@ export default function CardCanvas({
         const container = containerRef.current;
         if (!canvas || !originalImage || !container) return;
 
-        const containerW = container.clientWidth;
-        const containerH = container.clientHeight;
+        // Get computed padding to calculate available space
+        const computedStyle = getComputedStyle(container);
+        const paddingX = parseFloat(computedStyle.paddingLeft) + parseFloat(computedStyle.paddingRight);
+        const paddingY = parseFloat(computedStyle.paddingTop) + parseFloat(computedStyle.paddingBottom);
+
+        // Available space after accounting for padding
+        const availableW = container.clientWidth - paddingX;
+        const availableH = container.clientHeight - paddingY;
+
         const imgAspect = originalImage.width / originalImage.height;
-        const containerAspect = containerW / containerH;
+        const availableAspect = availableW / availableH;
 
         let renderW, renderH;
-        if (containerAspect > imgAspect) {
-            renderH = containerH;
+        if (availableAspect > imgAspect) {
+            renderH = availableH;
             renderW = renderH * imgAspect;
         } else {
-            renderW = containerW;
+            renderW = availableW;
             renderH = renderW / imgAspect;
         }
 
@@ -109,7 +116,7 @@ export default function CardCanvas({
     return (
         <div
             ref={containerRef}
-            className="flex-1 relative overflow-hidden flex items-center justify-center p-6 bg-[var(--background-secondary)]"
+            className="flex-1 relative overflow-hidden flex items-center justify-center p-2 sm:p-6 bg-[var(--background-secondary)]"
         >
             {/* Canvas面板 */}
             <div className={`panel panel-elevated overflow-hidden transition-all duration-300 ${isDragging ? 'scale-[1.005]' : ''}`}>
