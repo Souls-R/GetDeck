@@ -16,6 +16,55 @@ interface SidebarProps {
     onSelectCard: (index: number) => void;
 }
 
+// 解析卡片类型字符串
+// API格式: "[怪兽|效果] 鸟兽/风\n[★4] 100/600"
+function parseCardTypes(typesStr: string): string[] {
+    const badges: string[] = [];
+
+    // 提取主类型 [怪兽|效果]
+    const mainTypeMatch = typesStr.match(/\[([^\]]+)\]/);
+    if (mainTypeMatch) {
+        const mainType = mainTypeMatch[1];
+        // 排除星级
+        if (!mainType.startsWith('★') && !mainType.startsWith('☆')) {
+            badges.push(mainType.replace(/\|/g, '/'));
+        }
+    }
+
+    // 提取种族/属性（在第一个方括号后、换行前的部分）
+    const firstLine = typesStr.split('\n')[0];
+    const afterBracket = firstLine.replace(/\[[^\]]+\]\s*/, '').trim();
+    if (afterBracket) {
+        // 分割种族/属性，每个单独一个徽章
+        const subTypes = afterBracket.split('/').map(s => s.trim()).filter(s => s);
+        badges.push(...subTypes);
+    }
+
+    // 提取星级
+    const starMatch = typesStr.match(/\[(★\d+|☆\d+)\]/);
+    if (starMatch) {
+        badges.push(starMatch[1]);
+    }
+
+    // 提取 ATK/DEF（第二行的数值）
+    // const secondLine = typesStr.split('\n')[1];
+    // if (secondLine) {
+    //     const atkDefMatch = secondLine.match(/(\d+)\/(\d+)/);
+    //     if (atkDefMatch) {
+    //         badges.push(`${atkDefMatch[1]}/${atkDefMatch[2]}`);
+    //     }
+    // }
+
+    return badges;
+}
+
+// 格式化卡片描述文字，在①②③等效果编号前添加换行
+function formatCardDesc(desc: string): string {
+    if (!desc) return '';
+    // 在①②③④⑤⑥⑦⑧⑨⑩前面添加换行（如果前面不是换行符）
+    return desc.replace(/([^\n])(①|②|③|④|⑤|⑥|⑦|⑧|⑨|⑩)(?=：|:)/g, '$1\n$2');
+}
+
 export default function Sidebar({
     processingStage,
     processingVisual,
@@ -71,83 +120,76 @@ export default function Sidebar({
                 <div className="flex flex-col h-full animate-scale-in">
                     {/* 头部 */}
                     <div className="p-6 border-b border-[var(--card-border)] bg-gradient-card">
-                        <h2 className="text-xl font-bold text-[var(--foreground)] mb-2 line-clamp-2 leading-tight">
-                            {currentMatch?.name}
-                        </h2>
-                        {selectedCardInfo?.result?.[0]?.text?.types && (
-                            <div className="flex flex-wrap gap-2">
-                                {selectedCardInfo.result[0].text.types.split('/').map((type, i) => (
-                                    <span key={i} className="badge text-xs">{type.trim()}</span>
-                                ))}
+                        <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1 min-w-0">
+                                <h2 className="text-xl font-bold text-[var(--foreground)] mb-2 line-clamp-2 leading-tight">
+                                    {currentMatch?.name}
+                                </h2>
+                                {selectedCardInfo?.result?.[0]?.text?.types && (
+                                    <div className="flex flex-wrap gap-2">
+                                        {parseCardTypes(selectedCardInfo.result[0].text.types).map((badge, i) => (
+                                            <span key={i} className="badge text-xs">{badge}</span>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
-                        )}
-                    </div>
-
-                    <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
-                        {/* 源图像面板 - 紧凑按钮式 */}
-                        <div className="flex items-center gap-3">
-                            {/* 预览图按钮 */}
+                            {/* 识别源按钮 */}
                             <button
                                 onClick={() => setIsSourcePanelExpanded(!isSourcePanelExpanded)}
-                                className={`relative w-14 h-14 rounded-xl border-2 transition-all overflow-hidden shrink-0 ${
+                                className={`p-2 rounded-lg transition-colors shrink-0 ${
                                     isSourcePanelExpanded
-                                        ? 'border-[var(--primary)] shadow-md'
-                                        : 'border-[var(--card-border)] hover:border-[var(--primary)]/50'
+                                        ? 'bg-[var(--primary)] text-white'
+                                        : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]'
                                 }`}
                                 title="识别源图像"
                             >
-                                {selectedCardArtwork ? (
-                                    <img src={selectedCardArtwork} className="w-full h-full object-contain bg-[var(--background-secondary)]" alt="source crop" />
-                                ) : (
-                                    <div className="w-full h-full bg-[var(--background-secondary)] flex items-center justify-center">
-                                        <svg className="w-5 h-5 text-[var(--foreground-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
-                                    </div>
-                                )}
-                                {/* 展开指示器 */}
-                                <div className={`absolute bottom-0 left-0 right-0 h-4 bg-gradient-to-t from-black/50 to-transparent flex items-end justify-center pb-0.5 ${isSourcePanelExpanded ? '' : 'opacity-70'}`}>
-                                    <svg
-                                        className={`w-3 h-3 text-white transition-transform duration-200 ${isSourcePanelExpanded ? 'rotate-180' : ''}`}
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                </div>
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
                             </button>
-
-                            {/* 模式切换按钮 */}
-                            <div className="flex items-center gap-1.5">
-                                <button
-                                    onClick={() => { if (forcePendulumMode) onToggleCardMode(); }}
-                                    className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-all ${
-                                        !forcePendulumMode
-                                            ? 'bg-[var(--primary)] text-white shadow-md'
-                                            : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]'
-                                    }`}
-                                >
-                                    Standard
-                                </button>
-                                <button
-                                    onClick={() => { if (!forcePendulumMode) onToggleCardMode(); }}
-                                    className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-all ${
-                                        forcePendulumMode
-                                            ? 'bg-[var(--success)] text-white shadow-md'
-                                            : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]'
-                                    }`}
-                                >
-                                    Pendulum
-                                </button>
-                            </div>
                         </div>
+                    </div>
 
-                        {/* 展开的提示信息 */}
+                    <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
+                        {/* 识别源面板 - 默认折叠 */}
                         {isSourcePanelExpanded && (
-                            <div className="panel p-3 animate-slide-up">
+                            <div className="panel p-4 space-y-4 animate-slide-up">
+                                <div className="flex items-center gap-3">
+                                    {/* 预览图 */}
+                                    <div className="w-16 h-16 rounded-lg bg-[var(--background-secondary)] border border-[var(--card-border)] flex items-center justify-center overflow-hidden shrink-0">
+                                        {selectedCardArtwork ? (
+                                            <img src={selectedCardArtwork} className="w-full h-full object-contain" alt="source crop" />
+                                        ) : (
+                                            <span className="text-xs text-[var(--foreground-muted)]">无</span>
+                                        )}
+                                    </div>
+                                    {/* 模式切换按钮 */}
+                                    <div className="flex items-center gap-1.5">
+                                        <button
+                                            onClick={() => { if (forcePendulumMode) onToggleCardMode(); }}
+                                            className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-all ${
+                                                !forcePendulumMode
+                                                    ? 'bg-[var(--primary)] text-white shadow-md'
+                                                    : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]'
+                                            }`}
+                                        >
+                                            标准卡
+                                        </button>
+                                        <button
+                                            onClick={() => { if (!forcePendulumMode) onToggleCardMode(); }}
+                                            className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-all ${
+                                                forcePendulumMode
+                                                    ? 'bg-[var(--success)] text-white shadow-md'
+                                                    : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]'
+                                            }`}
+                                        >
+                                            灵摆卡
+                                        </button>
+                                    </div>
+                                </div>
                                 <p className="text-xs text-[var(--foreground-muted)] leading-relaxed">
-                                    在左侧画布上长按并拖动卡片边框可以微调识别区域
+                                    在左侧画布上长按并拖动卡片边框，可以微调识别区域
                                 </p>
                             </div>
                         )}
@@ -188,8 +230,8 @@ export default function Sidebar({
 
                                 {/* 卡片描述 */}
                                 <div className="panel p-4">
-                                    <p className="text-sm text-[var(--foreground)] leading-relaxed">
-                                        {selectedCardInfo.result[0].text.desc}
+                                    <p className="text-sm text-[var(--foreground)] leading-relaxed whitespace-pre-line">
+                                        {formatCardDesc(selectedCardInfo.result[0].text.desc || '')}
                                     </p>
                                 </div>
                             </div>

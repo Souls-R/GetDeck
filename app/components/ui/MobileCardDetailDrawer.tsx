@@ -14,6 +14,55 @@ interface MobileCardDetailDrawerProps {
     onSelectAltMatch: (matchIndex: number) => void;
 }
 
+// 解析卡片类型字符串
+// API格式: "[怪兽|效果] 鸟兽/风\n[★4] 100/600"
+function parseCardTypes(typesStr: string): string[] {
+    const badges: string[] = [];
+
+    // 提取主类型 [怪兽|效果]
+    const mainTypeMatch = typesStr.match(/\[([^\]]+)\]/);
+    if (mainTypeMatch) {
+        const mainType = mainTypeMatch[1];
+        // 排除星级
+        if (!mainType.startsWith('★') && !mainType.startsWith('☆')) {
+            badges.push(mainType.replace(/\|/g, '/'));
+        }
+    }
+
+    // 提取种族/属性（在第一个方括号后、换行前的部分）
+    const firstLine = typesStr.split('\n')[0];
+    const afterBracket = firstLine.replace(/\[[^\]]+\]\s*/, '').trim();
+    if (afterBracket) {
+        // 分割种族/属性，每个单独一个徽章
+        const subTypes = afterBracket.split('/').map(s => s.trim()).filter(s => s);
+        badges.push(...subTypes);
+    }
+
+    // 提取星级
+    const starMatch = typesStr.match(/\[(★\d+|☆\d+)\]/);
+    if (starMatch) {
+        badges.push(starMatch[1]);
+    }
+
+    // 提取 ATK/DEF（第二行的数值）
+    const secondLine = typesStr.split('\n')[1];
+    if (secondLine) {
+        const atkDefMatch = secondLine.match(/(\d+)\/(\d+)/);
+        if (atkDefMatch) {
+            badges.push(`${atkDefMatch[1]}/${atkDefMatch[2]}`);
+        }
+    }
+
+    return badges;
+}
+
+// 格式化卡片描述文字，在①②③等效果编号前添加换行
+function formatCardDesc(desc: string): string {
+    if (!desc) return '';
+    // 在①②③④⑤⑥⑦⑧⑨⑩前面添加换行（如果前面不是换行符）
+    return desc.replace(/([^\n])(①|②|③|④|⑤|⑥|⑦|⑧|⑨|⑩)(?=：|:)/g, '$1\n$2');
+}
+
 export default function MobileCardDetailDrawer({
     isOpen,
     onClose,
@@ -42,8 +91,8 @@ export default function MobileCardDetailDrawer({
                             </h2>
                             {selectedCardInfo?.result?.[0]?.text?.types && (
                                 <div className="flex flex-wrap gap-1.5">
-                                    {selectedCardInfo.result[0].text.types.split('/').map((type, i) => (
-                                        <span key={i} className="badge text-xs">{type.trim()}</span>
+                                    {parseCardTypes(selectedCardInfo.result[0].text.types).map((badge, i) => (
+                                        <span key={i} className="badge text-xs">{badge}</span>
                                     ))}
                                 </div>
                             )}
@@ -59,7 +108,8 @@ export default function MobileCardDetailDrawer({
                             title="识别源图像"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                             </svg>
                         </button>
                     </div>
@@ -86,7 +136,7 @@ export default function MobileCardDetailDrawer({
                                                 : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)]'
                                         }`}
                                     >
-                                        Standard
+                                        标准卡
                                     </button>
                                     <button
                                         onClick={() => { if (!forcePendulumMode) onToggleCardMode(); }}
@@ -96,7 +146,7 @@ export default function MobileCardDetailDrawer({
                                                 : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)]'
                                         }`}
                                     >
-                                        Pendulum
+                                        灵摆卡
                                     </button>
                                 </div>
                             </div>
@@ -132,9 +182,9 @@ export default function MobileCardDetailDrawer({
                                     )}
                                     {selectedCardInfo.result[0].text.def !== undefined && (
                                         <div className="flex-1 panel p-3 text-center">
-                                    <div className="text-xs text-[var(--foreground-muted)]">DEF</div>
+                                            <div className="text-xs text-[var(--foreground-muted)]">DEF</div>
                                             <div className="text-xl font-bold text-[var(--primary)]">
-                                           {selectedCardInfo.result[0].text.def}
+                                                {selectedCardInfo.result[0].text.def}
                                             </div>
                                         </div>
                                     )}
@@ -144,8 +194,8 @@ export default function MobileCardDetailDrawer({
                             {/* 卡片描述 */}
                             {selectedCardInfo.result[0].text.desc && (
                                 <div className="panel p-3">
-                                    <p className="text-sm text-[var(--foreground)] leading-relaxed">
-                                        {selectedCardInfo.result[0].text.desc}
+                                    <p className="text-sm text-[var(--foreground)] leading-relaxed whitespace-pre-line">
+                                        {formatCardDesc(selectedCardInfo.result[0].text.desc)}
                                     </p>
                                 </div>
                             )}
