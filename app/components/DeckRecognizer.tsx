@@ -2,17 +2,17 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import * as ort from 'onnxruntime-web';
+import Cropper from 'react-easy-crop';
 import { Box, CardHashEntry, Match, RecognizedCard, CardInfo } from '../types';
-import { PHash } from '../utils/phash';
 import { 
     preprocessImage, 
     postprocessYOLO, 
     sortBoxesByRow, 
     extractArtwork, 
-    findBestMatch,
     STANDARD_CARD,
     PENDULUM_CARD
 } from '../utils/recognition';
+import init, { Database, get_phash, get_phash_raw } from 'core-wasm';
 
 const MODEL_PATH = '/best.onnx';
 const HASH_DB_PATH = '/card_hash.json';
@@ -20,6 +20,15 @@ const HASH_DB_PATH = '/card_hash.json';
 // Global Cache (Module Scope) - Persists across re-renders/remounts within the session
 const globalCardInfoCache: Record<string, CardInfo> = {};
 const pendingRequests: Record<string, Promise<CardInfo>> = {};
+
+const loadImage = (file: File): Promise<HTMLImageElement> => {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = URL.createObjectURL(file);
+    });
+};
 
 interface ProcessingVisual {
     index: number;
@@ -32,6 +41,7 @@ export default function DeckRecognizer() {
     // Global & Session
     const [session, setSession] = useState<ort.InferenceSession | null>(null);
     const [hashDatabase, setHashDatabase] = useState<CardHashEntry[] | null>(null);
+    const [wasmDb, setWasmDb] = useState<Database | null>(null);
     const [isInitializing, setIsInitializing] = useState(true);
     const [statusText, setStatusText] = useState<string>('正在初始化模型...');
 
@@ -40,6 +50,12 @@ export default function DeckRecognizer() {
     const [processingStage, setProcessingStage] = useState<'idle' | 'detecting' | 'identifying' | 'done'>('idle');
     const [progress, setProgress] = useState<number>(0);
     const [processingVisual, setProcessingVisual] = useState<ProcessingVisual | null>(null);
+
+    // Cropping
+    const [showCropper, setShowCropper] = useState(false);
+    const [crop, setCrop] = useState({ x: 0, y: 0 });
+    const [zoom, setZoom] = useState(1);
+    const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
 
     // Results
     const [recognizedCards, setRecognizedCards] = useState<RecognizedCard[]>([]);
@@ -69,10 +85,15 @@ export default function DeckRecognizer() {
 
     // ---------------- Initialization ----------------
     useEffect(() => {
-        async function init() {
+        async function initialize() {
             try {
+                // Initialize WASM
+                await init();
+
                 ort.env.wasm.wasmPaths = "/"; 
                 ort.env.wasm.numThreads = 1;
+                
+                const db = new Database();
                 
                 const [sessionResult, dbResult] = await Promise.all([
                     ort.InferenceSession.create(MODEL_PATH, {
@@ -85,8 +106,12 @@ export default function DeckRecognizer() {
                     })
                 ]);
 
+                // Load database into Wasm
+                db.load_database(JSON.stringify(dbResult));
+
                 setSession(sessionResult);
                 setHashDatabase(dbResult);
+                setWasmDb(db);
                 setIsInitializing(false);
                 setStatusText("就绪");
             } catch (error: any) {
@@ -94,13 +119,13 @@ export default function DeckRecognizer() {
                 console.error(error);
             }
         }
-        init();
+        initialize();
     }, []);
 
     // ---------------- Event Handlers ----------------
 
     const handleFile = useCallback(async (file: File) => {
-        if (!session || !hashDatabase) return;
+        if (!session || !hashDatabase || !wasmDb) return;
         setRecognizedCards([]);
         setSelectedCardIndex(-1);
         setSelectedCardInfo(null);
@@ -140,7 +165,7 @@ export default function DeckRecognizer() {
     // ---------------- Processing Pipeline ----------------
 
     const processImagePipeline = async (img: HTMLImageElement) => {
-        if (!session || !hashDatabase) return;
+        if (!session || !hashDatabase || !wasmDb) return;
 
         try {
             setProcessingStage('detecting');
@@ -178,11 +203,9 @@ export default function DeckRecognizer() {
             ctx.canvas.height = img.height;
             ctx.drawImage(img, 0, 0);
 
-            const phash = new PHash(16);
-
             // Process Loop with Local Accumulator
             const finalResults: RecognizedCard[] = [...initialCards];
-            const CHUNK_SIZE = 3; 
+            const BATCH_SIZE = 10; 
             for (let i = 0; i < sortedBoxes.length; i++) {
                 const box = sortedBoxes[i];
                 const artworkStandard = extractArtwork(ctx, box, STANDARD_CARD);
@@ -192,33 +215,45 @@ export default function DeckRecognizer() {
                 const tempCanvas = document.createElement('canvas');
                 tempCanvas.width = artworkStandard.width;
                 tempCanvas.height = artworkStandard.height;
-                tempCanvas.getContext('2d')!.putImageData(artworkStandard, 0, 0);
-                const artworkUrl = tempCanvas.toDataURL();
+                const tempCtx = tempCanvas.getContext('2d')!;
+                tempCtx.putImageData(artworkStandard, 0, 0);
+                const artworkUrl = tempCanvas.toDataURL('image/jpeg', 0.7); // Use jpeg for faster string conversion
 
-                const hashStandard = phash.compute(artworkStandard);
-                const hashPendulum = phash.compute(artworkPendulum);
-                const matchResult = findBestMatch(hashStandard, hashPendulum, hashDatabase);
+                // Direct Raw Pixel Hash (Fast)
+                const hashStandard = get_phash_raw(new Uint8Array(artworkStandard.data.buffer), artworkStandard.width, artworkStandard.height);
+                const hashPendulum = get_phash_raw(new Uint8Array(artworkPendulum.data.buffer), artworkPendulum.width, artworkPendulum.height);
+
+                const matchesStandard = wasmDb.find_best_match(hashStandard, 'standard');
+                const matchesPendulum = wasmDb.find_best_match(hashPendulum, 'pendulum');
+                const allMatches = [...matchesStandard, ...matchesPendulum].sort((a: any, b: any) => a.distance - b.distance);
+                const matches = allMatches.slice(0, 3).map((m: any) => ({
+                    id: m.id,
+                    name: m.name,
+                    distance: m.distance,
+                    cardType: m.cardType,
+                    dbHash: m.dbHash
+                }));
 
                 setProcessingVisual({
                     index: i + 1,
                     artworkUrl,
-                    currentMatchName: matchResult.matches[0]?.name || '...'
+                    currentMatchName: matches[0]?.name || '...'
                 });
 
                 // Update local accumulator
                 finalResults[i] = {
                     ...finalResults[i],
-                    matches: matchResult.matches,
+                    matches,
                     hashStandard,
                     hashPendulum
                 };
 
-                // Update State (UI)
-                setRecognizedCards([...finalResults]);
-
                 setProgress(Math.round(((i + 1) / sortedBoxes.length) * 100));
 
-                if (i % CHUNK_SIZE === 0) {
+                // Batch update state to reduce re-renders
+                if ((i + 1) % BATCH_SIZE === 0 || i === sortedBoxes.length - 1) {
+                    setRecognizedCards([...finalResults]);
+                    // Yield to main thread for UI update
                     await new Promise(resolve => setTimeout(resolve, 0));
                 }
             }
@@ -254,13 +289,60 @@ export default function DeckRecognizer() {
         }
     };
 
-    const loadImage = (file: File): Promise<HTMLImageElement> => {
+    const getCroppedImg = (imageSrc: string, pixelCrop: any): Promise<HTMLImageElement> => {
         return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.onload = () => resolve(img);
-            img.onerror = reject;
-            img.src = URL.createObjectURL(file);
+            const image = new Image();
+            image.src = imageSrc;
+            image.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = pixelCrop.width;
+                canvas.height = pixelCrop.height;
+                ctx?.drawImage(
+                    image,
+                    pixelCrop.x,
+                    pixelCrop.y,
+                    pixelCrop.width,
+                    pixelCrop.height,
+                    0,
+                    0,
+                    pixelCrop.width,
+                    pixelCrop.height
+                );
+                canvas.toBlob(blob => {
+                    if (!blob) {
+                        reject(new Error('Failed to create blob from canvas'));
+                        return;
+                    }
+                    const croppedImage = new Image();
+                    croppedImage.src = URL.createObjectURL(blob);
+                    croppedImage.onload = () => resolve(croppedImage);
+                });
+            };
+            image.onerror = reject;
         });
+    };
+
+    const applyCrop = async () => {
+        if (!originalImage || !croppedAreaPixels) return;
+        try {
+            const croppedImage = await getCroppedImg(originalImage.src, croppedAreaPixels);
+            setOriginalImage(croppedImage);
+            setShowCropper(false);
+            // Reset states and reprocess
+            setRecognizedCards([]);
+            setSelectedCardIndex(-1);
+            setSelectedCardInfo(null);
+            setSelectedCardArtwork(null);
+            setProcessingStage('idle');
+            setProgress(0);
+            setProcessingVisual(null);
+            setForcePendulumMode(false);
+            setIsSourcePanelExpanded(false);
+            processImagePipeline(croppedImage);
+        } catch (error: any) {
+            setStatusText(`裁剪失败: ${error.message}`);
+        }
     };
 
 
@@ -293,6 +375,12 @@ export default function DeckRecognizer() {
         const ctx = canvas.getContext('2d')!;
         ctx.drawImage(originalImage, 0, 0);
 
+        // Skip drawing boxes during intensive identification if desired, 
+        // but batching setRecognizedCards already helps a lot.
+        if (processingStage === 'identifying') {
+            // Optional: Draw something simpler or nothing
+        }
+
         recognizedCards.forEach((card, i) => {
             const { box } = card;
             const isSelected = i === selectedCardIndex;
@@ -317,7 +405,7 @@ export default function DeckRecognizer() {
             ctx.stroke();
             if (isSelected || isIdentified) ctx.fill();
         });
-    }, [originalImage, recognizedCards, selectedCardIndex, dragState.isDragging]);
+    }, [originalImage, recognizedCards, selectedCardIndex, dragState.isDragging, processingStage]);
 
     useEffect(() => {
         drawCanvas();
@@ -515,30 +603,36 @@ export default function DeckRecognizer() {
     };
 
     const reprocessCard = async (index: number) => {
-        if (!originalImage || !hashDatabase) return;
+        if (!originalImage || !hashDatabase || !wasmDb) return;
         const card = recognizedCards[index];
         
-        const canvas = document.createElement('canvas');
-        canvas.width = originalImage.width;
-        canvas.height = originalImage.height;
-        const ctx = canvas.getContext('2d')!;
-        ctx.drawImage(originalImage, 0, 0);
+        const canvas = document.createElement('canvas').getContext('2d', { willReadFrequently: true })!;
+        canvas.canvas.width = originalImage.width;
+        canvas.canvas.height = originalImage.height;
+        canvas.drawImage(originalImage, 0, 0);
 
-        // Ensure phash is instantiated here
-        const phash = new PHash(16);
-        
-        const artworkStandard = extractArtwork(ctx, card.box, STANDARD_CARD);
-        const artworkPendulum = extractArtwork(ctx, card.box, PENDULUM_CARD);
-        const hashStandard = phash.compute(artworkStandard);
-        const hashPendulum = phash.compute(artworkPendulum);
+        const artworkStandard = extractArtwork(canvas, card.box, STANDARD_CARD);
+        const artworkPendulum = extractArtwork(canvas, card.box, PENDULUM_CARD);
 
-        const matchResult = findBestMatch(hashStandard, hashPendulum, hashDatabase);
+        const hashStandard = get_phash_raw(new Uint8Array(artworkStandard.data.buffer), artworkStandard.width, artworkStandard.height);
+        const hashPendulum = get_phash_raw(new Uint8Array(artworkPendulum.data.buffer), artworkPendulum.width, artworkPendulum.height);
+
+        const matchesStandard = wasmDb.find_best_match(hashStandard, 'standard');
+        const matchesPendulum = wasmDb.find_best_match(hashPendulum, 'pendulum');
+        const allMatches = [...matchesStandard, ...matchesPendulum].sort((a: any, b: any) => a.distance - b.distance);
+        const matches = allMatches.slice(0, 3).map((m: any) => ({
+            id: m.id,
+            name: m.name,
+            distance: m.distance,
+            cardType: m.cardType,
+            dbHash: m.dbHash
+        }));
 
         setRecognizedCards(prev => {
             const next = [...prev];
             next[index] = {
                 ...next[index],
-                matches: matchResult.matches,
+                matches,
                 selectedMatchIndex: 0,
                 hashStandard,
                 hashPendulum
@@ -548,9 +642,9 @@ export default function DeckRecognizer() {
         
         updateArtworkPreview(index, forcePendulumMode);
         
-        if (matchResult.matches.length > 0) {
-            latestRequestedNameRef.current = matchResult.matches[0].name;
-            await fetchCardInfo(matchResult.matches[0].name, true);
+        if (matches.length > 0) {
+            latestRequestedNameRef.current = matches[0].name;
+            await fetchCardInfo(matches[0].name, true);
         }
     };
 
@@ -680,14 +774,24 @@ export default function DeckRecognizer() {
                     )}
 
                     {originalImage && (
-                        <button 
-                            onClick={() => fileInputRef.current?.click()}
-                            disabled={isInitializing || processingStage === 'detecting' || processingStage === 'identifying'}
-                            className="p-2 rounded-full hover:bg-gray-800 text-gray-400 hover:text-white transition-colors"
-                            title="打开新文件"
-                        >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-                        </button>
+                        <>
+                            <button 
+                                onClick={() => setShowCropper(true)}
+                                disabled={isInitializing || processingStage === 'detecting' || processingStage === 'identifying'}
+                                className="p-2 rounded-full hover:bg-gray-800 text-gray-400 hover:text-white transition-colors"
+                                title="裁剪图片"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                            </button>
+                            <button 
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={isInitializing || processingStage === 'detecting' || processingStage === 'identifying'}
+                                className="p-2 rounded-full hover:bg-gray-800 text-gray-400 hover:text-white transition-colors"
+                                title="打开新文件"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                            </button>
+                        </>
                     )}
                     <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={(e) => { const file = e.target.files?.[0]; if (file) handleFile(file); }} />
                 </div>
@@ -696,12 +800,43 @@ export default function DeckRecognizer() {
             {/* Main Body */}
             <div className="flex flex-1 overflow-hidden relative">
                 
+                {/* Cropper Overlay */}
+                {showCropper && originalImage && (
+                    <div className="absolute inset-0 z-30 bg-black flex flex-col">
+                        <div className="flex-1 relative">
+                            <Cropper
+                                image={originalImage.src}
+                                crop={crop}
+                                zoom={zoom}
+                                onCropChange={setCrop}
+                                onZoomChange={setZoom}
+                                onCropAreaChange={(croppedArea, croppedAreaPixels) => setCroppedAreaPixels(croppedAreaPixels)}
+                            />
+                        </div>
+                        <div className="p-4 bg-gray-900 flex justify-between items-center">
+                            <button 
+                                onClick={() => setShowCropper(false)} 
+                                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded transition-colors"
+                            >
+                                取消
+                            </button>
+                            <div className="text-sm text-gray-400">
+                                调整裁剪区域到合适的卡组尺寸
+                            </div>
+                            <button 
+                                onClick={applyCrop} 
+                                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded transition-colors"
+                            >
+                                应用裁剪
+                            </button>
+                        </div>
+                    </div>
+                )}
+
                 {/* Empty State */}
                 {!originalImage && (
                     <div 
                         className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black"
-                        onDragOver={(e) => e.preventDefault()}
-                        onDrop={(e) => { e.preventDefault(); const file = e.dataTransfer.files[0]; if (file) handleFile(file); }}
                     >
                         <div className="p-12 border border-gray-800 bg-gray-900/50 rounded-2xl flex flex-col items-center gap-6 text-gray-400 shadow-2xl">
                              {isInitializing ? (

@@ -1,6 +1,5 @@
 import * as ort from 'onnxruntime-web';
 import { Box, CardHashEntry, Match, RecognizedCard } from '../types';
-import { PHash } from './phash';
 
 export const INPUT_SIZE = 1280;
 export const CONF_THRESHOLD = 0.7;
@@ -140,28 +139,4 @@ export function extractArtwork(ctx: CanvasRenderingContext2D, box: Box, cardType
     const height = Math.round(bottom - top);
 
     return ctx.getImageData(Math.round(left), Math.round(top), width, height);
-}
-
-export function findBestMatch(hashStandard: string, hashPendulum: string, hashDatabase: CardHashEntry[]): { matches: Match[]; hashStandard: string; hashPendulum: string } {
-    const matches: Match[] = [];
-
-    for (const card of hashDatabase) {
-        const hash = card.card_type === 'standard' ? hashStandard : hashPendulum;
-        const dist = PHash.hammingDistance(hash, card.phash);
-
-        matches.push({
-            id: card.id,
-            name: card.name,
-            distance: dist,
-            cardType: card.card_type,
-            dbHash: card.phash
-        });
-    }
-
-    matches.sort((a, b) => a.distance - b.distance);
-    return {
-        matches: matches.slice(0, 3),
-        hashStandard,
-        hashPendulum
-    };
 }
