@@ -68,7 +68,6 @@ export default function CropperModal({ imageSrc, onApply, onCancel }: CropperMod
         const fitScale = calculateFitScale(imgNaturalWidth, imgNaturalHeight, containerWidth, containerHeight);
         setMinScale(fitScale * 0.5);
         setScale(fitScale);
-
         // 计算显示尺寸
         const display = calculateDisplaySize(imgNaturalWidth, imgNaturalHeight, fitScale);
         setDisplaySize(display);
@@ -216,64 +215,62 @@ export default function CropperModal({ imageSrc, onApply, onCancel }: CropperMod
 
     return (
         <div
-            className="fixed inset-0 z-30 flex items-center justify-center animate-scale-in"
+            className="fixed inset-0 z-30 flex flex-col animate-scale-in bg-black/90"
             onKeyDown={handleKeyDown}
             tabIndex={-1}
         >
-            <div className="absolute inset-0 bg-black/70" onClick={onCancel} />
-
-            <div className="relative w-[95%] max-w-4xl h-[85%] panel panel-elevated flex flex-col overflow-hidden" style={{ maxHeight: 'calc(100vh - 40px)' }}>
-                {/* 顶部信息栏 */}
-                <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--card-border)] bg-[var(--card-bg)]">
-                    <h3 className="text-sm font-medium text-[var(--foreground)]">裁剪图片</h3>
-                    <div className="text-xs text-[var(--foreground-muted)]">
-                        {cropPixels && <span>{cropPixels.width} × {cropPixels.height}</span>}
-                        <span className="mx-2">·</span>
-                        <span>缩放 {Math.round(scale * 100)}%</span>
-                    </div>
-                </div>
-
-                {/* 裁剪区域 */}
-                <div
-                    ref={containerRef}
-                    className="flex-1 flex items-center justify-center bg-neutral-900 overflow-auto touch-none"
+            {/* 顶部栏 */}
+            <div className="flex items-center justify-between px-4 py-3 bg-black/50">
+                <button
+                    onClick={onCancel}
+                    className="flex items-center gap-2 text-white/70 hover:text-white active:text-white transition-colors py-2 px-3 -ml-3"
                 >
-                    <ReactCrop
-                        crop={crop}
-                        onChange={(c) => setCrop(c)}
-                    >
-                        <img
-                            ref={imgRef}
-                            src={imageSrc}
-                            onLoad={onImageLoad}
-                            style={{
-                                width: displaySize.width || 'auto',
-                                height: displaySize.height || 'auto',
-                                maxWidth: 'none',
-                                maxHeight: 'none'
-                            }}
-                            alt="Crop"
-                            draggable={false}
-                        />
-                    </ReactCrop>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    <span className="text-sm">取消</span>
+                </button>
+                <div className="text-xs text-white/50">
+                    {cropPixels && <span>{cropPixels.width} × {cropPixels.height}</span>}
+                    <span className="mx-2">·</span>
+                    <span>{Math.round(scale * 100)}%</span>
                 </div>
+            </div>
 
-                {/* 底部操作栏 */}
-                <div className="flex items-center justify-center gap-2 px-4 py-3 border-t border-[var(--card-border)] bg-[var(--card-bg)]">
-                    <button
-                        onClick={onCancel}
-                        className="px-4 py-2 rounded-lg bg-[var(--background-secondary)] hover:bg-[var(--card-border)] text-[var(--foreground)] text-sm font-medium transition-colors"
-                    >
-                        取消
-                    </button>
-                    <button
-                        onClick={handleApply}
-                        disabled={!crop}
-                        className="px-4 py-2 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-sm font-medium transition-colors disabled:opacity-50"
-                    >
-                        应用裁剪
-                    </button>
-                </div>
+            {/* 裁剪区域 */}
+            <div
+                ref={containerRef}
+                className="flex-1 flex items-center justify-center overflow-auto touch-none"
+            >
+                <ReactCrop
+                    crop={crop}
+                    onChange={(c) => setCrop(c)}
+                >
+                    <img
+                        ref={imgRef}
+                        src={imageSrc}
+                        onLoad={onImageLoad}
+                        style={{
+                            width: displaySize.width || 'auto',
+                            height: displaySize.height || 'auto',
+                            maxWidth: 'none',
+                            maxHeight: 'none'
+                        }}
+                        alt="Crop"
+                        draggable={false}
+                    />
+                </ReactCrop>
+            </div>
+
+            {/* 底部确认按钮 */}
+            <div className="p-4 pb-6 bg-gradient-to-t from-black/80 to-transparent">
+                <button
+                    onClick={handleApply}
+                    disabled={!crop}
+                    className="w-full py-4 rounded-2xl bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] text-white text-base font-semibold transition-all disabled:opacity-50 shadow-lg"
+                >
+                    确认裁剪
+                </button>
             </div>
         </div>
     );

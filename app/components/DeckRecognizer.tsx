@@ -28,11 +28,11 @@ const loadImage = (file: File): Promise<HTMLImageElement> => {
 const shouldAutoCrop = (img: HTMLImageElement, isMobile: boolean): boolean => {
     const aspectRatio = img.width / img.height;
     // 移动端：始终需要裁剪
-    // 电脑端：宽高比超过1.5时需要裁剪
+    // 电脑端：宽高比超过1.16时需要裁剪
     if (isMobile) {
         return true;
     }
-    return aspectRatio > 1.5;
+    return aspectRatio > 1.16;
 };
 
 export default function DeckRecognizer() {
