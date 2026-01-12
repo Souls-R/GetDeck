@@ -234,6 +234,57 @@ export default function DeckRecognizer() {
         handleSelectAltMatch(matchIndex);
     }, [selectedCardIndex, recognizedCards, handleSelectAltMatch, updateArtworkPreview]);
 
+    const handleMoveCardBox = useCallback((direction: 'up' | 'down' | 'left' | 'right') => {
+        if (selectedCardIndex === -1 || !recognizedCards[selectedCardIndex]) return;
+
+        const card = recognizedCards[selectedCardIndex];
+        const { box } = card;
+        const step = 1;
+
+        let newBox = { ...box };
+        switch (direction) {
+            case 'up':
+                newBox.y1 -= step;
+                newBox.y2 -= step;
+                break;
+            case 'down':
+                newBox.y1 += step;
+                newBox.y2 += step;
+                break;
+            case 'left':
+                newBox.x1 -= step;
+                newBox.x2 -= step;
+                break;
+            case 'right':
+                newBox.x1 += step;
+                newBox.x2 += step;
+                break;
+        }
+
+        // 先更新 box，然后基于新 box 更新预览和重新识别
+        updateCardBox(selectedCardIndex, newBox);
+
+        // 直接使用新 box 更新预览
+        if (originalImage) {
+            const canvas = document.createElement('canvas');
+            canvas.width = originalImage.width;
+            canvas.height = originalImage.height;
+            const ctx = canvas.getContext('2d')!;
+            ctx.drawImage(originalImage, 0, 0);
+
+            const cropConfig = forcePendulumMode ? PENDULUM_CARD : STANDARD_CARD;
+            const artworkData = extractArtwork(ctx, newBox, cropConfig);
+
+            const artworkCanvas = document.createElement('canvas');
+            artworkCanvas.width = artworkData.width;
+            artworkCanvas.height = artworkData.height;
+            artworkCanvas.getContext('2d')!.putImageData(artworkData, 0, 0);
+            setSelectedCardArtwork(artworkCanvas.toDataURL());
+        }
+
+        reprocessCard(selectedCardIndex, forcePendulumMode);
+    }, [selectedCardIndex, recognizedCards, updateCardBox, originalImage, forcePendulumMode, reprocessCard]);
+
     const getCroppedImg = (imageSrc: string, pixelCrop: any): Promise<HTMLImageElement> => {
         return new Promise((resolve, reject) => {
             const image = new Image();
@@ -377,6 +428,7 @@ export default function DeckRecognizer() {
                         onToggleCardMode={toggleCardMode}
                         onSelectAltMatch={handleAltMatchSelect}
                         onSelectCard={handleCardSelect}
+                        onMoveCardBox={handleMoveCardBox}
                     />
                 )}
 
@@ -405,6 +457,7 @@ export default function DeckRecognizer() {
                             forcePendulumMode={forcePendulumMode}
                             onToggleCardMode={toggleCardMode}
                             onSelectAltMatch={handleAltMatchSelect}
+                            onMoveCardBox={handleMoveCardBox}
                         />
                     </>
                 )}

@@ -12,6 +12,7 @@ interface MobileCardDetailDrawerProps {
     forcePendulumMode: boolean;
     onToggleCardMode: () => void;
     onSelectAltMatch: (matchIndex: number) => void;
+    onMoveCardBox: (direction: 'up' | 'down' | 'left' | 'right') => void;
 }
 
 // 解析卡片类型字符串
@@ -80,7 +81,8 @@ export default function MobileCardDetailDrawer({
     selectedCardArtwork,
     forcePendulumMode,
     onToggleCardMode,
-    onSelectAltMatch
+    onSelectAltMatch,
+    onMoveCardBox
 }: MobileCardDetailDrawerProps) {
     const [showSourcePanel, setShowSourcePanel] = useState(false);
     const currentMatch = selectedCard?.matches?.[selectedCard.selectedMatchIndex];
@@ -125,35 +127,74 @@ export default function MobileCardDetailDrawer({
                         <div className="mt-3 pt-3 border-t border-[var(--card-border)] animate-slide-up">
                             <div className="flex items-center gap-3">
                                 {/* 预览图 */}
-                                <div className="w-16 h-16 rounded-lg bg-[var(--background-secondary)] border border-[var(--card-border)] flex items-center justify-center overflow-hidden shrink-0">
+                                <div className="w-14 h-14 rounded-lg bg-[var(--background-secondary)] border border-[var(--card-border)] flex items-center justify-center overflow-hidden shrink-0">
                                     {selectedCardArtwork ? (
-                                        <img src={selectedCardArtwork} className="w-full h-full object-contain" alt="source crop" />
+                                        <img src={selectedCardArtwork} className="w-full h-full object-contain" alt="source crop" draggable={false} />
                                     ) : (
                                         <span className="text-xs text-[var(--foreground-muted)]">无</span>
                                     )}
                                 </div>
                                 {/* 模式切换 */}
-                                <div className="flex items-center gap-2">
+                                <div className="flex flex-col gap-1.5">
+                                    <div className="flex items-center gap-1.5">
+                                        <button
+                                            onClick={() => { if (forcePendulumMode) onToggleCardMode(); }}
+                                            className={`px-2.5 py-1 text-xs rounded-lg font-medium transition-all ${
+                                                !forcePendulumMode
+                                                    ? 'bg-[var(--primary)] text-white shadow-md'
+                                                    : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)]'
+                                            }`}
+                                        >
+                                            标准
+                                        </button>
+                                        <button
+                                            onClick={() => { if (!forcePendulumMode) onToggleCardMode(); }}
+                                            className={`px-2.5 py-1 text-xs rounded-lg font-medium transition-all ${
+                                                forcePendulumMode
+                                                    ? 'bg-[var(--success)] text-white shadow-md'
+                                             : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)]'
+                                            }`}
+                                        >
+                                            灵摆
+                                        </button>
+                                    </div>
+                                    <span className="text-[10px] text-[var(--foreground-muted)]">点击方向键微调选区</span>
+                                </div>
+                                {/* 四向微调按钮 */}
+                                <div className="relative w-16 h-16 shrink-0 ml-auto">
                                     <button
-                                        onClick={() => { if (forcePendulumMode) onToggleCardMode(); }}
-                                        className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-all ${
-                                            !forcePendulumMode
-                                                ? 'bg-[var(--primary)] text-white shadow-md'
-                                                : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)]'
-                                        }`}
+                                        onClick={() => onMoveCardBox('up')}
+                                        className="absolute top-0 left-1/2 -translate-x-1/2 w-7 h-7 rounded-lg bg-[var(--background-secondary)] active:bg-[var(--primary)] active:text-white text-[var(--foreground-muted)] transition-colors flex items-center justify-center"
                                     >
-                                        标准卡
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                        </svg>
                                     </button>
                                     <button
-                                        onClick={() => { if (!forcePendulumMode) onToggleCardMode(); }}
-                                        className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-all ${
-                                            forcePendulumMode
-                                                ? 'bg-[var(--success)] text-white shadow-md'
-                                                : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)]'
-                                        }`}
+                                        onClick={() => onMoveCardBox('down')}
+                                        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-7 h-7 rounded-lg bg-[var(--background-secondary)] active:bg-[var(--primary)] active:text-white text-[var(--foreground-muted)] transition-colors flex items-center justify-center"
                                     >
-                                        灵摆卡
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                        </svg>
                                     </button>
+                                    <button
+                                        onClick={() => onMoveCardBox('left')}
+                                        className="absolute left-0 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg bg-[var(--background-secondary)] active:bg-[var(--primary)] active:text-white text-[var(--foreground-muted)] transition-colors flex items-center justify-center"
+                                    >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                        </svg>
+                                    </button>
+                                    <button
+                                        onClick={() => onMoveCardBox('right')}
+                                        className="absolute right-0 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg bg-[var(--background-secondary)] active:bg-[var(--primary)] active:text-white text-[var(--foreground-muted)] transition-colors flex items-center justify-center"
+                                    >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </button>
+                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-[var(--foreground-muted)]/30" />
                                 </div>
                             </div>
                         </div>

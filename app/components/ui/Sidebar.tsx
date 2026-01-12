@@ -14,6 +14,7 @@ interface SidebarProps {
     onToggleCardMode: () => void;
     onSelectAltMatch: (matchIndex: number) => void;
     onSelectCard: (index: number) => void;
+    onMoveCardBox: (direction: 'up' | 'down' | 'left' | 'right') => void;
 }
 
 // 解析卡片类型字符串
@@ -84,7 +85,8 @@ export default function Sidebar({
     forcePendulumMode,
     onToggleCardMode,
     onSelectAltMatch,
-    onSelectCard
+    onSelectCard,
+    onMoveCardBox
 }: SidebarProps) {
     const [isSourcePanelExpanded, setIsSourcePanelExpanded] = useState(false);
 
@@ -165,7 +167,7 @@ export default function Sidebar({
                                     {/* 预览图 */}
                                     <div className="w-16 h-16 rounded-lg bg-[var(--background-secondary)] border border-[var(--card-border)] flex items-center justify-center overflow-hidden shrink-0">
                                         {selectedCardArtwork ? (
-                                            <img src={selectedCardArtwork} className="w-full h-full object-contain" alt="source crop" />
+                                            <img src={selectedCardArtwork} className="w-full h-full object-contain" alt="source crop" draggable={false} />
                                         ) : (
                                             <span className="text-xs text-[var(--foreground-muted)]">无</span>
                                         )}
@@ -183,7 +185,7 @@ export default function Sidebar({
                                             标准卡
                                         </button>
                                         <button
-                                            onClick={() => { if (!forcePendulumMode) onToggleCardMode(); }}
+                                onClick={() => { if (!forcePendulumMode) onToggleCardMode(); }}
                                             className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-all ${
                                                 forcePendulumMode
                                                     ? 'bg-[var(--success)] text-white shadow-md'
@@ -193,9 +195,50 @@ export default function Sidebar({
                                             灵摆卡
                                         </button>
                                     </div>
-                                </div>
+                                    {/* 四向微调按钮 */}
+                                    <div className="relative w-16 h-16 shrink-0">
+                                        <button
+                                            onClick={() => onMoveCardBox('up')}
+                                            className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-6 rounded-md bg-[var(--background-secondary)] hover:bg-[var(--primary)] hover:text-white text-[var(--foreground-muted)] transition-colors flex items-center justify-center"
+                                            title="上移选区"
+                                        >
+                                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                            </svg>
+                                        </button>
+                                        <button
+                                            onClick={() => onMoveCardBox('down')}
+                                            className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-6 rounded-md bg-[var(--background-secondary)] hover:bg-[var(--primary)] hover:text-white text-[var(--foreground-muted)] transition-colors flex items-center justify-center"
+                                            title="下移选区"
+                                        >
+                                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </button>
+                                        <button
+                                            onClick={() => onMoveCardBox('left')}
+                                            className="absolute left-0 top-1/2 -translate-y-1/2 w-6 h-6 rounded-md bg-[var(--background-secondary)] hover:bg-[var(--primary)] hover:text-white text-[var(--foreground-muted)] transition-colors flex items-center justify-center"
+                                            title="左移选区"
+                                        >
+                                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                            </svg>
+                                        </button>
+                                        <button
+                                            onClick={() => onMoveCardBox('right')}
+                                            className="absolute right-0 top-1/2 -translate-y-1/2 w-6 h-6 rounded-md bg-[var(--background-secondary)] hover:bg-[var(--primary)] hover:text-white text-[var(--foreground-muted)] transition-colors flex items-center justify-center"
+                                            title="右移选区"
+                                        >
+                                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        </button>
+                                        {/* 中心点 */}
+                                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[var(--foreground-muted)]/30" />
+                                    </div>
+                              </div>
                                 <p className="text-xs text-[var(--foreground-muted)] leading-relaxed">
-                                    在左侧画布上长按并拖动卡片边框，可以微调识别区域
+                                    使用方向键微调选区位置，或在画布上长按拖动卡片边框
                                 </p>
                             </div>
                         )}

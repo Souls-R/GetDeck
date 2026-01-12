@@ -21,6 +21,7 @@ interface UseCanvasInteractionProps {
     recognizedCards: RecognizedCard[];
     selectedCardIndex: number;
     forcePendulumMode: boolean;
+    isMobile?: boolean;
     onSelectCard: (index: number) => void;
     onUpdateCardBox: (index: number, box: Box) => void;
     onReprocessCard: (index: number) => void;
