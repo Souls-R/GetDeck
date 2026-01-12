@@ -297,7 +297,7 @@ export default function DeckRecognizer() {
     const selectedCard = selectedCardIndex !== -1 ? recognizedCards[selectedCardIndex] : null;
 
     return (
-        <div className="flex flex-col h-screen bg-[var(--background)] text-[var(--foreground)] overflow-hidden">
+        <div className="flex flex-col h-dvh bg-[var(--background)] text-[var(--foreground)] overflow-hidden">
             {/* 全局拖拽覆盖层 */}
             {isDragOver && (
                 <div className="fixed inset-0 z-50 bg-[var(--primary)]/10 backdrop-blur-sm flex items-center justify-center pointer-events-none animate-fade-in">
@@ -316,7 +316,7 @@ export default function DeckRecognizer() {
                 statusText={statusText}
                 progress={progress}
                 processingStage={processingStage}
-                show={!isMobile && processingStage !== 'idle'}
+                show={processingStage !== 'idle'}
             />
 
             <div className={`flex flex-1 overflow-hidden relative ${isMobile ? 'flex-col' : ''}`}>

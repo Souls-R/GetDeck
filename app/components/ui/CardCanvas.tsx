@@ -117,6 +117,7 @@ export default function CardCanvas({
         <div
             ref={containerRef}
             className="flex-1 relative overflow-hidden flex items-center justify-center p-2 sm:p-6 bg-[var(--background-secondary)]"
+            style={{ paddingBottom: 'max(4rem, 15%)' }}
         >
             {/* Canvas面板 */}
             <div className={`panel panel-elevated overflow-hidden transition-all duration-300 ${isDragging ? 'scale-[1.005]' : ''}`}>

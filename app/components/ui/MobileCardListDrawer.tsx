@@ -46,7 +46,7 @@ export default function MobileCardListDrawer({
     };
 
     return (
-        <BottomDrawer isOpen={isOpen} onClose={onClose} maxHeight="70vh">
+        <BottomDrawer isOpen={isOpen} onClose={onClose} maxHeight="92vh">
             {/* 处理中状态 */}
             {processingStage === 'identifying' && (
                 <div className="flex flex-col items-center justify-center p-8 text-center">
