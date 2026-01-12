@@ -1,0 +1,431 @@
+import { useState, useEffect, useCallback, useRef } from 'react';
+import * as ort from 'onnxruntime-web';
+import init, { Database, get_phash_raw } from 'core-wasm';
+import { Box, CardHashEntry, RecognizedCard, CardInfo, Match } from '../types';
+import {
+    preprocessImage,
+    postprocessYOLO,
+    sortBoxesByRow,
+    extractArtwork,
+    STANDARD_CARD,
+    PENDULUM_CARD
+} from '../utils/recognition';
+
+const MODEL_PATH = '/best.onnx';
+const HASH_DB_PATH = '/card_hash.json';
+
+// 全局缓存（模块作用域）
+const globalCardInfoCache: Record<string, CardInfo> = {};
+const pendingRequests: Record<string, Promise<CardInfo>> = {};
+
+export type ProcessingStage = 'idle' | 'detecting' | 'identifying' | 'done';
+
+export interface ProcessingVisual {
+    index: number;
+    artworkUrl: string;
+    currentMatchName: string;
+}
+
+export interface UseRecognitionReturn {
+    // 状态
+    isInitializing: boolean;
+    statusText: string;
+    processingStage: ProcessingStage;
+    progress: number;
+    processingVisual: ProcessingVisual | null;
+    recognizedCards: RecognizedCard[];
+    selectedCardIndex: number;
+    selectedCardInfo: CardInfo | null;
+    isDetailLoading: boolean;
+    originalImage: HTMLImageElement | null;
+
+    // WASM相关
+    session: ort.InferenceSession | null;
+    wasmDb: Database | null;
+
+    // 方法
+    processImage: (img: HTMLImageElement) => Promise<void>;
+    selectCard: (index: number) => Promise<void>;
+    reprocessCard: (index: number, forcePendulum?: boolean) => Promise<void>;
+    handleSelectAltMatch: (matchIndex: number) => void;
+    updateCardBox: (index: number, box: Box) => void;
+    setOriginalImage: (img: HTMLImageElement | null) => void;
+    setSelectedCardIndex: (index: number) => void;
+    setRecognizedCards: React.Dispatch<React.SetStateAction<RecognizedCard[]>>;
+    resetState: () => void;
+}
+
+export function useRecognition(): UseRecognitionReturn {
+    // 会话状态
+    const [session, setSession] = useState<ort.InferenceSession | null>(null);
+    const [hashDatabase, setHashDatabase] = useState<CardHashEntry[] | null>(null);
+    const [wasmDb, setWasmDb] = useState<Database | null>(null);
+    const [isInitializing, setIsInitializing] = useState(true);
+    const [statusText, setStatusText] = useState('正在初始化模型...');
+
+    // 图像和处理状态
+    const [originalImage, setOriginalImage] = useState<HTMLImageElement | null>(null);
+    const [processingStage, setProcessingStage] = useState<ProcessingStage>('idle');
+    const [progress, setProgress] = useState(0);
+    const [processingVisual, setProcessingVisual] = useState<ProcessingVisual | null>(null);
+
+    // 结果状态
+    const [recognizedCards, setRecognizedCards] = useState<RecognizedCard[]>([]);
+    const [selectedCardIndex, setSelectedCardIndex] = useState(-1);
+    const [selectedCardInfo, setSelectedCardInfo] = useState<CardInfo | null>(null);
+    const [isDetailLoading, setIsDetailLoading] = useState(false);
+
+    const latestRequestedNameRef = useRef<string | null>(null);
+
+    // 初始化
+    useEffect(() => {
+        async function initialize() {
+            try {
+                await init();
+                ort.env.wasm.wasmPaths = "/";
+                ort.env.wasm.numThreads = 1;
+
+                const db = new Database();
+
+                const [sessionResult, dbResult] = await Promise.all([
+                    ort.InferenceSession.create(MODEL_PATH, {
+                        executionProviders: ['wasm'],
+                        graphOptimizationLevel: 'all'
+                    }),
+                    fetch(HASH_DB_PATH).then(r => {
+                        if (!r.ok) throw new Error(`数据库加载失败: ${r.statusText}`);
+                        return r.json();
+                    })
+                ]);
+
+                db.load_database(JSON.stringify(dbResult));
+                setSession(sessionResult);
+                setHashDatabase(dbResult);
+                setWasmDb(db);
+                setIsInitializing(false);
+                setStatusText('就绪');
+            } catch (error: any) {
+                setStatusText(`初始化失败: ${error.message}`);
+                console.error(error);
+            }
+        }
+        initialize();
+    }, []);
+
+    // 重置状态
+    const resetState = useCallback(() => {
+        setRecognizedCards([]);
+        setSelectedCardIndex(-1);
+        setSelectedCardInfo(null);
+        setProcessingStage('idle');
+        setProgress(0);
+        setProcessingVisual(null);
+    }, []);
+
+    // 获取卡片信息
+    const fetchCardInfo = useCallback(async (name: string, updateUI: boolean = true) => {
+        if (globalCardInfoCache[name]) {
+            if (updateUI && name === latestRequestedNameRef.current) {
+                setSelectedCardInfo(globalCardInfoCache[name]);
+            }
+            return globalCardInfoCache[name];
+        }
+
+        const pendingPromise = pendingRequests[name];
+        if (pendingPromise !== undefined) {
+            if (updateUI) setIsDetailLoading(true);
+            try {
+                const data = await pendingPromise;
+                if (updateUI && name === latestRequestedNameRef.current) {
+                    setSelectedCardInfo(data);
+                }
+                return data;
+            } catch (error) {
+                console.error('Pending request failed:', error);
+                if (updateUI && name === latestRequestedNameRef.current) {
+                    setSelectedCardInfo(null);
+                }
+            } finally {
+                if (updateUI && name === latestRequestedNameRef.current) {
+                    setIsDetailLoading(false);
+                }
+            }
+            return null;
+        }
+
+        if (updateUI) setIsDetailLoading(true);
+
+        const promise = fetch(`https://ygocdb.com/api/v0/?search=${encodeURIComponent(name)}`)
+            .then(r => r.json());
+
+        pendingRequests[name] = promise;
+
+        try {
+            const data = await promise;
+            globalCardInfoCache[name] = data;
+
+            if (updateUI && name === latestRequestedNameRef.current) {
+                setSelectedCardInfo(data);
+            }
+            return data;
+        } catch (error) {
+            console.error('获取卡片信息失败:', error);
+            if (updateUI && name === latestRequestedNameRef.current) {
+                setSelectedCardInfo(null);
+            }
+            return null;
+        } finally {
+            delete pendingRequests[name];
+            if (updateUI && name === latestRequestedNameRef.current) {
+                setIsDetailLoading(false);
+            }
+        }
+    }, []);
+
+    // 处理图像管道
+    const processImage = useCallback(async (img: HTMLImageElement) => {
+        if (!session || !hashDatabase || !wasmDb) return;
+
+        try {
+            setProcessingStage('detecting');
+            setStatusText('正在检测卡片位置...');
+            await new Promise(resolve => requestAnimationFrame(resolve));
+
+            const { tensor, scale, padX, padY } = preprocessImage(img);
+            const feeds = { images: tensor };
+            const results = await session.run(feeds);
+            const output = results[Object.keys(results)[0]];
+            const boxes = postprocessYOLO(output, scale, padX, padY, img.width, img.height);
+
+            if (boxes.length === 0) {
+                setStatusText('未检测到卡片');
+                setProcessingStage('done');
+                return;
+            }
+
+            const sortedBoxes = sortBoxesByRow(boxes);
+            const initialCards: RecognizedCard[] = sortedBoxes.map((box, i) => ({
+                box,
+                index: i,
+                matches: [],
+                selectedMatchIndex: 0,
+                hashStandard: '',
+                hashPendulum: ''
+            }));
+            setRecognizedCards(initialCards);
+
+            setProcessingStage('identifying');
+            setStatusText('正在识别卡片...');
+
+            const ctx = document.createElement('canvas').getContext('2d', { willReadFrequently: true })!;
+            ctx.canvas.width = img.width;
+            ctx.canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+
+            const finalResults: RecognizedCard[] = [...initialCards];
+            const BATCH_SIZE = 10;
+
+            for (let i = 0; i < sortedBoxes.length; i++) {
+                const box = sortedBoxes[i];
+                const artworkStandard = extractArtwork(ctx, box, STANDARD_CARD);
+                const artworkPendulum = extractArtwork(ctx, box, PENDULUM_CARD);
+
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = artworkStandard.width;
+                tempCanvas.height = artworkStandard.height;
+                const tempCtx = tempCanvas.getContext('2d')!;
+                tempCtx.putImageData(artworkStandard, 0, 0);
+                const artworkUrl = tempCanvas.toDataURL('image/jpeg', 0.7);
+
+                const hashStandard = get_phash_raw(
+                    new Uint8Array(artworkStandard.data.buffer),
+                    artworkStandard.width,
+                    artworkStandard.height
+                );
+                const hashPendulum = get_phash_raw(
+                    new Uint8Array(artworkPendulum.data.buffer),
+                    artworkPendulum.width,
+                    artworkPendulum.height
+                );
+
+                const matchesStandard = wasmDb.find_best_match(hashStandard, 'standard');
+                const matchesPendulum = wasmDb.find_best_match(hashPendulum, 'pendulum');
+                const allMatches = [...matchesStandard, ...matchesPendulum].sort(
+                    (a: any, b: any) => a.distance - b.distance
+                );
+                const matches: Match[] = allMatches.slice(0, 3).map((m: any) => ({
+                    id: m.id,
+                    name: m.name,
+                    distance: m.distance,
+                    cardType: m.cardType,
+                    dbHash: m.dbHash
+                }));
+
+                setProcessingVisual({
+                    index: i + 1,
+                    artworkUrl,
+                    currentMatchName: matches[0]?.name || '...'
+                });
+
+                finalResults[i] = {
+                    ...finalResults[i],
+                    matches,
+                    hashStandard,
+                    hashPendulum
+                };
+
+                setProgress(Math.round(((i + 1) / sortedBoxes.length) * 100));
+
+                if ((i + 1) % BATCH_SIZE === 0 || i === sortedBoxes.length - 1) {
+                    setRecognizedCards([...finalResults]);
+                    await new Promise(resolve => setTimeout(resolve, 0));
+                }
+            }
+
+            setProcessingStage('done');
+            setStatusText('识别完成');
+            setProcessingVisual(null);
+
+            // 预加载卡片信息
+            const uniqueNames = Array.from(
+                new Set(finalResults.map(c => c.matches[0]?.name).filter(Boolean))
+            );
+
+            const CONCURRENCY_LIMIT = 10;
+            let currentIndex = 0;
+
+            const processNext = async () => {
+                if (currentIndex >= uniqueNames.length) return;
+                const name = uniqueNames[currentIndex++];
+                await fetchCardInfo(name, false);
+                processNext();
+            };
+
+            for (let i = 0; i < Math.min(CONCURRENCY_LIMIT, uniqueNames.length); i++) {
+                processNext();
+            }
+        } catch (error: any) {
+            console.error(error);
+            setStatusText(`处理出错: ${error.message}`);
+            setProcessingStage('done');
+        }
+    }, [session, hashDatabase, wasmDb, fetchCardInfo]);
+
+    // 选择卡片
+    const selectCard = useCallback(async (index: number) => {
+        if (index === -1) return;
+        const card = recognizedCards[index];
+        setSelectedCardIndex(index);
+
+        if (card.matches.length > 0) {
+            const currentMatch = card.matches[card.selectedMatchIndex];
+            latestRequestedNameRef.current = currentMatch.name;
+            await fetchCardInfo(currentMatch.name, true);
+        }
+    }, [recognizedCards, fetchCardInfo]);
+
+    // 重新处理卡片
+    const reprocessCard = useCallback(async (index: number, forcePendulum: boolean = false) => {
+        if (!originalImage || !hashDatabase || !wasmDb) return;
+        const card = recognizedCards[index];
+
+        const ctx = document.createElement('canvas').getContext('2d', { willReadFrequently: true })!;
+        ctx.canvas.width = originalImage.width;
+        ctx.canvas.height = originalImage.height;
+        ctx.drawImage(originalImage, 0, 0);
+
+        const artworkStandard = extractArtwork(ctx, card.box, STANDARD_CARD);
+        const artworkPendulum = extractArtwork(ctx, card.box, PENDULUM_CARD);
+
+        const hashStandard = get_phash_raw(
+            new Uint8Array(artworkStandard.data.buffer),
+            artworkStandard.width,
+            artworkStandard.height
+        );
+        const hashPendulum = get_phash_raw(
+            new Uint8Array(artworkPendulum.data.buffer),
+            artworkPendulum.width,
+            artworkPendulum.height
+        );
+
+        const matchesStandard = wasmDb.find_best_match(hashStandard, 'standard');
+        const matchesPendulum = wasmDb.find_best_match(hashPendulum, 'pendulum');
+        const allMatches = [...matchesStandard, ...matchesPendulum].sort(
+            (a: any, b: any) => a.distance - b.distance
+        );
+        const matches: Match[] = allMatches.slice(0, 3).map((m: any) => ({
+            id: m.id,
+            name: m.name,
+            distance: m.distance,
+            cardType: m.cardType,
+            dbHash: m.dbHash
+        }));
+
+        setRecognizedCards(prev => {
+            const next = [...prev];
+            next[index] = {
+                ...next[index],
+                matches,
+                selectedMatchIndex: 0,
+                hashStandard,
+                hashPendulum
+            };
+            return next;
+        });
+
+        if (matches.length > 0) {
+            latestRequestedNameRef.current = matches[0].name;
+            await fetchCardInfo(matches[0].name, true);
+        }
+    }, [originalImage, hashDatabase, wasmDb, recognizedCards, fetchCardInfo]);
+
+    // 选择备选匹配
+    const handleSelectAltMatch = useCallback((matchIndex: number) => {
+        if (selectedCardIndex === -1) return;
+        setRecognizedCards(prev => {
+            const next = [...prev];
+            next[selectedCardIndex].selectedMatchIndex = matchIndex;
+            return next;
+        });
+
+        const card = recognizedCards[selectedCardIndex];
+        const newMatch = card.matches[matchIndex];
+        if (newMatch) {
+            latestRequestedNameRef.current = newMatch.name;
+            fetchCardInfo(newMatch.name, true);
+        }
+    }, [selectedCardIndex, recognizedCards, fetchCardInfo]);
+
+    // 更新卡片框位置
+    const updateCardBox = useCallback((index: number, box: Box) => {
+        setRecognizedCards(prev => {
+            const next = [...prev];
+            next[index] = { ...next[index], box };
+            return next;
+        });
+    }, []);
+
+    return {
+        isInitializing,
+        statusText,
+        processingStage,
+        progress,
+        processingVisual,
+        recognizedCards,
+        selectedCardIndex,
+        selectedCardInfo,
+        isDetailLoading,
+        originalImage,
+        session,
+        wasmDb,
+        processImage,
+        selectCard,
+        reprocessCard,
+        handleSelectAltMatch,
+        updateCardBox,
+        setOriginalImage,
+        setSelectedCardIndex,
+        setRecognizedCards,
+        resetState
+    };
+}
