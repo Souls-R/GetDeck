@@ -46,7 +46,8 @@ export default function DeckRecognizer() {
     const [selectedCardInfo, setSelectedCardInfo] = useState<CardInfo | null>(null);
     const [isDetailLoading, setIsDetailLoading] = useState(false);
     const [selectedCardArtwork, setSelectedCardArtwork] = useState<string | null>(null);
-    const [forcePendulumMode, setForcePendulumMode] = useState(false); // New: Toggle for crop mode
+    const [forcePendulumMode, setForcePendulumMode] = useState(false); 
+    const [isSourcePanelExpanded, setIsSourcePanelExpanded] = useState(false); // Collapsed by default
 
     // Dragging State & Magnifier
     const [dragState, setDragState] = useState<{ isDragging: boolean; startX: number; startY: number; initialBox: Box | null }>({
@@ -103,7 +104,8 @@ export default function DeckRecognizer() {
         setProcessingStage('idle');
         setProgress(0);
         setProcessingVisual(null);
-        setForcePendulumMode(false); // Reset mode
+        setForcePendulumMode(false);
+        setIsSourcePanelExpanded(false);
 
         try {
             const img = await loadImage(file);
@@ -179,7 +181,6 @@ export default function DeckRecognizer() {
                 const artworkStandard = extractArtwork(ctx, box, STANDARD_CARD);
                 const artworkPendulum = extractArtwork(ctx, box, PENDULUM_CARD);
                 
-                // Sidebar preview (Standard by default during initial scan)
                 const tempCanvas = document.createElement('canvas');
                 tempCanvas.width = artworkStandard.width;
                 tempCanvas.height = artworkStandard.height;
@@ -271,7 +272,7 @@ export default function DeckRecognizer() {
 
             if (isSelected) {
                 ctx.strokeStyle = '#fbbf24'; 
-                ctx.lineWidth = 4;
+                ctx.lineWidth = dragState.isDragging ? 6 : 4; // Bolder when dragging
                 ctx.fillStyle = 'rgba(251, 191, 36, 0.3)';
             } else if (isIdentified) {
                 ctx.strokeStyle = 'rgba(52, 211, 153, 0.8)';
@@ -288,7 +289,7 @@ export default function DeckRecognizer() {
             ctx.stroke();
             if (isSelected || isIdentified) ctx.fill();
         });
-    }, [originalImage, recognizedCards, selectedCardIndex]);
+    }, [originalImage, recognizedCards, selectedCardIndex, dragState.isDragging]);
 
     useEffect(() => {
         drawCanvas();
@@ -302,7 +303,7 @@ export default function DeckRecognizer() {
 
     const getMousePos = (e: React.MouseEvent) => {
         const canvas = canvasRef.current;
-        if (!canvas) return { x: 0, y: 0 };
+        if (!canvas) return { x: 0, y: 0, rawX: 0, rawY: 0 };
         const rect = canvas.getBoundingClientRect();
         const scaleX = canvas.width / rect.width;
         const scaleY = canvas.height / rect.height;
@@ -318,7 +319,6 @@ export default function DeckRecognizer() {
         if (!originalImage || recognizedCards.length === 0) return;
         const { x, y, rawX, rawY } = getMousePos(e);
 
-        // Find clicked card
         let clickedIndex = -1;
         for (let i = recognizedCards.length - 1; i >= 0; i--) {
             const card = recognizedCards[i];
@@ -329,14 +329,12 @@ export default function DeckRecognizer() {
         }
 
         if (clickedIndex !== -1) {
-            // Select immediately on press start (responsiveness)
             if (selectedCardIndex !== clickedIndex) {
                 selectCard(clickedIndex);
             }
 
-            // Start Long Press Timer
             longPressTimerRef.current = setTimeout(() => {
-                // Trigger Drag Mode
+                // Enter Micro-Adjustment Mode
                 setDragState({
                     isDragging: true,
                     startX: x,
@@ -344,9 +342,8 @@ export default function DeckRecognizer() {
                     initialBox: { ...recognizedCards[clickedIndex].box }
                 });
                 
-                // Show Magnifier immediately with current crop preview
                 updateCropMagnifier({ ...recognizedCards[clickedIndex].box }, rawX, rawY);
-            }, 300); // 300ms long press threshold
+            }, 600); // Changed to 600ms as requested
         } else {
             setSelectedCardIndex(-1);
         }
@@ -355,18 +352,15 @@ export default function DeckRecognizer() {
     const updateCropMagnifier = (box: Box, screenX: number, screenY: number) => {
         if (!originalImage) return;
 
-        // Use a temporary canvas to generate the crop preview
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = originalImage.width;
         tempCanvas.height = originalImage.height;
         const ctx = tempCanvas.getContext('2d')!;
         ctx.drawImage(originalImage, 0, 0);
 
-        // Determine config based on mode
         const cropConfig = forcePendulumMode ? PENDULUM_CARD : STANDARD_CARD;
         const artworkData = extractArtwork(ctx, box, cropConfig);
 
-        // Draw Artwork to Magnifier Canvas
         const magCanvas = document.createElement('canvas');
         magCanvas.width = artworkData.width;
         magCanvas.height = artworkData.height;
@@ -381,13 +375,10 @@ export default function DeckRecognizer() {
     };
 
     const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-        // If simply moving mouse without drag, maybe cancel long press if moved too far?
-        // For simplicity, any movement > small threshold could cancel, but let's allow micro movement.
-        
         if (dragState.isDragging) {
             const { x, y, rawX, rawY } = getMousePos(e);
             const canvas = canvasRef.current;
-            if(canvas) canvas.style.cursor = 'none'; // Hide cursor while dragging with magnifier
+            if(canvas) canvas.style.cursor = 'none';
 
             if (selectedCardIndex !== -1 && dragState.initialBox) {
                 const dx = x - dragState.startX;
@@ -401,25 +392,18 @@ export default function DeckRecognizer() {
                     y2: dragState.initialBox.y2 + dy
                 };
 
-                // Update Box Position Live
                 setRecognizedCards(prev => {
                     const next = [...prev];
                     next[selectedCardIndex] = { ...next[selectedCardIndex], box: newBox };
                     return next;
                 });
 
-                // Update Magnifier with NEW CROP content
                 updateCropMagnifier(newBox, rawX, rawY);
             }
-        } else {
-            // Not dragging, ensure cursor is default/pointer
-             const canvas = canvasRef.current;
-             if(canvas) canvas.style.cursor = 'default';
         }
     };
 
     const handleMouseUp = async () => {
-        // Cancel timer if it hasn't fired yet (short click)
         if (longPressTimerRef.current) {
             clearTimeout(longPressTimerRef.current);
             longPressTimerRef.current = null;
@@ -432,7 +416,6 @@ export default function DeckRecognizer() {
             const canvas = canvasRef.current;
             if(canvas) canvas.style.cursor = 'default';
 
-            // Commit changes
             await reprocessCard(selectedCardIndex);
         }
     };
@@ -493,12 +476,6 @@ export default function DeckRecognizer() {
         if (selectedCardIndex === -1) return;
         const newMode = !forcePendulumMode;
         setForcePendulumMode(newMode);
-        // Force update magnifier immediately if dragging
-        if (dragState.isDragging && dragState.initialBox) {
-            // Need to recalculate box pos (or pass current one)
-            // But dragging usually blocks UI, toggle might be hard. 
-            // This is for Sidebar toggle.
-        }
         updateArtworkPreview(selectedCardIndex, newMode);
     };
 
@@ -580,32 +557,33 @@ export default function DeckRecognizer() {
             {/* Magnifier Portal */}
             {magnifier.show && magnifier.content && (
                 <div 
-                    className="fixed z-50 pointer-events-none border-2 border-white rounded-lg overflow-hidden shadow-2xl bg-black animate-in zoom-in-50 duration-200"
+                    className="fixed z-50 pointer-events-none border-2 border-white rounded-lg overflow-hidden shadow-2xl bg-black animate-in zoom-in-110 fade-in duration-200"
                     style={{
-                        left: magnifier.x + 20, // Offset from cursor
+                        left: magnifier.x + 30, 
                         top: magnifier.y - 75,
-                        width: '150px',
-                        height: '150px'
+                        width: '180px',
+                        height: '180px',
+                        transform: 'translateY(-20px)'
                     }}
                 >
-                    {/* The crop preview content */}
                     <img 
                         src={magnifier.content} 
-                        className="w-full h-full object-contain bg-gray-900" 
+                        className="w-full h-full object-contain bg-gray-900 animate-pulse duration-1000" 
                         alt="Real-time Crop Preview" 
                     />
-                    {/* Overlay Grid/Crosshair to help centering */}
-                    <div className="absolute inset-0 opacity-30">
-                        <div className="absolute top-1/2 left-0 w-full h-px bg-white"></div>
-                        <div className="absolute left-1/2 top-0 h-full w-px bg-white"></div>
+                    <div className="absolute inset-0 opacity-40">
+                        <div className="absolute top-1/2 left-0 w-full h-px bg-blue-400"></div>
+                        <div className="absolute left-1/2 top-0 h-full w-px bg-blue-400"></div>
                     </div>
+                    {/* Visual cue: Active status */}
+                    <div className="absolute top-2 right-2 w-2 h-2 bg-blue-500 rounded-full animate-ping"></div>
                 </div>
             )}
 
             {/* Header */}
             <header className="h-14 border-b border-gray-800 flex items-center justify-between px-6 bg-gray-900 shrink-0 z-10">
                 <div className="flex items-center gap-3">
-                    <h1 className="text-lg font-bold tracking-tight bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
+                    <h1 className="text-lg font-bold tracking-tight bg-linear-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
                         Master Duel Deck Recognizer
                     </h1>
                 </div>
@@ -676,13 +654,12 @@ export default function DeckRecognizer() {
                         onMouseMove={handleMouseMove}
                         onMouseUp={handleMouseUp}
                         onMouseLeave={handleMouseLeave}
-                        className="shadow-2xl shadow-black/50" 
+                        className={`shadow-2xl shadow-black/50 transition-transform duration-300 ${dragState.isDragging ? 'scale-[1.01]' : 'scale-100'}`} 
                         style={{opacity: originalImage ? 1 : 0}} 
                     />
                     
-                    {/* Tooltip for first-time users */}
-                    {originalImage && processingStage === 'done' && (
-                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur text-white/70 text-xs px-4 py-2 rounded-full pointer-events-none animate-pulse">
+                    {originalImage && processingStage === 'done' && !dragState.isDragging && (
+                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur text-white/70 text-xs px-4 py-2 rounded-full pointer-events-none animate-in fade-in slide-in-from-bottom-2 duration-700">
                             长按黄色方框以进行精确微调
                         </div>
                     )}
@@ -727,48 +704,57 @@ export default function DeckRecognizer() {
 
                              <div className="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-6">
                                 
-                                {/* Source Crop & Tools */}
-                                <div className="bg-gray-800/30 rounded-lg p-3 border border-gray-700/50 space-y-3">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-xs font-semibold text-gray-500 uppercase">识别源图像</span>
-                                        <div className="flex items-center bg-gray-800 rounded p-0.5 border border-gray-700">
-                                            <button 
-                                                onClick={() => { if(forcePendulumMode) toggleCardMode(); }}
-                                                className={`px-2 py-0.5 text-[10px] rounded transition-colors ${!forcePendulumMode ? 'bg-blue-600 text-white shadow' : 'text-gray-400 hover:text-white'}`}
-                                            >
-                                                Standard
-                                            </button>
-                                            <button 
-                                                onClick={() => { if(!forcePendulumMode) toggleCardMode(); }}
-                                                className={`px-2 py-0.5 text-[10px] rounded transition-colors ${forcePendulumMode ? 'bg-green-600 text-white shadow' : 'text-gray-400 hover:text-white'}`}
-                                            >
-                                                Pendulum
-                                            </button>
-                                        </div>
-                                    </div>
+                                {/* Source Crop Panel (Collapsible) */}
+                                <div className="bg-gray-800/30 rounded-lg border border-gray-700/50 overflow-hidden transition-all duration-300">
+                                    <button 
+                                        onClick={() => setIsSourcePanelExpanded(!isSourcePanelExpanded)}
+                                        className="w-full px-3 py-2 flex items-center justify-between text-xs font-semibold text-gray-500 uppercase hover:bg-gray-800/50 transition-colors"
+                                    >
+                                        <span>识别源图像</span>
+                                        <svg className={`w-4 h-4 transition-transform duration-300 ${isSourcePanelExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                                    </button>
                                     
-                                    <div className="flex gap-4 items-center">
-                                        <div className="w-24 h-24 bg-black rounded border border-gray-700 flex items-center justify-center overflow-hidden shrink-0 relative">
-                                            {selectedCardArtwork ? (
-                                                <img src={selectedCardArtwork} className="w-full h-full object-contain" alt="source crop" />
-                                            ) : (
-                                                <div className="text-xs text-gray-600">No Img</div>
-                                            )}
+                                    {isSourcePanelExpanded && (
+                                        <div className="p-3 pt-0 space-y-3 animate-in slide-in-from-top-2 duration-300">
+                                            <div className="flex items-center bg-gray-800 rounded p-0.5 border border-gray-700 self-start w-fit">
+                                                <button 
+                                                    onClick={() => { if(forcePendulumMode) toggleCardMode(); }}
+                                                    className={`px-2 py-0.5 text-[10px] rounded transition-colors ${!forcePendulumMode ? 'bg-blue-600 text-white shadow' : 'text-gray-400 hover:text-white'}`}
+                                                >
+                                                    Standard
+                                                </button>
+                                                <button 
+                                                    onClick={() => { if(!forcePendulumMode) toggleCardMode(); }}
+                                                    className={`px-2 py-0.5 text-[10px] rounded transition-colors ${forcePendulumMode ? 'bg-green-600 text-white shadow' : 'text-gray-400 hover:text-white'}`}
+                                                >
+                                                    Pendulum
+                                                </button>
+                                            </div>
+                                            
+                                            <div className="flex gap-4 items-center">
+                                                <div className="w-24 h-24 bg-black rounded border border-gray-700 flex items-center justify-center overflow-hidden shrink-0 relative shadow-inner">
+                                                    {selectedCardArtwork ? (
+                                                        <img src={selectedCardArtwork} className="w-full h-full object-contain" alt="source crop" />
+                                                    ) : (
+                                                        <div className="text-xs text-gray-600">No Img</div>
+                                                    )}
+                                                </div>
+                                                <div className="text-[10px] text-gray-500 leading-relaxed italic">
+                                                    可在左侧图片上<br/>长按并拖动方框微调
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div className="text-xs text-gray-500 leading-relaxed">
-                                            <p>此区域展示当前用于<br/>Hash 计算的截取范围<br/><span className="text-gray-400">切换上方模式可改变裁剪比例</span></p>
-                                        </div>
-                                    </div>
+                                    )}
                                 </div>
 
                                 {/* Official Info */}
                                 {selectedCardInfo?.result?.[0] && (
                                     <>
-                                        <div className="w-40 mx-auto rounded overflow-hidden shadow-lg border border-white/10 opacity-90 hover:opacity-100 transition-opacity">
+                                        <div className="w-40 mx-auto rounded overflow-hidden shadow-lg border border-white/10 opacity-95 hover:opacity-100 transition-opacity">
                                             <img src={`https://cdn.233.momobako.com/ygoimg/sc/${selectedCardInfo.result[0].id}.webp`} className="w-full" alt="Official Art" />
                                         </div>
                                         
-                                        <div className="text-sm text-gray-300 leading-relaxed bg-black/20 p-3 rounded border border-white/5">
+                                        <div className="text-sm text-gray-300 leading-relaxed bg-black/20 p-4 rounded-xl border border-white/5 shadow-inner">
                                             {selectedCardInfo.result[0].text.desc}
                                         </div>
                                     </>
@@ -783,10 +769,10 @@ export default function DeckRecognizer() {
                                                 <button
                                                     key={idx}
                                                     onClick={() => handleSelectAltMatch(idx)}
-                                                    className="w-full text-left p-2 rounded bg-gray-800 hover:bg-gray-700 border border-transparent hover:border-gray-600 transition-all flex justify-between group items-center"
+                                                    className="w-full text-left p-2.5 rounded bg-gray-800/50 hover:bg-gray-700 border border-transparent hover:border-gray-600 transition-all flex justify-between group items-center"
                                                 >
                                                     <span className="text-sm text-gray-300 group-hover:text-white truncate flex-1">{m.name}</span>
-                                                    <span className="text-xs text-gray-500 ml-2">{m.distance}</span>
+                                                    <span className="text-xs text-gray-500 ml-2 font-mono">{m.distance}</span>
                                                 </button>
                                             )
                                         ))}
