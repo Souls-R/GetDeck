@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import ReactCrop, { type Crop, type PixelCrop } from 'react-image-crop';
+import ReactCrop, { type Crop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 
 interface CropperModalProps {
@@ -13,10 +13,12 @@ export default function CropperModal({ imageSrc, onApply, onCancel }: CropperMod
     const [naturalSize, setNaturalSize] = useState({ width: 0, height: 0 });
     const [displaySize, setDisplaySize] = useState({ width: 0, height: 0 });
     const [scale, setScale] = useState(1);
-    const [minScale, setMinScale] = useState(1);
-    const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
+    const [minScale, setMinScale] = useState(0.1);
     const imgRef = useRef<HTMLImageElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+
+    // 双指缩放状态
+    const lastPinchDistance = useRef<number | null>(null);
 
     // 禁用页面滚动
     useEffect(() => {
@@ -26,53 +28,28 @@ export default function CropperModal({ imageSrc, onApply, onCancel }: CropperMod
         };
     }, []);
 
-    // 计算显示尺寸和默认裁剪区域
-    const calculateLayout = useCallback((
-        imgNaturalWidth: number,
-        imgNaturalHeight: number,
-        containerWidth: number,
-        containerHeight: number,
-        currentScale: number
-    ) => {
-        // 基础显示尺寸：让图片高度适配容器
-        const baseHeight = containerHeight;
-        const baseWidth = (imgNaturalWidth / imgNaturalHeight) * baseHeight;
-
-        // 应用缩放
-        const displayWidth = baseWidth * currentScale;
-        const displayHeight = baseHeight * currentScale;
-
-        return { width: displayWidth, height: displayHeight };
-    }, []);
-
-    // 计算最小缩放（确保至少一个方向填满容器）
-    const calculateMinScale = useCallback((
+    // 计算适应窗口的缩放比例（显示全图）
+    const calculateFitScale = useCallback((
         imgNaturalWidth: number,
         imgNaturalHeight: number,
         containerWidth: number,
         containerHeight: number
     ) => {
-        // 基础显示尺寸（scale=1时）
-        const baseHeight = containerHeight;
-        const baseWidth = (imgNaturalWidth / imgNaturalHeight) * baseHeight;
+        const scaleX = containerWidth / imgNaturalWidth;
+        const scaleY = containerHeight / imgNaturalHeight;
+        return Math.min(scaleX, scaleY) * 0.95;
+    }, []);
 
-        // 最小缩放要保证至少一个方向填满容器
-        // 如果baseWidth < containerWidth，则宽度方向需要缩放才能填满
-        // minScale = max(containerWidth/baseWidth, containerHeight/baseHeight) 但这会让图变大
-        // 实际上我们要限制缩小的程度，即至少保持一个方向填满
-        // 当scale=1时，高度已经填满，所以只需要考虑宽度
-        // 如果缩小到宽度正好填满容器，则 displayWidth = containerWidth
-        // baseWidth * minScale = containerWidth => minScale = containerWidth / baseWidth
-
-        if (baseWidth >= containerWidth) {
-            // 宽度本来就大于等于容器，缩小到宽度=容器宽度
-            return containerWidth / baseWidth;
-        } else {
-            // 宽度本来就小于容器，不能再缩小了，minScale = 1
-            // 但这样scale=1时高度填满，宽度有黑边
-            // 用户说只能一个方向有黑边，所以这种情况OK
-            return 1;
-        }
+    // 计算显示尺寸
+    const calculateDisplaySize = useCallback((
+        imgNaturalWidth: number,
+        imgNaturalHeight: number,
+        currentScale: number
+    ) => {
+        return {
+            width: imgNaturalWidth * currentScale,
+            height: imgNaturalHeight * currentScale
+        };
     }, []);
 
     const onImageLoad = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
@@ -81,41 +58,37 @@ export default function CropperModal({ imageSrc, onApply, onCancel }: CropperMod
         const imgNaturalHeight = img.naturalHeight;
         setNaturalSize({ width: imgNaturalWidth, height: imgNaturalHeight });
 
-        // 获取容器尺寸
         const container = containerRef.current;
         if (!container) return;
 
         const containerWidth = container.clientWidth;
         const containerHeight = container.clientHeight;
-        setContainerSize({ width: containerWidth, height: containerHeight });
 
-        // 计算最小缩放
-        const minS = calculateMinScale(imgNaturalWidth, imgNaturalHeight, containerWidth, containerHeight);
-        setMinScale(minS);
-        setScale(1); // 初始scale=1
+        // 计算适应窗口的缩放（显示全图）
+        const fitScale = calculateFitScale(imgNaturalWidth, imgNaturalHeight, containerWidth, containerHeight);
+        setMinScale(fitScale * 0.5);
+        setScale(fitScale);
 
         // 计算显示尺寸
-        const display = calculateLayout(imgNaturalWidth, imgNaturalHeight, containerWidth, containerHeight, 1);
+        const display = calculateDisplaySize(imgNaturalWidth, imgNaturalHeight, fitScale);
         setDisplaySize(display);
 
-        // 设置默认裁剪区域：12:14宽高比，顶部居中
+        // 设置默认裁剪区域：12:14宽高比，居中
         const targetAspect = 12 / 14;
         const imgAspect = imgNaturalWidth / imgNaturalHeight;
 
         let cropWidth: number, cropHeight: number, cropX: number, cropY: number;
 
         if (imgAspect > targetAspect) {
-            // 图片更宽，以高度为基准
-            cropHeight = 100; // 100%高度
+            cropHeight = 100;
             cropWidth = (targetAspect / imgAspect) * 100;
-            cropX = (100 - cropWidth) / 2; // 水平居中
-            cropY = 0; // 顶部对齐
+            cropX = (100 - cropWidth) / 2;
+            cropY = 0;
         } else {
-            // 图片更高或正好，以宽度为基准
-            cropWidth = 100; // 100%宽度
+            cropWidth = 100;
             cropHeight = (imgAspect / targetAspect) * 100;
             cropX = 0;
-            cropY = 0; // 顶部对齐
+            cropY = (100 - cropHeight) / 2;
         }
 
         setCrop({
@@ -125,22 +98,17 @@ export default function CropperModal({ imageSrc, onApply, onCancel }: CropperMod
             width: cropWidth,
             height: cropHeight
         });
-    }, [calculateLayout, calculateMinScale]);
+    }, [calculateFitScale, calculateDisplaySize]);
 
     // 更新显示尺寸当scale变化
     useEffect(() => {
-        if (naturalSize.width && containerSize.width) {
-            const display = calculateLayout(
-                naturalSize.width,
-                naturalSize.height,
-                containerSize.width,
-                containerSize.height,
-                scale
-            );
+        if (naturalSize.width) {
+            const display = calculateDisplaySize(naturalSize.width, naturalSize.height, scale);
             setDisplaySize(display);
         }
-    }, [scale, naturalSize, containerSize, calculateLayout]);
+    }, [scale, naturalSize, calculateDisplaySize]);
 
+    // 鼠标滚轮缩放
     const handleWheel = useCallback((e: WheelEvent) => {
         e.preventDefault();
         e.stopPropagation();
@@ -148,27 +116,56 @@ export default function CropperModal({ imageSrc, onApply, onCancel }: CropperMod
         setScale(prev => Math.min(3, Math.max(minScale, prev + delta)));
     }, [minScale]);
 
+    // 双指缩放处理
+    const handleTouchStart = useCallback((e: TouchEvent) => {
+        if (e.touches.length === 2) {
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            lastPinchDistance.current = Math.sqrt(dx * dx + dy * dy);
+        }
+    }, []);
+
+    const handleTouchMove = useCallback((e: TouchEvent) => {
+        if (e.touches.length === 2 && lastPinchDistance.current !== null) {
+            e.preventDefault();
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            const delta = (distance - lastPinchDistance.current) * 0.005;
+            setScale(prev => Math.min(3, Math.max(minScale, prev + delta)));
+
+            lastPinchDistance.current = distance;
+        }
+    }, [minScale]);
+
+    const handleTouchEnd = useCallback(() => {
+        lastPinchDistance.current = null;
+    }, []);
+
     useEffect(() => {
         const container = containerRef.current;
         if (!container) return;
 
         container.addEventListener('wheel', handleWheel, { passive: false });
+        container.addEventListener('touchstart', handleTouchStart, { passive: true });
+        container.addEventListener('touchmove', handleTouchMove, { passive: false });
+        container.addEventListener('touchend', handleTouchEnd, { passive: true });
+
         return () => {
             container.removeEventListener('wheel', handleWheel);
+            container.removeEventListener('touchstart', handleTouchStart);
+            container.removeEventListener('touchmove', handleTouchMove);
+            container.removeEventListener('touchend', handleTouchEnd);
         };
-    }, [handleWheel]);
+    }, [handleWheel, handleTouchStart, handleTouchMove, handleTouchEnd]);
 
     const handleApply = () => {
         if (!crop || !imgRef.current) return;
 
-        const img = imgRef.current;
-
-        // 计算实际像素坐标
-        // crop坐标是相对于显示尺寸的百分比或像素
         let pixelCrop: { x: number; y: number; width: number; height: number };
 
         if (crop.unit === '%') {
-            // 百分比直接转换为自然像素
             pixelCrop = {
                 x: (crop.x / 100) * naturalSize.width,
                 y: (crop.y / 100) * naturalSize.height,
@@ -176,7 +173,6 @@ export default function CropperModal({ imageSrc, onApply, onCancel }: CropperMod
                 height: (crop.height / 100) * naturalSize.height
             };
         } else {
-            // 像素坐标：相对于当前显示尺寸，转换到自然尺寸
             const scaleX = naturalSize.width / displaySize.width;
             const scaleY = naturalSize.height / displaySize.height;
             pixelCrop = {
@@ -187,7 +183,6 @@ export default function CropperModal({ imageSrc, onApply, onCancel }: CropperMod
             };
         }
 
-        // 确保坐标在有效范围内
         pixelCrop.x = Math.max(0, Math.min(pixelCrop.x, naturalSize.width));
         pixelCrop.y = Math.max(0, Math.min(pixelCrop.y, naturalSize.height));
         pixelCrop.width = Math.min(pixelCrop.width, naturalSize.width - pixelCrop.x);
@@ -221,13 +216,13 @@ export default function CropperModal({ imageSrc, onApply, onCancel }: CropperMod
 
     return (
         <div
-            className="absolute inset-0 z-30 flex items-center justify-center animate-scale-in"
+            className="fixed inset-0 z-30 flex items-center justify-center animate-scale-in"
             onKeyDown={handleKeyDown}
             tabIndex={-1}
         >
             <div className="absolute inset-0 bg-black/70" onClick={onCancel} />
 
-            <div className="relative w-[90%] max-w-4xl h-[85%] max-h-[750px] panel panel-elevated flex flex-col overflow-hidden">
+            <div className="relative w-[95%] max-w-4xl h-[85%] panel panel-elevated flex flex-col overflow-hidden" style={{ maxHeight: 'calc(100vh - 40px)' }}>
                 {/* 顶部信息栏 */}
                 <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--card-border)] bg-[var(--card-bg)]">
                     <h3 className="text-sm font-medium text-[var(--foreground)]">裁剪图片</h3>
@@ -241,7 +236,7 @@ export default function CropperModal({ imageSrc, onApply, onCancel }: CropperMod
                 {/* 裁剪区域 */}
                 <div
                     ref={containerRef}
-                    className="flex-1 flex items-center justify-center bg-neutral-900 overflow-hidden"
+                    className="flex-1 flex items-center justify-center bg-neutral-900 overflow-auto touch-none"
                 >
                     <ReactCrop
                         crop={crop}

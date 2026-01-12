@@ -84,87 +84,83 @@ export default function Sidebar({
                     </div>
 
                     <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
-                        {/* 源图像面板 */}
-                        <div className="panel overflow-hidden">
+                        {/* 源图像面板 - 紧凑按钮式 */}
+                        <div className="flex items-center gap-3">
+                            {/* 预览图按钮 */}
                             <button
                                 onClick={() => setIsSourcePanelExpanded(!isSourcePanelExpanded)}
-                                className="w-full px-4 py-3 flex items-center justify-between text-sm font-medium text-[var(--foreground-muted)] hover:bg-[var(--background-secondary)] transition-colors"
+                                className={`relative w-14 h-14 rounded-xl border-2 transition-all overflow-hidden shrink-0 ${
+                                    isSourcePanelExpanded
+                                        ? 'border-[var(--primary)] shadow-md'
+                                        : 'border-[var(--card-border)] hover:border-[var(--primary)]/50'
+                                }`}
+                                title="识别源图像"
                             >
-                                <span className="flex items-center gap-2">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                {selectedCardArtwork ? (
+                                    <img src={selectedCardArtwork} className="w-full h-full object-contain bg-[var(--background-secondary)]" alt="source crop" />
+                                ) : (
+                                    <div className="w-full h-full bg-[var(--background-secondary)] flex items-center justify-center">
+                                        <svg className="w-5 h-5 text-[var(--foreground-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                    </div>
+                                )}
+                                {/* 展开指示器 */}
+                                <div className={`absolute bottom-0 left-0 right-0 h-4 bg-gradient-to-t from-black/50 to-transparent flex items-end justify-center pb-0.5 ${isSourcePanelExpanded ? '' : 'opacity-70'}`}>
+                                    <svg
+                                        className={`w-3 h-3 text-white transition-transform duration-200 ${isSourcePanelExpanded ? 'rotate-180' : ''}`}
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                     </svg>
-                                    识别源图像
-                                </span>
-                                <svg
-                                    className={`w-5 h-5 transition-transform duration-300 ${isSourcePanelExpanded ? 'rotate-180' : ''}`}
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                </svg>
+                                </div>
                             </button>
 
-                            {isSourcePanelExpanded && (
-                                <div className="p-4 pt-0 space-y-4 animate-slide-up">
-                                    {/* 模式切换 */}
-                                    <div className="flex items-center gap-2">
-                                        <button
-                                            onClick={() => { if (forcePendulumMode) onToggleCardMode(); }}
-                                            className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-all ${
-                                                !forcePendulumMode
-                                                    ? 'bg-[var(--primary)] text-white shadow-md'
-                                                    : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]'
-                                            }`}
-                                        >
-                                            Standard
-                                        </button>
-                                        <button
-                                            onClick={() => { if (!forcePendulumMode) onToggleCardMode(); }}
-                                            className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-all ${
-                                                forcePendulumMode
-                                                    ? 'bg-[var(--success)] text-white shadow-md'
-                                                    : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]'
-                                            }`}
-                                        >
-                                            Pendulum
-                                        </button>
-                                    </div>
-
-                                    {/* 预览图 */}
-                                    <div className="flex gap-4 items-center">
-                                        <div className="w-24 h-24 rounded-xl bg-[var(--background-secondary)] border border-[var(--card-border)] flex items-center justify-center overflow-hidden shrink-0">
-                                            {selectedCardArtwork ? (
-                                                <img src={selectedCardArtwork} className="w-full h-full object-contain" alt="source crop" />
-                                            ) : (
-                                                <span className="text-xs text-[var(--foreground-muted)]">无图像</span>
-                                            )}
-                                        </div>
-                                        <p className="text-xs text-[var(--foreground-muted)] leading-relaxed">
-                                            在左侧画布上长按并拖动卡片边框可以微调识别区域
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
+                            {/* 模式切换按钮 */}
+                            <div className="flex items-center gap-1.5">
+                                <button
+                                    onClick={() => { if (forcePendulumMode) onToggleCardMode(); }}
+                                    className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-all ${
+                                        !forcePendulumMode
+                                            ? 'bg-[var(--primary)] text-white shadow-md'
+                                            : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]'
+                                    }`}
+                                >
+                                    Standard
+                                </button>
+                                <button
+                                    onClick={() => { if (!forcePendulumMode) onToggleCardMode(); }}
+                                    className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-all ${
+                                        forcePendulumMode
+                                            ? 'bg-[var(--success)] text-white shadow-md'
+                                            : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]'
+                                    }`}
+                                >
+                                    Pendulum
+                                </button>
+                            </div>
                         </div>
+
+                        {/* 展开的提示信息 */}
+                        {isSourcePanelExpanded && (
+                            <div className="panel p-3 animate-slide-up">
+                                <p className="text-xs text-[var(--foreground-muted)] leading-relaxed">
+                                    在左侧画布上长按并拖动卡片边框可以微调识别区域
+                                </p>
+                            </div>
+                        )}
 
                         {/* 官方卡图 */}
                         {selectedCardInfo?.result?.[0] && (
                             <div className="space-y-4">
-                                <div className="w-44 mx-auto rounded-xl overflow-hidden shadow-xl border border-[var(--card-border)] card-hover">
+                                <div className="w-full rounded-xl overflow-hidden shadow-xl border border-[var(--card-border)] card-hover">
                                     <img
                                         src={`https://cdn.233.momobako.com/ygoimg/sc/${selectedCardInfo.result[0].id}.webp`}
                                         className="w-full"
                                         alt="Official Art"
                                     />
-                                </div>
-
-                                {/* 卡片描述 */}
-                                <div className="panel p-4">
-                                    <p className="text-sm text-[var(--foreground)] leading-relaxed">
-                                        {selectedCardInfo.result[0].text.desc}
-                                    </p>
                                 </div>
 
                                 {/* ATK/DEF */}
@@ -189,6 +185,13 @@ export default function Sidebar({
                                         )}
                                     </div>
                                 )}
+
+                                {/* 卡片描述 */}
+                                <div className="panel p-4">
+                                    <p className="text-sm text-[var(--foreground)] leading-relaxed">
+                                        {selectedCardInfo.result[0].text.desc}
+                                    </p>
+                                </div>
                             </div>
                         )}
 

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRecognition } from '../hooks/useRecognition';
 import { useCanvasInteraction } from '../hooks/useCanvasInteraction';
+import { useMobile } from '../hooks/useMobile';
 import { extractArtwork, STANDARD_CARD, PENDULUM_CARD } from '../utils/recognition';
 import Header from './ui/Header';
 import UploadArea from './ui/UploadArea';
@@ -11,6 +12,8 @@ import Sidebar from './ui/Sidebar';
 import Magnifier from './ui/Magnifier';
 import CropperModal from './ui/CropperModal';
 import FloatingToolbar from './ui/FloatingToolbar';
+import MobileCardListDrawer from './ui/MobileCardListDrawer';
+import MobileCardDetailDrawer from './ui/MobileCardDetailDrawer';
 
 const loadImage = (file: File): Promise<HTMLImageElement> => {
     return new Promise((resolve, reject) => {
@@ -21,7 +24,19 @@ const loadImage = (file: File): Promise<HTMLImageElement> => {
     });
 };
 
+// 检查图片是否需要裁剪
+const shouldAutoCrop = (img: HTMLImageElement, isMobile: boolean): boolean => {
+    const aspectRatio = img.width / img.height;
+    // 移动端：始终需要裁剪
+    // 电脑端：宽高比超过1.5时需要裁剪
+    if (isMobile) {
+        return true;
+    }
+    return aspectRatio > 1.5;
+};
+
 export default function DeckRecognizer() {
+    const isMobile = useMobile();
     const recognition = useRecognition();
     const {
         isInitializing,
@@ -33,7 +48,7 @@ export default function DeckRecognizer() {
         selectedCardIndex,
         selectedCardInfo,
         isDetailLoading,
-        originalImage,
+      originalImage,
         session,
         wasmDb,
         processImage,
@@ -49,8 +64,12 @@ export default function DeckRecognizer() {
     const [showCropper, setShowCropper] = useState(false);
     const [forcePendulumMode, setForcePendulumMode] = useState(false);
     const [selectedCardArtwork, setSelectedCardArtwork] = useState<string | null>(null);
-    const [uploadedImage, setUploadedImage] = useState<HTMLImageElement | null>(null); // 原始上传图片
+    const [uploadedImage, setUploadedImage] = useState<HTMLImageElement | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // 移动端抽屉状态
+    const [showCardListDrawer, setShowCardListDrawer] = useState(false);
+    const [showCardDetailDrawer, setShowCardDetailDrawer] = useState(false);
 
     const canvasInteraction = useCanvasInteraction({
         originalImage,
@@ -60,6 +79,9 @@ export default function DeckRecognizer() {
         onSelectCard: (index) => {
             if (index === -1) {
                 setSelectedCardIndex(-1);
+                if (isMobile) {
+                    setShowCardDetailDrawer(false);
+                }
             } else {
                 handleCardSelect(index);
             }
@@ -85,16 +107,24 @@ export default function DeckRecognizer() {
         resetState();
         setForcePendulumMode(false);
         setSelectedCardArtwork(null);
+        setShowCardListDrawer(false);
+        setShowCardDetailDrawer(false);
 
         try {
             const img = await loadImage(file);
-            setUploadedImage(img); // 保存原始上传图片
-            setOriginalImage(img);
-            processImage(img);
+            setUploadedImage(img);
+
+            // 检查是否需要自动裁剪
+            if (shouldAutoCrop(img, isMobile)) {
+                setShowCropper(true);
+            } else {
+                setOriginalImage(img);
+                processImage(img);
+            }
         } catch (error: any) {
             console.error('图片加载失败:', error);
         }
-    }, [session, wasmDb, resetState, setOriginalImage, processImage]);
+    }, [session, wasmDb, resetState, setOriginalImage, processImage, isMobile]);
 
     useEffect(() => {
         const handlePaste = (e: ClipboardEvent) => {
@@ -180,7 +210,12 @@ export default function DeckRecognizer() {
         setForcePendulumMode(isPendulumMatch);
         updateArtworkPreview(index, isPendulumMatch);
         selectCard(index);
-    }, [recognizedCards, selectCard, updateArtworkPreview]);
+
+        // 移动端：打开卡片详情抽屉
+        if (isMobile) {
+            setShowCardDetailDrawer(true);
+        }
+    }, [recognizedCards, selectCard, updateArtworkPreview, isMobile]);
 
     const toggleCardMode = useCallback(() => {
         if (selectedCardIndex === -1) return;
@@ -194,7 +229,6 @@ export default function DeckRecognizer() {
         const card = recognizedCards[selectedCardIndex];
         const newMatch = card.matches[matchIndex];
         const isPendulum = newMatch.cardType === 'pendulum';
-
         setForcePendulumMode(isPendulum);
         updateArtworkPreview(selectedCardIndex, isPendulum);
         handleSelectAltMatch(matchIndex);
@@ -249,7 +283,18 @@ export default function DeckRecognizer() {
         }
     };
 
+    const handleCropCancel = () => {
+        setShowCropper(false);
+        // 如果取消裁剪且没有已处理的图片，直接使用原图
+        if (uploadedImage && !originalImage) {
+            setOriginalImage(uploadedImage);
+            processImage(uploadedImage);
+        }
+    };
+
     const isProcessing = processingStage === 'detecting' || processingStage === 'identifying';
+
+    const selectedCard = selectedCardIndex !== -1 ? recognizedCards[selectedCardIndex] : null;
 
     return (
         <div className="flex flex-col h-screen bg-[var(--background)] text-[var(--foreground)] overflow-hidden select-none">
@@ -271,14 +316,15 @@ export default function DeckRecognizer() {
                 statusText={statusText}
                 progress={progress}
                 processingStage={processingStage}
+                show={!isMobile && processingStage !== 'idle'}
             />
 
-            <div className="flex flex-1 overflow-hidden relative">
+            <div className={`flex flex-1 overflow-hidden relative ${isMobile ? 'flex-col' : ''}`}>
                 {showCropper && uploadedImage && (
                     <CropperModal
                         imageSrc={uploadedImage.src}
                         onApply={applyCrop}
-                        onCancel={() => setShowCropper(false)}
+                        onCancel={handleCropCancel}
                     />
                 )}
 
@@ -289,41 +335,79 @@ export default function DeckRecognizer() {
                     />
                 )}
 
-                <CardCanvas
-                    originalImage={originalImage}
-                    recognizedCards={recognizedCards}
-                    selectedCardIndex={selectedCardIndex}
-                    isDragging={dragState.isDragging}
-                    canvasRef={canvasRef}
-                    containerRef={containerRef}
-                    onMouseDown={handleMouseDown}
-                    onMouseMove={handleMouseMove}
-                    onMouseUp={handleMouseUp}
-                    onMouseLeave={handleMouseLeave}
-                />
+                {/* 主画布区域 */}
+                <div className="relative flex-1 flex flex-col overflow-hidden">
+                    <CardCanvas
+                        originalImage={originalImage}
+                        recognizedCards={recognizedCards}
+                        selectedCardIndex={selectedCardIndex}
+                        isDragging={dragState.isDragging}
+                        canvasRef={canvasRef}
+                        containerRef={containerRef}
+                        onMouseDown={handleMouseDown}
+                        onMouseMove={handleMouseMove}
+                        onMouseUp={handleMouseUp}
+                        onMouseLeave={handleMouseLeave}
+                    />
 
-                {/* 底部浮动工具栏 */}
-                {originalImage && (
-                    <FloatingToolbar
-                        onCropClick={() => setShowCropper(true)}
-                        onUploadClick={() => fileInputRef.current?.click()}
-                        disabled={isInitializing || isProcessing}
+                    {/* 底部浮动工具栏 */}
+                    {originalImage && (
+                        <FloatingToolbar
+                            onCropClick={() => setShowCropper(true)}
+                            onUploadClick={() => fileInputRef.current?.click()}
+                            onCardListClick={() => setShowCardListDrawer(true)}
+                            showCardListButton={isMobile}
+                            cardCount={recognizedCards.length}
+                            disabled={isInitializing || isProcessing}
+                        />
+                    )}
+                </div>
+
+                {/* 电脑端侧边栏 */}
+                {!isMobile && (
+                    <Sidebar
+                        processingStage={processingStage}
+                        processingVisual={processingVisual}
+                        recognizedCards={recognizedCards}
+                        selectedCardIndex={selectedCardIndex}
+                        selectedCardInfo={selectedCardInfo}
+                        isDetailLoading={isDetailLoading}
+                        selectedCardArtwork={selectedCardArtwork}
+                        forcePendulumMode={forcePendulumMode}
+                        onToggleCardMode={toggleCardMode}
+                        onSelectAltMatch={handleAltMatchSelect}
+                        onSelectCard={handleCardSelect}
                     />
                 )}
 
-                <Sidebar
-                    processingStage={processingStage}
-                    processingVisual={processingVisual}
-                    recognizedCards={recognizedCards}
-                    selectedCardIndex={selectedCardIndex}
-                    selectedCardInfo={selectedCardInfo}
-                    isDetailLoading={isDetailLoading}
-                    selectedCardArtwork={selectedCardArtwork}
-                    forcePendulumMode={forcePendulumMode}
-                    onToggleCardMode={toggleCardMode}
-                    onSelectAltMatch={handleAltMatchSelect}
-                    onSelectCard={handleCardSelect}
-                />
+                {/* 移动端抽屉 */}
+                {isMobile && (
+                    <>
+                        <MobileCardListDrawer
+                            isOpen={showCardListDrawer}
+                            onClose={() => setShowCardListDrawer(false)}
+                            processingStage={processingStage}
+                            processingVisual={processingVisual}
+                            recognizedCards={recognizedCards}
+                            onSelectCard={handleCardSelect}
+                        />
+
+                        <MobileCardDetailDrawer
+                            isOpen={showCardDetailDrawer}
+                            onClose={() => {
+                                setShowCardDetailDrawer(false);
+                                setSelectedCardIndex(-1);
+                            }}
+                            selectedCard={selectedCard}
+                            selectedCardInfo={selectedCardInfo}
+                            isDetailLoading={isDetailLoading}
+                            selectedCardArtwork={selectedCardArtwork}
+                            forcePendulumMode={forcePendulumMode}
+                            onToggleCardMode={toggleCardMode}
+                            onSelectAltMatch={handleAltMatchSelect}
+                        />
+                    </>
+                )}
             </div>
 
             <input

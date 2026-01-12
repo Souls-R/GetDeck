@@ -5,14 +5,18 @@ interface HeaderProps {
     statusText: string;
     progress: number;
     processingStage: ProcessingStage;
+    show?: boolean;
 }
 
 export default function Header({
     statusText,
     progress,
-    processingStage
+    processingStage,
+    show = true
 }: HeaderProps) {
     const isProcessing = processingStage === 'detecting' || processingStage === 'identifying';
+
+    if (!show) return null;
 
     return (
         <header className="h-14 flex items-center justify-between px-6 bg-[var(--card-bg)] border-b border-[var(--card-border)] shrink-0 z-10">
