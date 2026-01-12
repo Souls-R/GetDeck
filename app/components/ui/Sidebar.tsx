@@ -32,28 +32,36 @@ function parseCardTypes(typesStr: string): string[] {
     }
 
     // 提取种族/属性（在第一个方括号后、换行前的部分）
+    let badget2='';
     const firstLine = typesStr.split('\n')[0];
     const afterBracket = firstLine.replace(/\[[^\]]+\]\s*/, '').trim();
     if (afterBracket) {
         // 分割种族/属性，每个单独一个徽章
         const subTypes = afterBracket.split('/').map(s => s.trim()).filter(s => s);
-        badges.push(...subTypes);
+        // badges.push(...subTypes);
+        badget2 = subTypes.join('/');
     }
 
     // 提取星级
     const starMatch = typesStr.match(/\[(★\d+|☆\d+)\]/);
     if (starMatch) {
-        badges.push(starMatch[1]);
+        // badges.push(starMatch[1]);
+        if (badget2) {
+            badget2 = badget2 + ' ' + starMatch[1];
+        }
+    }
+    if (badget2) {
+        badges.push(badget2);
     }
 
     // 提取 ATK/DEF（第二行的数值）
-    // const secondLine = typesStr.split('\n')[1];
-    // if (secondLine) {
-    //     const atkDefMatch = secondLine.match(/(\d+)\/(\d+)/);
-    //     if (atkDefMatch) {
-    //         badges.push(`${atkDefMatch[1]}/${atkDefMatch[2]}`);
-    //     }
-    // }
+    const secondLine = typesStr.split('\n')[1];
+    if (secondLine) {
+        const atkDefMatch = secondLine.match(/(\d+)\/(\d+)/);
+        if (atkDefMatch) {
+            badges.push(`${atkDefMatch[1]}/${atkDefMatch[2]}`);
+        }
+    }
 
     return badges;
 }
@@ -120,23 +128,14 @@ export default function Sidebar({
                 <div className="flex flex-col h-full animate-scale-in">
                     {/* 头部 */}
                     <div className="p-6 border-b border-[var(--card-border)] bg-gradient-card">
-                        <div className="flex items-start justify-between gap-3">
-                            <div className="flex-1 min-w-0">
-                                <h2 className="text-xl font-bold text-[var(--foreground)] mb-2 line-clamp-2 leading-tight">
-                                    {currentMatch?.name}
-                                </h2>
-                                {selectedCardInfo?.result?.[0]?.text?.types && (
-                                    <div className="flex flex-wrap gap-2">
-                                        {parseCardTypes(selectedCardInfo.result[0].text.types).map((badge, i) => (
-                                            <span key={i} className="badge text-xs">{badge}</span>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
+                        <div className="flex items-center justify-between gap-3 mb-2">
+                            <h2 className="text-xl font-bold text-[var(--foreground)] line-clamp-2 leading-tight flex-1 min-w-0">
+                                {currentMatch?.name}
+                            </h2>
                             {/* 识别源按钮 */}
                             <button
                                 onClick={() => setIsSourcePanelExpanded(!isSourcePanelExpanded)}
-                                className={`p-2 rounded-lg transition-colors shrink-0 ${
+                                className={`p-1.5 rounded-lg transition-colors shrink-0 ${
                                     isSourcePanelExpanded
                                         ? 'bg-[var(--primary)] text-white'
                                         : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]'
@@ -149,6 +148,13 @@ export default function Sidebar({
                                 </svg>
                             </button>
                         </div>
+                        {selectedCardInfo?.result?.[0]?.text?.types && (
+                            <div className="flex flex-wrap gap-2">
+                                {parseCardTypes(selectedCardInfo.result[0].text.types).map((badge, i) => (
+                                    <span key={i} className="badge text-xs">{badge}</span>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">

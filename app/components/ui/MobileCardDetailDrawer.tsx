@@ -30,18 +30,26 @@ function parseCardTypes(typesStr: string): string[] {
     }
 
     // 提取种族/属性（在第一个方括号后、换行前的部分）
+    let badget2 = '';
     const firstLine = typesStr.split('\n')[0];
     const afterBracket = firstLine.replace(/\[[^\]]+\]\s*/, '').trim();
     if (afterBracket) {
         // 分割种族/属性，每个单独一个徽章
         const subTypes = afterBracket.split('/').map(s => s.trim()).filter(s => s);
-        badges.push(...subTypes);
+        // badges.push(...subTypes);
+        badget2 = subTypes.join('/');
     }
 
     // 提取星级
     const starMatch = typesStr.match(/\[(★\d+|☆\d+)\]/);
     if (starMatch) {
-        badges.push(starMatch[1]);
+        // badges.push(starMatch[1]);
+        if (badget2) {
+            badget2 = badget2 + '/' + starMatch[1];
+        }
+    }
+    if (badget2) {
+        badges.push(badget2);
     }
 
     // 提取 ATK/DEF（第二行的数值）
@@ -84,35 +92,33 @@ export default function MobileCardDetailDrawer({
             <div className="flex flex-col">
                 {/* 头部 */}
                 <div className="p-4 border-b border-[var(--card-border)] bg-gradient-card">
-                    <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                            <h2 className="text-lg font-bold text-[var(--foreground)] mb-2 line-clamp-2 leading-tight">
-                                {currentMatch?.name}
-                            </h2>
-                            {selectedCardInfo?.result?.[0]?.text?.types && (
-                                <div className="flex flex-wrap gap-1.5">
-                                    {parseCardTypes(selectedCardInfo.result[0].text.types).map((badge, i) => (
-                                        <span key={i} className="badge text-xs">{badge}</span>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
+                    <div className="flex items-center justify-between gap-3 mb-2">
+                        <h2 className="text-lg font-bold text-[var(--foreground)] line-clamp-2 leading-tight flex-1 min-w-0">
+                            {currentMatch?.name}
+                        </h2>
                         {/* 识别源按钮 */}
                         <button
                             onClick={() => setShowSourcePanel(!showSourcePanel)}
-                            className={`p-2 rounded-lg transition-colors shrink-0 ${
+                            className={`p-1 rounded-lg transition-colors shrink-0 ${
                                 showSourcePanel
                                     ? 'bg-[var(--primary)] text-white'
                                     : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]'
                             }`}
                             title="识别源图像"
                         >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                             </svg>
                         </button>
                     </div>
+                    {selectedCardInfo?.result?.[0]?.text?.types && (
+                        <div className="flex flex-wrap gap-1.5">
+                            {parseCardTypes(selectedCardInfo.result[0].text.types).map((badge, i) => (
+                                <span key={i} className="badge text-xs">{badge}</span>
+                            ))}
+                        </div>
+                    )}
 
                     {/* 识别源面板 - 展开时显示 */}
                     {showSourcePanel && (
