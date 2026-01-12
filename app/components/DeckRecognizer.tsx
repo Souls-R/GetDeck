@@ -10,6 +10,7 @@ import CardCanvas from './ui/CardCanvas';
 import Sidebar from './ui/Sidebar';
 import Magnifier from './ui/Magnifier';
 import CropperModal from './ui/CropperModal';
+import FloatingToolbar from './ui/FloatingToolbar';
 
 const loadImage = (file: File): Promise<HTMLImageElement> => {
     return new Promise((resolve, reject) => {
@@ -21,7 +22,6 @@ const loadImage = (file: File): Promise<HTMLImageElement> => {
 };
 
 export default function DeckRecognizer() {
-    // 使用自定义hooks
     const recognition = useRecognition();
     const {
         isInitializing,
@@ -46,13 +46,12 @@ export default function DeckRecognizer() {
         resetState
     } = recognition;
 
-    // 本地状态
     const [showCropper, setShowCropper] = useState(false);
     const [forcePendulumMode, setForcePendulumMode] = useState(false);
     const [selectedCardArtwork, setSelectedCardArtwork] = useState<string | null>(null);
+    const [uploadedImage, setUploadedImage] = useState<HTMLImageElement | null>(null); // 原始上传图片
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // Canvas交互hook
     const canvasInteraction = useCanvasInteraction({
         originalImage,
         recognizedCards,
@@ -80,7 +79,6 @@ export default function DeckRecognizer() {
         handleMouseLeave
     } = canvasInteraction;
 
-    // 处理文件选择
     const handleFile = useCallback(async (file: File) => {
         if (!session || !wasmDb) return;
 
@@ -90,6 +88,7 @@ export default function DeckRecognizer() {
 
         try {
             const img = await loadImage(file);
+            setUploadedImage(img); // 保存原始上传图片
             setOriginalImage(img);
             processImage(img);
         } catch (error: any) {
@@ -97,7 +96,6 @@ export default function DeckRecognizer() {
         }
     }, [session, wasmDb, resetState, setOriginalImage, processImage]);
 
-    // 粘贴事件处理
     useEffect(() => {
         const handlePaste = (e: ClipboardEvent) => {
             const items = e.clipboardData?.items;
@@ -114,7 +112,44 @@ export default function DeckRecognizer() {
         return () => window.removeEventListener('paste', handlePaste);
     }, [handleFile]);
 
-    // 更新artwork预览
+    // 全局拖拽支持
+    const [isDragOver, setIsDragOver] = useState(false);
+
+    useEffect(() => {
+        const handleDragOver = (e: DragEvent) => {
+            e.preventDefault();
+            if (e.dataTransfer?.types.includes('Files')) {
+                setIsDragOver(true);
+            }
+        };
+
+        const handleDragLeave = (e: DragEvent) => {
+            e.preventDefault();
+            if (e.relatedTarget === null) {
+                setIsDragOver(false);
+            }
+        };
+
+        const handleDrop = (e: DragEvent) => {
+            e.preventDefault();
+            setIsDragOver(false);
+            const file = e.dataTransfer?.files[0];
+            if (file && file.type.startsWith('image/')) {
+                handleFile(file);
+            }
+        };
+
+        window.addEventListener('dragover', handleDragOver);
+        window.addEventListener('dragleave', handleDragLeave);
+        window.addEventListener('drop', handleDrop);
+
+        return () => {
+            window.removeEventListener('dragover', handleDragOver);
+            window.removeEventListener('dragleave', handleDragLeave);
+            window.removeEventListener('drop', handleDrop);
+        };
+    }, [handleFile]);
+
     const updateArtworkPreview = useCallback((index: number, isPendulum: boolean) => {
         if (!originalImage || index === -1) return;
         const card = recognizedCards[index];
@@ -136,7 +171,6 @@ export default function DeckRecognizer() {
         setSelectedCardArtwork(artworkCanvas.toDataURL());
     }, [originalImage, recognizedCards]);
 
-    // 处理卡片选择
     const handleCardSelect = useCallback(async (index: number) => {
         if (index === -1) return;
         const card = recognizedCards[index];
@@ -148,7 +182,6 @@ export default function DeckRecognizer() {
         selectCard(index);
     }, [recognizedCards, selectCard, updateArtworkPreview]);
 
-    // 切换卡片模式
     const toggleCardMode = useCallback(() => {
         if (selectedCardIndex === -1) return;
         const newMode = !forcePendulumMode;
@@ -156,7 +189,6 @@ export default function DeckRecognizer() {
         updateArtworkPreview(selectedCardIndex, newMode);
     }, [selectedCardIndex, forcePendulumMode, updateArtworkPreview]);
 
-    // 处理备选匹配选择
     const handleAltMatchSelect = useCallback((matchIndex: number) => {
         if (selectedCardIndex === -1) return;
         const card = recognizedCards[selectedCardIndex];
@@ -168,7 +200,6 @@ export default function DeckRecognizer() {
         handleSelectAltMatch(matchIndex);
     }, [selectedCardIndex, recognizedCards, handleSelectAltMatch, updateArtworkPreview]);
 
-    // 裁剪相关
     const getCroppedImg = (imageSrc: string, pixelCrop: any): Promise<HTMLImageElement> => {
         return new Promise((resolve, reject) => {
             const image = new Image();
@@ -204,9 +235,9 @@ export default function DeckRecognizer() {
     };
 
     const applyCrop = async (croppedAreaPixels: any) => {
-        if (!originalImage) return;
+        if (!uploadedImage) return;
         try {
-            const croppedImage = await getCroppedImg(originalImage.src, croppedAreaPixels);
+            const croppedImage = await getCroppedImg(uploadedImage.src, croppedAreaPixels);
             setOriginalImage(croppedImage);
             setShowCropper(false);
             resetState();
@@ -218,34 +249,39 @@ export default function DeckRecognizer() {
         }
     };
 
+    const isProcessing = processingStage === 'detecting' || processingStage === 'identifying';
+
     return (
         <div className="flex flex-col h-screen bg-[var(--background)] text-[var(--foreground)] overflow-hidden select-none">
-            {/* 放大镜 */}
+            {/* 全局拖拽覆盖层 */}
+            {isDragOver && (
+                <div className="fixed inset-0 z-50 bg-[var(--primary)]/10 backdrop-blur-sm flex items-center justify-center pointer-events-none animate-fade-in">
+                    <div className="flex flex-col items-center gap-4 p-8 rounded-2xl bg-[var(--card-bg)] border-2 border-dashed border-[var(--primary)] shadow-2xl">
+                        <svg className="w-12 h-12 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                        </svg>
+                        <span className="text-lg font-medium text-[var(--foreground)]">松开以上传图片</span>
+                    </div>
+                </div>
+            )}
+
             <Magnifier {...magnifier} />
 
-            {/* 头部 */}
             <Header
                 statusText={statusText}
                 progress={progress}
                 processingStage={processingStage}
-                isInitializing={isInitializing}
-                hasImage={!!originalImage}
-                onCropClick={() => setShowCropper(true)}
-                onFileClick={() => fileInputRef.current?.click()}
             />
 
-            {/* 主体内容 */}
             <div className="flex flex-1 overflow-hidden relative">
-                {/* 裁剪器 */}
-                {showCropper && originalImage && (
+                {showCropper && uploadedImage && (
                     <CropperModal
-                        imageSrc={originalImage.src}
+                        imageSrc={uploadedImage.src}
                         onApply={applyCrop}
                         onCancel={() => setShowCropper(false)}
                     />
                 )}
 
-                {/* 空状态/上传区域 */}
                 {!originalImage && (
                     <UploadArea
                         isInitializing={isInitializing}
@@ -253,12 +289,10 @@ export default function DeckRecognizer() {
                     />
                 )}
 
-                {/* Canvas区域 */}
                 <CardCanvas
                     originalImage={originalImage}
                     recognizedCards={recognizedCards}
                     selectedCardIndex={selectedCardIndex}
-                    processingStage={processingStage}
                     isDragging={dragState.isDragging}
                     canvasRef={canvasRef}
                     containerRef={containerRef}
@@ -268,7 +302,15 @@ export default function DeckRecognizer() {
                     onMouseLeave={handleMouseLeave}
                 />
 
-                {/* 侧边栏 */}
+                {/* 底部浮动工具栏 */}
+                {originalImage && (
+                    <FloatingToolbar
+                        onCropClick={() => setShowCropper(true)}
+                        onUploadClick={() => fileInputRef.current?.click()}
+                        disabled={isInitializing || isProcessing}
+                    />
+                )}
+
                 <Sidebar
                     processingStage={processingStage}
                     processingVisual={processingVisual}
@@ -284,7 +326,6 @@ export default function DeckRecognizer() {
                 />
             </div>
 
-            {/* 隐藏的文件输入 */}
             <input
                 type="file"
                 ref={fileInputRef}

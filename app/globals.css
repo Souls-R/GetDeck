@@ -146,6 +146,19 @@ body {
   animation: shimmer 1.5s infinite;
 }
 
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.15s ease-out forwards;
+}
+
 /* 渐变背景 */
 .bg-gradient-main {
   background: linear-gradient(135deg, var(--background) 0%, var(--background-secondary) 100%);
