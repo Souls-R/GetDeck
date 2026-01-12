@@ -17,6 +17,10 @@ import {
 const MODEL_PATH = '/best.onnx';
 const HASH_DB_PATH = '/card_hash.json';
 
+// Global Cache (Module Scope) - Persists across re-renders/remounts within the session
+const globalCardInfoCache: Record<string, CardInfo> = {};
+const pendingRequests: Record<string, Promise<CardInfo>> = {};
+
 interface ProcessingVisual {
     index: number;
     artworkUrl: string;
@@ -42,11 +46,10 @@ export default function DeckRecognizer() {
     const [selectedCardIndex, setSelectedCardIndex] = useState<number>(-1);
     
     // Card Details & Correction
-    const [cardInfoCache, setCardInfoCache] = useState<Record<string, CardInfo>>({});
     const [selectedCardInfo, setSelectedCardInfo] = useState<CardInfo | null>(null);
     const [isDetailLoading, setIsDetailLoading] = useState(false);
     const [selectedCardArtwork, setSelectedCardArtwork] = useState<string | null>(null);
-    const [forcePendulumMode, setForcePendulumMode] = useState(false); 
+    const [forcePendulumMode, setForcePendulumMode] = useState(false); // New: Toggle for crop mode
     const [isSourcePanelExpanded, setIsSourcePanelExpanded] = useState(false); // Collapsed by default
 
     // Dragging State & Magnifier
@@ -57,6 +60,7 @@ export default function DeckRecognizer() {
         show: false, x: 0, y: 0, content: null
     });
     const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
+    const latestRequestedNameRef = useRef<string | null>(null);
 
     // Refs
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -175,12 +179,16 @@ export default function DeckRecognizer() {
             ctx.drawImage(img, 0, 0);
 
             const phash = new PHash(16);
+
+            // Process Loop with Local Accumulator
+            const finalResults: RecognizedCard[] = [...initialCards];
             const CHUNK_SIZE = 3; 
             for (let i = 0; i < sortedBoxes.length; i++) {
                 const box = sortedBoxes[i];
                 const artworkStandard = extractArtwork(ctx, box, STANDARD_CARD);
                 const artworkPendulum = extractArtwork(ctx, box, PENDULUM_CARD);
                 
+                // Sidebar preview (Standard by default during initial scan)
                 const tempCanvas = document.createElement('canvas');
                 tempCanvas.width = artworkStandard.width;
                 tempCanvas.height = artworkStandard.height;
@@ -197,16 +205,16 @@ export default function DeckRecognizer() {
                     currentMatchName: matchResult.matches[0]?.name || '...'
                 });
 
-                setRecognizedCards(prev => {
-                    const next = [...prev];
-                    next[i] = {
-                        ...next[i],
-                        matches: matchResult.matches,
-                        hashStandard,
-                        hashPendulum
-                    };
-                    return next;
-                });
+                // Update local accumulator
+                finalResults[i] = {
+                    ...finalResults[i],
+                    matches: matchResult.matches,
+                    hashStandard,
+                    hashPendulum
+                };
+
+                // Update State (UI)
+                setRecognizedCards([...finalResults]);
 
                 setProgress(Math.round(((i + 1) / sortedBoxes.length) * 100));
 
@@ -218,6 +226,26 @@ export default function DeckRecognizer() {
             setProcessingStage('done');
             setStatusText('识别完成');
             setProcessingVisual(null);
+
+            // 5. Automatic Pre-fetching (Limited Concurrency)
+            const uniqueNames = Array.from(new Set(finalResults.map(c => c.matches[0]?.name).filter(Boolean)));
+            
+            // Simple concurrency limiter (Queue)
+            const CONCURRENCY_LIMIT = 10;
+            let currentIndex = 0;
+
+            const processNext = async () => {
+                if (currentIndex >= uniqueNames.length) return;
+                const name = uniqueNames[currentIndex++];
+                // Fetch without updating UI (background cache fill)
+                await fetchCardInfo(name, false);
+                processNext();
+            };
+
+            // Start initial batch
+            for (let i = 0; i < Math.min(CONCURRENCY_LIMIT, uniqueNames.length); i++) {
+                processNext();
+            }
 
         } catch (error: any) {
             console.error(error);
@@ -449,7 +477,8 @@ export default function DeckRecognizer() {
         updateArtworkPreview(index, isPendulumMatch);
 
         if (card.matches.length > 0) {
-            await fetchCardInfo(currentMatch.name);
+            latestRequestedNameRef.current = currentMatch.name;
+            await fetchCardInfo(currentMatch.name, true);
         }
     };
 
@@ -476,6 +505,12 @@ export default function DeckRecognizer() {
         if (selectedCardIndex === -1) return;
         const newMode = !forcePendulumMode;
         setForcePendulumMode(newMode);
+        // Force update magnifier immediately if dragging
+        if (dragState.isDragging && dragState.initialBox) {
+            // Need to recalculate box pos (or pass current one)
+            // But dragging usually blocks UI, toggle might be hard. 
+            // This is for Sidebar toggle.
+        }
         updateArtworkPreview(selectedCardIndex, newMode);
     };
 
@@ -489,7 +524,9 @@ export default function DeckRecognizer() {
         const ctx = canvas.getContext('2d')!;
         ctx.drawImage(originalImage, 0, 0);
 
+        // Ensure phash is instantiated here
         const phash = new PHash(16);
+        
         const artworkStandard = extractArtwork(ctx, card.box, STANDARD_CARD);
         const artworkPendulum = extractArtwork(ctx, card.box, PENDULUM_CARD);
         const hashStandard = phash.compute(artworkStandard);
@@ -512,26 +549,68 @@ export default function DeckRecognizer() {
         updateArtworkPreview(index, forcePendulumMode);
         
         if (matchResult.matches.length > 0) {
-            await fetchCardInfo(matchResult.matches[0].name);
+            latestRequestedNameRef.current = matchResult.matches[0].name;
+            await fetchCardInfo(matchResult.matches[0].name, true);
         }
     };
 
-    const fetchCardInfo = async (name: string) => {
-        if (cardInfoCache[name]) {
-            setSelectedCardInfo(cardInfoCache[name]);
+    const fetchCardInfo = async (name: string, updateUI: boolean = true) => {
+        // 1. Check Global Cache
+        if (globalCardInfoCache[name]) {
+            if (updateUI && name === latestRequestedNameRef.current) {
+                setSelectedCardInfo(globalCardInfoCache[name]);
+            }
             return;
         }
-        setIsDetailLoading(true);
+
+        // 2. Check Pending Requests (Deduplication)
+        const pendingPromise = pendingRequests[name];
+        if (pendingPromise !== undefined) {
+            if (updateUI) setIsDetailLoading(true);
+            try {
+                const data = await pendingPromise;
+                if (updateUI && name === latestRequestedNameRef.current) {
+                    setSelectedCardInfo(data);
+                }
+            } catch (error) {
+                console.error('Pending request failed:', error);
+                if (updateUI && name === latestRequestedNameRef.current) {
+                    setSelectedCardInfo(null);
+                }
+            } finally {
+                if (updateUI && name === latestRequestedNameRef.current) {
+                    setIsDetailLoading(false);
+                }
+            }
+            return;
+        }
+
+        if (updateUI) setIsDetailLoading(true);
+        
+        // 3. Initiate New Request
+        const promise = fetch(`https://ygocdb.com/api/v0/?search=${encodeURIComponent(name)}`)
+            .then(r => r.json());
+            
+        pendingRequests[name] = promise;
+
         try {
-            const response = await fetch(`https://ygocdb.com/api/v0/?search=${encodeURIComponent(name)}`);
-            const data = await response.json();
-            setCardInfoCache(prev => ({ ...prev, [name]: data }));
-            setSelectedCardInfo(data);
+            const data = await promise;
+            // 4. Save to Global Cache
+            globalCardInfoCache[name] = data;
+            
+            if (updateUI && name === latestRequestedNameRef.current) {
+                setSelectedCardInfo(data);
+            }
         } catch (error) {
             console.error('获取卡片信息失败:', error);
-            setSelectedCardInfo(null);
+            if (updateUI && name === latestRequestedNameRef.current) {
+                setSelectedCardInfo(null);
+            }
         } finally {
-            setIsDetailLoading(false);
+            delete pendingRequests[name]; // Clean up pending
+            if (updateUI && name === latestRequestedNameRef.current) {
+                setIsDetailLoading(false);
+            }
         }
     };
 
@@ -542,7 +621,9 @@ export default function DeckRecognizer() {
         setRecognizedCards(newRecognizedCards);
         
         const newMatch = newRecognizedCards[selectedCardIndex].matches[matchIndex];
-        fetchCardInfo(newMatch.name);
+        
+        latestRequestedNameRef.current = newMatch.name;
+        fetchCardInfo(newMatch.name, true);
         
         const isPendulum = newMatch.cardType === 'pendulum';
         setForcePendulumMode(isPendulum);
@@ -660,7 +741,7 @@ export default function DeckRecognizer() {
                     
                     {originalImage && processingStage === 'done' && !dragState.isDragging && (
                         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur text-white/70 text-xs px-4 py-2 rounded-full pointer-events-none animate-in fade-in slide-in-from-bottom-2 duration-700">
-                            长按黄色方框以进行精确微调
+                            长按卡片边框以进行微调并重新识别
                         </div>
                     )}
                 </div>
@@ -676,13 +757,13 @@ export default function DeckRecognizer() {
                                 {processingVisual?.artworkUrl && (
                                     <img src={processingVisual.artworkUrl} className="w-full h-full object-contain" alt="processing" />
                                 )}
-                                <div className="absolute inset-0 bg-gradient-to-t from-blue-900/50 to-transparent"></div>
+                                <div className="absolute inset-0 bg-linear-to-t from-blue-900/50 to-transparent"></div>
                             </div>
                             <div className="space-y-1">
                                 <div className="text-2xl font-light text-white">
                                     {processingVisual?.index || 0} <span className="text-gray-600 text-lg">/ {recognizedCards.length}</span>
                                 </div>
-                                <div className="text-xs text-gray-500 truncate max-w-[200px] mx-auto min-h-[1rem]">
+                                <div className="text-xs text-gray-500 truncate max-w-50 mx-auto min-h-4">
                                     {processingVisual?.currentMatchName}
                                 </div>
                             </div>
