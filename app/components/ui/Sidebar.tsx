@@ -13,6 +13,7 @@ interface SidebarProps {
     forcePendulumMode: boolean;
     onToggleCardMode: () => void;
     onSelectAltMatch: (matchIndex: number) => void;
+    onSelectCard: (index: number) => void;
 }
 
 export default function Sidebar({
@@ -25,7 +26,8 @@ export default function Sidebar({
     selectedCardArtwork,
     forcePendulumMode,
     onToggleCardMode,
-    onSelectAltMatch
+    onSelectAltMatch,
+    onSelectCard
 }: SidebarProps) {
     const [isSourcePanelExpanded, setIsSourcePanelExpanded] = useState(false);
 
@@ -227,21 +229,82 @@ export default function Sidebar({
                 </div>
             )}
 
-            {/* 空状态 */}
-            {processingStage === 'done' && selectedCardIndex === -1 && (
-                <div className="h-full flex flex-col items-center justify-center p-8 text-center">
-                    <div className="w-20 h-20 rounded-2xl bg-[var(--background-secondary)] flex items-center justify-center mb-6">
-                        <svg className="w-10 h-10 text-[var(--foreground-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                        </svg>
+            {/* 空状态 - 显示卡片列表 */}
+            {processingStage === 'done' && selectedCardIndex === -1 && (() => {
+                // 合并相同卡片
+                const cardGroups: { name: string; count: number; indices: number[]; cardType: string }[] = [];
+                recognizedCards.forEach((card, index) => {
+                    const match = card.matches[card.selectedMatchIndex];
+                    if (!match) return;
+
+                    const existing = cardGroups.find(g => g.name === match.name);
+                    if (existing) {
+                        existing.count++;
+                        existing.indices.push(index);
+                    } else {
+                        cardGroups.push({
+                            name: match.name,
+                            count: 1,
+                            indices: [index],
+                            cardType: match.cardType
+                        });
+                    }
+                });
+
+                return (
+                    <div className="flex flex-col h-full">
+                        {/* 头部统计 */}
+                        <div className="p-4 border-b border-[var(--card-border)] bg-gradient-card">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow">
+                                        <span className="text-lg font-bold text-white">{recognizedCards.length}</span>
+                                    </div>
+                                    <div>
+                                        <h2 className="text-base font-bold text-[var(--foreground)]">识别完成</h2>
+                                        <p className="text-xs text-[var(--foreground-muted)]">{cardGroups.length} 种卡片</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 卡片列表 */}
+                        <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
+                            <div className="space-y-1">
+                                {cardGroups.map((group, groupIndex) => (
+                                    <button
+                                        key={groupIndex}
+                                        onClick={() => onSelectCard(group.indices[0])}
+                                        className="w-full text-left px-3 py-2 rounded-lg bg-[var(--background-secondary)] hover:bg-[var(--card-border)] border border-transparent hover:border-[var(--primary)]/30 transition-all duration-150 group"
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            {/* 数量 */}
+                                            <div className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 text-xs font-bold ${
+                                                group.count > 1
+                                                    ? 'bg-[var(--primary)] text-white'
+                                                    : 'bg-[var(--card-bg)] border border-[var(--card-border)] text-[var(--foreground-muted)]'
+                                            }`}>
+                                                {group.count}
+                                            </div>
+                                            {/* 卡名 */}
+                                            <span className="flex-1 text-sm text-[var(--foreground)] group-hover:text-[var(--primary)] truncate transition-colors">
+                                                {group.name}
+                                            </span>
+                                            {/* 类型标记 */}
+                                            {group.cardType === 'pendulum' && (
+                                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--success)]/15 text-[var(--success)] font-medium">P</span>
+                                            )}
+                                            <svg className="w-3.5 h-3.5 text-[var(--foreground-muted)] group-hover:text-[var(--primary)] transition-colors opacity-0 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
                     </div>
-                    <div className="text-5xl font-light text-[var(--primary)] mb-4">
-                        {recognizedCards.length}
-                    </div>
-                    <p className="text-[var(--foreground)] font-medium mb-2">张卡片已识别</p>
-                    <p className="text-sm text-[var(--foreground-muted)]">点击左侧卡片查看详情</p>
-                </div>
-            )}
+                );
+            })()}
 
             {/* 空闲状态 */}
             {processingStage === 'idle' && (

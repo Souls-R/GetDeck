@@ -280,6 +280,7 @@ export default function DeckRecognizer() {
                     forcePendulumMode={forcePendulumMode}
                     onToggleCardMode={toggleCardMode}
                     onSelectAltMatch={handleAltMatchSelect}
+                    onSelectCard={handleCardSelect}
                 />
             </div>
 
