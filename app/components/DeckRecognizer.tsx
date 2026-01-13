@@ -365,9 +365,6 @@ export default function DeckRecognizer() {
             <Magnifier {...magnifier} />
 
             <Header
-                statusText={statusText}
-                progress={progress}
-                processingStage={processingStage}
                 show={uploadedImage !== null || originalImage !== null}
             />
 
