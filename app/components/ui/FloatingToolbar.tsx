@@ -73,8 +73,8 @@ export default function FloatingToolbar({
                     </svg>
                 </button>
 
-                {/* Card List Button - 移动端显示 */}
-                {showCardListButton && (
+                {/* Card List Button - 移动端和PC端都显示 */}
+                {(showCardListButton || cardCount > 0) && (
                     <>
                         <div className="w-px h-6 bg-[var(--card-border)]" />
                         <button

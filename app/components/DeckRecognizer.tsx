@@ -299,7 +299,7 @@ export default function DeckRecognizer() {
         if (isGeneratingDeckCode) return;
 
         // 额外卡组的怪兽类型关键词
-        const extraDeckTypes = ['融合', '超量', '连接','同调', '链接'];
+        const extraDeckTypes = ['融合', '超量', '连接','同调', '链接', '同步'];
 
         const deck: {
             monsters: string[];
@@ -320,15 +320,15 @@ export default function DeckRecognizer() {
             const cid = String(match.id);
             const cardInfo = globalCardInfoCache[match.name];
             const types = cardInfo?.result?.[0]?.text?.types || '';
-
-            // 根据类型分类
-            if (types.includes('魔法')) {
+            
+            if (extraDeckTypes.some(t => types.includes(t))) {
+                // 融合/同步/超量/链接怪兽放入额外卡组
+                deck.extra.push(cid);
+                console.log(`Adding to deck: ${match.name} (Types: ${types}) added to Extra Deck`);
+            } else if (types.includes('魔法')&&!types.includes('魔法师')) {
                 deck.spells.push(cid);
             } else if (types.includes('陷阱')) {
                 deck.traps.push(cid);
-            } else if (extraDeckTypes.some(t => types.includes(t))) {
-                // 融合/同步/超量/链接怪兽放入额外卡组
-                deck.extra.push(cid);
             } else {
                 // 其他怪兽卡放入主卡组
                 deck.monsters.push(cid);
@@ -487,7 +487,14 @@ export default function DeckRecognizer() {
                         <FloatingToolbar
                             onCropClick={() => setShowCropper(true)}
                             onUploadClick={() => fileInputRef.current?.click()}
-                            onCardListClick={() => setShowCardListDrawer(true)}
+                            onCardListClick={() => {
+                                if (isMobile) {
+                                    setShowCardListDrawer(true);
+                                } else {
+                                    // PC端：取消选中卡片，回到列表视图
+                                    setSelectedCardIndex(-1);
+                                }
+                            }}
                             showCardListButton={isMobile}
                             cardCount={recognizedCards.length}
                             disabled={isInitializing || isProcessing}
