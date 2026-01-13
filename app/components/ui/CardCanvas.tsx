@@ -12,6 +12,7 @@ interface CardCanvasProps {
     onMouseMove: (e: React.MouseEvent<HTMLCanvasElement>) => void;
     onMouseUp: () => void;
     onMouseLeave: () => void;
+    onCardTap?: (index: number) => void;
 }
 
 export default function CardCanvas({
@@ -24,7 +25,8 @@ export default function CardCanvas({
     onMouseDown,
     onMouseMove,
     onMouseUp,
-    onMouseLeave
+    onMouseLeave,
+    onCardTap
 }: CardCanvasProps) {
     // 缩放和平移状态 - 使用 ref 避免状态更新延迟
     const [, forceUpdate] = useState(0);
@@ -38,9 +40,12 @@ export default function CardCanvas({
         lastDistance: 0,
         lastCenter: { x: 0, y: 0 },
         lastSingleTouch: { x: 0, y: 0 },
+        startSingleTouch: { x: 0, y: 0 },
         isPinching: false,
         isDragging: false,
-        touchCount: 0
+        touchCount: 0,
+        hasMoved: false,
+        wasPinching: false  // 标记是否刚刚结束双指操作
     });
 
     // PC端鼠标拖动状态
@@ -167,6 +172,7 @@ export default function CardCanvas({
     const handleTouchStart = useCallback((e: React.TouchEvent) => {
         const touches = e.touches;
         touchStateRef.current.touchCount = touches.length;
+        touchStateRef.current.hasMoved = false;
 
         if (touches.length === 2) {
             // 双指缩放开始
@@ -177,14 +183,26 @@ export default function CardCanvas({
             touchStateRef.current.lastCenter = center;
             touchStateRef.current.isPinching = true;
             touchStateRef.current.isDragging = false;
-        } else if (touches.length === 1 && transformRef.current.scale > 1) {
-            // 单指拖动开始（仅在缩放状态下）
+            touchStateRef.current.wasPinching = true;  // 标记正在进行双指操作
+        } else if (touches.length === 1) {
+            // 记录起始位置
+            touchStateRef.current.startSingleTouch = {
+                x: touches[0].clientX,
+                y: touches[0].clientY
+            };
             touchStateRef.current.lastSingleTouch = {
                 x: touches[0].clientX,
                 y: touches[0].clientY
             };
-            touchStateRef.current.isDragging = true;
-            touchStateRef.current.isPinching = false;
+            // 只有不是从双指操作过来的，才重置 wasPinching
+            if (touchStateRef.current.touchCount === 1 && !touchStateRef.current.isPinching) {
+                touchStateRef.current.wasPinching = false;
+            }
+            if (transformRef.current.scale > 1) {
+                // 单指拖动开始（仅在缩放状态下）
+                touchStateRef.current.isDragging = true;
+                touchStateRef.current.isPinching = false;
+            }
         }
     }, []);
 
@@ -197,23 +215,37 @@ export default function CardCanvas({
             const distance = getDistance(touches[0], touches[1]);
             const center = getCenter(touches[0], touches[1]);
 
-            // 计算缩放
+            // 计算缩放比例变化
             const scaleChange = distance / touchStateRef.current.lastDistance;
-            const newScale = Math.min(Math.max(transformRef.current.scale * scaleChange, 1), 5);
+            const oldScale = transformRef.current.scale;
+            const newScale = Math.min(Math.max(oldScale * scaleChange, 1), 5);
 
-            // 计算平移
-            const dx = center.x - touchStateRef.current.lastCenter.x;
-            const dy = center.y - touchStateRef.current.lastCenter.y;
+            // 获取面板的中心位置
+            if (panelRef.current) {
+                const rect = panelRef.current.getBoundingClientRect();
+                const panelCenterX = rect.left + rect.width / 2;
+                const panelCenterY = rect.top + rect.height / 2;
 
-            transformRef.current.scale = newScale;
-            if (newScale > 1) {
-                transformRef.current.x += dx;
-                transformRef.current.y += dy;
-            } else {
-                transformRef.current.x = 0;
-                transformRef.current.y = 0;
+                // 计算缩放中心相对于面板中心的位置
+                const pinchCenterX = center.x - panelCenterX;
+                const pinchCenterY = center.y - panelCenterY;
+
+                // 计算双指中心的移动
+                const dx = center.x - touchStateRef.current.lastCenter.x;
+                const dy = center.y - touchStateRef.current.lastCenter.y;
+
+                if (newScale > 1) {
+                    // 以双指中心为缩放中心进行缩放
+                    const actualScaleChange = newScale / oldScale;
+                    transformRef.current.x = pinchCenterX - (pinchCenterX - transformRef.current.x) * actualScaleChange + dx;
+                    transformRef.current.y = pinchCenterY - (pinchCenterY - transformRef.current.y) * actualScaleChange + dy;
+                } else {
+                    transformRef.current.x = 0;
+                    transformRef.current.y = 0;
+                }
             }
 
+            transformRef.current.scale = newScale;
             touchStateRef.current.lastDistance = distance;
             touchStateRef.current.lastCenter = center;
 
@@ -223,6 +255,13 @@ export default function CardCanvas({
             e.preventDefault();
             const dx = touches[0].clientX - touchStateRef.current.lastSingleTouch.x;
             const dy = touches[0].clientY - touchStateRef.current.lastSingleTouch.y;
+
+            // 检测是否有明显移动（超过10像素认为是拖动）
+            const totalDx = touches[0].clientX - touchStateRef.current.startSingleTouch.x;
+            const totalDy = touches[0].clientY - touchStateRef.current.startSingleTouch.y;
+            if (Math.abs(totalDx) > 10 || Math.abs(totalDy) > 10) {
+                touchStateRef.current.hasMoved = true;
+            }
 
             transformRef.current.x += dx;
             transformRef.current.y += dy;
@@ -240,8 +279,44 @@ export default function CardCanvas({
         const remainingTouches = e.touches.length;
 
         if (remainingTouches === 0) {
+            // 检测是否是单击（没有移动、不是双指操作、且在缩放状态下）
+            if (transformRef.current.scale > 1 &&
+                !touchStateRef.current.hasMoved &&
+                !touchStateRef.current.wasPinching &&  // 排除刚刚结束的双指操作
+                onCardTap) {
+                // 计算点击位置对应的canvas坐标
+                const canvas = canvasRef.current;
+                const panel = panelRef.current;
+                if (canvas && panel) {
+                    const { startSingleTouch } = touchStateRef.current;
+                    const { scale, x, y } = transformRef.current;
+
+                    const panelRect = panel.getBoundingClientRect();
+                    const canvasRect = canvas.getBoundingClientRect();
+
+                    // 计算点击位置相对于canvas的位置（考虑缩放和平移）
+                    const canvasScaleX = canvas.width / canvasRect.width;
+                    const canvasScaleY = canvas.height / canvasRect.height;
+
+                    // 点击位置相对于canvas元素的位置
+                    const clickX = (startSingleTouch.x - canvasRect.left) * canvasScaleX;
+                    const clickY = (startSingleTouch.y - canvasRect.top) * canvasScaleY;
+
+                    // 检查点击了哪张卡片
+                    for (let i = recognizedCards.length - 1; i >= 0; i--) {
+                        const card = recognizedCards[i];
+                        if (clickX >= card.box.x1 && clickX <= card.box.x2 &&
+                            clickY >= card.box.y1 && clickY <= card.box.y2) {
+                            onCardTap(i);
+                            break;
+                        }
+                    }
+                }
+            }
+
             touchStateRef.current.isPinching = false;
             touchStateRef.current.isDragging = false;
+            touchStateRef.current.wasPinching = false;  // 重置双指操作标记
 
             // 如果缩放回到1，重置平移
             if (transformRef.current.scale <= 1) {
@@ -249,19 +324,25 @@ export default function CardCanvas({
                 updateTransform();
             }
         } else if (remainingTouches === 1 && touchStateRef.current.isPinching) {
-            // 从双指变成单指，开始拖动
+            // 从双指变成单指，标记为刚结束双指操作
             touchStateRef.current.isPinching = false;
+            touchStateRef.current.wasPinching = true;  // 保持标记，防止松开最后一指时触发点击
             if (transformRef.current.scale > 1) {
                 touchStateRef.current.isDragging = true;
                 touchStateRef.current.lastSingleTouch = {
                     x: e.touches[0].clientX,
                     y: e.touches[0].clientY
                 };
+                touchStateRef.current.startSingleTouch = {
+                    x: e.touches[0].clientX,
+                    y: e.touches[0].clientY
+                };
+                touchStateRef.current.hasMoved = false;
             }
         }
 
         touchStateRef.current.touchCount = remainingTouches;
-    }, [updateTransform]);
+    }, [updateTransform, onCardTap, recognizedCards, canvasRef]);
 
     // 双击重置缩放
     const lastTapRef = useRef(0);

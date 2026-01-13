@@ -480,6 +480,9 @@ export default function DeckRecognizer() {
                         onMouseMove={handleMouseMove}
                         onMouseUp={handleMouseUp}
                         onMouseLeave={handleMouseLeave}
+                        onCardTap={isMobile ? (index) => {
+                            handleCardSelect(index);
+                        } : undefined}
                     />
 
                     {/* 底部浮动工具栏 */}
