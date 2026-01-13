@@ -83,8 +83,6 @@ export function useRecognition(): UseRecognitionReturn {
     useEffect(() => {
         async function initialize() {
             try {
-                await init();
-
                 // 判断是否为国内用户，选择合适的 CDN
                 const isChinaUser = () => {
                     // 1. 检查浏览器语言
@@ -103,13 +101,11 @@ export function useRecognition(): UseRecognitionReturn {
                     ? 'https://registry.npmmirror.com/onnxruntime-web/1.23.2/files/dist/'
                     : 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.23.2/dist/';
 
+                // 提前设置 ONNX Runtime WASM 路径
                 ort.env.wasm.wasmPaths = wasmCdnPath;
                 ort.env.wasm.numThreads = 1;
 
-                const db = new Database();
-
                 // 5秒后开始显示下载进度
-                const startTime = Date.now();
                 let showProgressTimer: ReturnType<typeof setTimeout> | null = null;
                 let shouldShowProgress = false;
 
@@ -119,8 +115,36 @@ export function useRecognition(): UseRecognitionReturn {
                     setStatusText('正在下载模型...');
                 }, 5000);
 
-                // 使用 fetch 手动下载模型以获取进度
-                const modelPromise = (async () => {
+                // 并行下载所有资源：
+                // 1. core-wasm 初始化
+                // 2. ONNX 模型文件下载
+                // 3. 卡片哈希数据库下载
+                // 4. 预热 ONNX Runtime (触发 WASM 文件下载)
+
+                // 预热 ONNX Runtime - 创建一个最小 session 来触发 WASM 下载
+                // ONNX Runtime 会自动选择合适的 WASM 文件
+                const wasmWarmupPromise = (async () => {
+                    try {
+                        // 创建一个最小的有效 ONNX 模型来触发 WASM 加载
+                        // 这是一个只有一个 Identity 节点的最小模型
+                        const minimalModel = new Uint8Array([
+                            0x08, 0x08, 0x12, 0x0c, 0x6f, 0x6e, 0x6e, 0x78, 0x2d, 0x77, 0x61, 0x72,
+                            0x6d, 0x75, 0x70, 0x00, 0x1a, 0x23, 0x0a, 0x01, 0x78, 0x12, 0x01, 0x79,
+                            0x1a, 0x0b, 0x0a, 0x01, 0x78, 0x12, 0x01, 0x79, 0x22, 0x03, 0x41, 0x64,
+                            0x64, 0x22, 0x0e, 0x0a, 0x01, 0x78, 0x10, 0x01, 0x1a, 0x07, 0x0a, 0x01,
+                            0x31, 0x12, 0x02, 0x08, 0x01, 0x22, 0x0e, 0x0a, 0x01, 0x79, 0x10, 0x01,
+                            0x1a, 0x07, 0x0a, 0x01, 0x31, 0x12, 0x02, 0x08, 0x01
+                        ]);
+                        await ort.InferenceSession.create(minimalModel.buffer, {
+                            executionProviders: ['wasm']
+                        });
+                    } catch {
+                        // 模型可能无效，但 WASM 文件应该已经开始下载了
+                    }
+                })();
+
+                // 下载模型文件（带进度）
+                const modelDownloadPromise = (async () => {
                     const response = await fetch(MODEL_PATH);
                     if (!response.ok) throw new Error(`模型加载失败: ${response.statusText}`);
 
@@ -128,12 +152,7 @@ export function useRecognition(): UseRecognitionReturn {
                     const total = contentLength ? parseInt(contentLength, 10) : 0;
 
                     if (!response.body || !total) {
-                        // 无法获取进度，直接返回 ArrayBuffer
-                        const buffer = await response.arrayBuffer();
-                        return ort.InferenceSession.create(buffer, {
-                            executionProviders: ['wasm'],
-                            graphOptimizationLevel: 'all'
-                        });
+                        return await response.arrayBuffer();
                     }
 
                     const reader = response.body.getReader();
@@ -161,25 +180,38 @@ export function useRecognition(): UseRecognitionReturn {
                         position += chunk.length;
                     }
 
-                    return ort.InferenceSession.create(buffer.buffer, {
-                        executionProviders: ['wasm'],
-                        graphOptimizationLevel: 'all'
-                    });
+                    return buffer.buffer;
                 })();
 
-                const [sessionResult, dbResult] = await Promise.all([
-                    modelPromise,
-                    fetch(HASH_DB_PATH).then(r => {
-                        if (!r.ok) throw new Error(`数据库加载失败: ${r.statusText}`);
-                        return r.json();
-                    })
+                // 下载哈希数据库
+                const hashDbPromise = fetch(HASH_DB_PATH).then(r => {
+                    if (!r.ok) throw new Error(`数据库加载失败: ${r.statusText}`);
+                    return r.json();
+                });
+
+                // 初始化 core-wasm
+                const wasmInitPromise = init();
+
+                // 并行等待所有下载完成
+                const [, modelBuffer, dbResult] = await Promise.all([
+                    wasmInitPromise,
+                    modelDownloadPromise,
+                    hashDbPromise,
+                    wasmWarmupPromise // 不需要结果，只是确保 WASM 开始下载
                 ]);
+
+                // 创建 ONNX Session（此时 WASM 应该已经缓存了）
+                const sessionResult = await ort.InferenceSession.create(modelBuffer, {
+                    executionProviders: ['wasm'],
+                    graphOptimizationLevel: 'all'
+                });
 
                 // 清除定时器
                 if (showProgressTimer) {
                     clearTimeout(showProgressTimer);
                 }
 
+                const db = new Database();
                 db.load_database(JSON.stringify(dbResult));
                 setSession(sessionResult);
                 setHashDatabase(dbResult);
