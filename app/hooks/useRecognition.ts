@@ -38,6 +38,7 @@ export interface UseRecognitionReturn {
     selectedCardInfo: CardInfo | null;
     isDetailLoading: boolean;
     originalImage: HTMLImageElement | null;
+    modelDownloadProgress: number | null;
 
     // WASM相关
     session: ort.InferenceSession | null;
@@ -62,6 +63,7 @@ export function useRecognition(): UseRecognitionReturn {
     const [wasmDb, setWasmDb] = useState<Database | null>(null);
     const [isInitializing, setIsInitializing] = useState(true);
     const [statusText, setStatusText] = useState('正在初始化模型...');
+    const [modelDownloadProgress, setModelDownloadProgress] = useState<number | null>(null);
 
     // 图像和处理状态
     const [originalImage, setOriginalImage] = useState<HTMLImageElement | null>(null);
@@ -87,25 +89,88 @@ export function useRecognition(): UseRecognitionReturn {
 
                 const db = new Database();
 
-                const [sessionResult, dbResult] = await Promise.all([
-                    ort.InferenceSession.create(MODEL_PATH, {
+                // 5秒后开始显示下载进度
+                const startTime = Date.now();
+                let showProgressTimer: ReturnType<typeof setTimeout> | null = null;
+                let shouldShowProgress = false;
+
+                showProgressTimer = setTimeout(() => {
+                    shouldShowProgress = true;
+                    setModelDownloadProgress(0);
+                    setStatusText('正在下载模型...');
+                }, 5000);
+
+                // 使用 fetch 手动下载模型以获取进度
+                const modelPromise = (async () => {
+                    const response = await fetch(MODEL_PATH);
+                    if (!response.ok) throw new Error(`模型加载失败: ${response.statusText}`);
+
+                    const contentLength = response.headers.get('content-length');
+                    const total = contentLength ? parseInt(contentLength, 10) : 0;
+
+                    if (!response.body || !total) {
+                        // 无法获取进度，直接返回 ArrayBuffer
+                        const buffer = await response.arrayBuffer();
+                        return ort.InferenceSession.create(buffer, {
+                            executionProviders: ['wasm'],
+                            graphOptimizationLevel: 'all'
+                        });
+                    }
+
+                    const reader = response.body.getReader();
+                    const chunks: Uint8Array[] = [];
+                    let received = 0;
+
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+                        chunks.push(value);
+                        received += value.length;
+
+                        if (shouldShowProgress) {
+                            const progressPercent = Math.round((received / total) * 100);
+                            setModelDownloadProgress(progressPercent);
+                            setStatusText(`正在下载模型... ${progressPercent}%`);
+                        }
+                    }
+
+                    // 合并所有 chunks
+                    const buffer = new Uint8Array(received);
+                    let position = 0;
+                    for (const chunk of chunks) {
+                        buffer.set(chunk, position);
+                        position += chunk.length;
+                    }
+
+                    return ort.InferenceSession.create(buffer.buffer, {
                         executionProviders: ['wasm'],
                         graphOptimizationLevel: 'all'
-                    }),
+                    });
+                })();
+
+                const [sessionResult, dbResult] = await Promise.all([
+                    modelPromise,
                     fetch(HASH_DB_PATH).then(r => {
                         if (!r.ok) throw new Error(`数据库加载失败: ${r.statusText}`);
                         return r.json();
                     })
                 ]);
 
+                // 清除定时器
+                if (showProgressTimer) {
+                    clearTimeout(showProgressTimer);
+                }
+
                 db.load_database(JSON.stringify(dbResult));
                 setSession(sessionResult);
                 setHashDatabase(dbResult);
                 setWasmDb(db);
                 setIsInitializing(false);
+                setModelDownloadProgress(null);
                 setStatusText('就绪');
             } catch (error: any) {
                 setStatusText(`初始化失败: ${error.message}`);
+                setModelDownloadProgress(null);
                 console.error(error);
             }
         }
@@ -416,6 +481,7 @@ export function useRecognition(): UseRecognitionReturn {
         selectedCardInfo,
         isDetailLoading,
         originalImage,
+        modelDownloadProgress,
         session,
         wasmDb,
         processImage,

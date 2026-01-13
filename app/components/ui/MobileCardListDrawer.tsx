@@ -1,13 +1,12 @@
 import React from 'react';
 import { RecognizedCard } from '../../types';
-import { ProcessingStage, ProcessingVisual } from '../../hooks/useRecognition';
+import { ProcessingStage } from '../../hooks/useRecognition';
 import BottomDrawer from './BottomDrawer';
 
 interface MobileCardListDrawerProps {
     isOpen: boolean;
     onClose: () => void;
     processingStage: ProcessingStage;
-    processingVisual: ProcessingVisual | null;
     recognizedCards: RecognizedCard[];
     onSelectCard: (index: number) => void;
 }
@@ -16,7 +15,6 @@ export default function MobileCardListDrawer({
     isOpen,
     onClose,
     processingStage,
-    processingVisual,
     recognizedCards,
     onSelectCard
 }: MobileCardListDrawerProps) {
@@ -47,33 +45,11 @@ export default function MobileCardListDrawer({
 
     return (
         <BottomDrawer isOpen={isOpen} onClose={onClose} maxHeight="92vh">
-            {/* 处理中状态 */}
+            {/* 处理中状态 - 简化显示 */}
             {processingStage === 'identifying' && (
                 <div className="flex flex-col items-center justify-center p-8 text-center">
-                    <div className="mb-4">
-                        <span className="badge">正在识别</span>
-                    </div>
-
-                    <div className="relative w-28 h-28 rounded-2xl overflow-hidden border-2 border-[var(--primary)]/20 bg-[var(--background-secondary)] shadow-xl mb-4">
-                        {processingVisual?.artworkUrl && (
-                            <img
-                                src={processingVisual.artworkUrl}
-                                className="w-full h-full object-contain animate-pulse-soft"
-                                alt="processing"
-                            />
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-[var(--primary)]/20 to-transparent" />
-                    </div>
-
-                    <div className="space-y-1">
-                        <div className="text-3xl font-light text-[var(--foreground)]">
-                            {processingVisual?.index || 0}
-                            <span className="text-lg text-[var(--foreground-muted)]"> / {recognizedCards.length}</span>
-                        </div>
-                        <div className="text-sm text-[var(--foreground-muted)] truncate max-w-[200px]">
-                            {processingVisual?.currentMatchName}
-                        </div>
-                    </div>
+                    <div className="w-10 h-10 rounded-full border-2 border-[var(--card-border)] border-t-[var(--primary)] animate-spin mb-4" />
+                    <p className="text-[var(--foreground)] font-medium">正在识别...</p>
                 </div>
             )}
 

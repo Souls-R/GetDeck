@@ -28,6 +28,8 @@ export default function CardCanvas({
 }: CardCanvasProps) {
     // 缩放和平移状态 - 使用 ref 避免状态更新延迟
     const [, forceUpdate] = useState(0);
+    const [isZoomed, setIsZoomed] = useState(false);
+    const [isPanDragging, setIsPanDragging] = useState(false);
     const transformRef = useRef({ scale: 1, x: 0, y: 0 });
     const panelRef = useRef<HTMLDivElement>(null);
 
@@ -39,6 +41,12 @@ export default function CardCanvas({
         isPinching: false,
         isDragging: false,
         touchCount: 0
+    });
+
+    // PC端鼠标拖动状态
+    const mouseStateRef = useRef({
+        isDragging: false,
+        lastMousePos: { x: 0, y: 0 }
     });
 
     // 重置缩放当图片改变时
@@ -137,6 +145,7 @@ export default function CardCanvas({
         if (panelRef.current) {
             const { scale, x, y } = transformRef.current;
             panelRef.current.style.transform = `scale(${scale}) translate(${x / scale}px, ${y / scale}px)`;
+            setIsZoomed(scale > 1);
         }
     }, []);
 
@@ -268,6 +277,89 @@ export default function CardCanvas({
         }
     }, [updateTransform]);
 
+    // PC端滚轮缩放
+    const handleWheel = useCallback((e: React.WheelEvent) => {
+        e.preventDefault();
+
+        const delta = e.deltaY > 0 ? 0.9 : 1.1;
+        const newScale = Math.min(Math.max(transformRef.current.scale * delta, 1), 5);
+
+        // 以鼠标位置为中心缩放
+        if (panelRef.current) {
+            const rect = panelRef.current.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left - rect.width / 2;
+            const mouseY = e.clientY - rect.top - rect.height / 2;
+
+            const scaleChange = newScale / transformRef.current.scale;
+
+            if (newScale > 1) {
+                transformRef.current.x = mouseX - (mouseX - transformRef.current.x) * scaleChange;
+                transformRef.current.y = mouseY - (mouseY - transformRef.current.y) * scaleChange;
+            } else {
+                transformRef.current.x = 0;
+                transformRef.current.y = 0;
+            }
+        }
+
+        transformRef.current.scale = newScale;
+        updateTransform();
+    }, [updateTransform]);
+
+    // PC端鼠标拖动开始
+    const handlePanelMouseDown = useCallback((e: React.MouseEvent) => {
+        // 只在缩放状态下且是左键点击时启用拖动
+        if (transformRef.current.scale > 1 && e.button === 0) {
+            mouseStateRef.current.isDragging = true;
+            mouseStateRef.current.lastMousePos = { x: e.clientX, y: e.clientY };
+            setIsPanDragging(true);
+            e.preventDefault();
+        }
+    }, []);
+
+    // PC端鼠标拖动移动
+    const handlePanelMouseMove = useCallback((e: React.MouseEvent) => {
+        if (mouseStateRef.current.isDragging && transformRef.current.scale > 1) {
+            const dx = e.clientX - mouseStateRef.current.lastMousePos.x;
+            const dy = e.clientY - mouseStateRef.current.lastMousePos.y;
+
+            transformRef.current.x += dx;
+            transformRef.current.y += dy;
+
+            mouseStateRef.current.lastMousePos = { x: e.clientX, y: e.clientY };
+            updateTransform();
+        }
+    }, [updateTransform]);
+
+    // PC端鼠标拖动结束
+    const handlePanelMouseUp = useCallback(() => {
+        mouseStateRef.current.isDragging = false;
+        setIsPanDragging(false);
+
+        // 如果缩放回到1，重置平移
+        if (transformRef.current.scale <= 1) {
+            transformRef.current = { scale: 1, x: 0, y: 0 };
+            updateTransform();
+        }
+    }, [updateTransform]);
+
+    // PC端鼠标离开
+    const handlePanelMouseLeave = useCallback(() => {
+        mouseStateRef.current.isDragging = false;
+        setIsPanDragging(false);
+    }, []);
+
+    // PC端双击重置
+    const lastClickRef = useRef(0);
+    const handlePanelDoubleClick = useCallback((e: React.MouseEvent) => {
+        const now = Date.now();
+        if (now - lastClickRef.current < 300) {
+            // 双击检测 - 重置
+            transformRef.current = { scale: 1, x: 0, y: 0 };
+            updateTransform();
+        }
+        lastClickRef.current = now;
+    }, [updateTransform]);
+
     return (
         <div
             ref={containerRef}
@@ -277,7 +369,7 @@ export default function CardCanvas({
             {/* Canvas面板 */}
             <div
                 ref={panelRef}
-                className={`panel panel-elevated overflow-hidden ${isDragging ? 'scale-[1.005]' : ''}`}
+                className={`panel panel-elevated overflow-hidden ${isDragging ? 'scale-[1.005]' : ''} ${isZoomed ? (isPanDragging ? 'cursor-grabbing' : 'cursor-grab') : ''}`}
                 style={{
                     touchAction: 'none',
                     willChange: 'transform'
@@ -288,15 +380,21 @@ export default function CardCanvas({
                 }}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
+                onWheel={handleWheel}
+                onMouseDown={handlePanelMouseDown}
+                onMouseMove={handlePanelMouseMove}
+                onMouseUp={handlePanelMouseUp}
+                onMouseLeave={handlePanelMouseLeave}
+                onClick={handlePanelDoubleClick}
             >
                 <canvas
                     ref={canvasRef}
-                    onMouseDown={onMouseDown}
-                    onMouseMove={onMouseMove}
-                    onMouseUp={onMouseUp}
-                    onMouseLeave={onMouseLeave}
+                    onMouseDown={isZoomed ? undefined : onMouseDown}
+                    onMouseMove={isZoomed ? undefined : onMouseMove}
+                    onMouseUp={isZoomed ? undefined : onMouseUp}
+                    onMouseLeave={isZoomed ? undefined : onMouseLeave}
                     className="block"
-                    style={{ opacity: originalImage ? 1 : 0 }}
+                    style={{ opacity: originalImage ? 1 : 0, pointerEvents: isZoomed ? 'none' : 'auto' }}
                 />
             </div>
         </div>

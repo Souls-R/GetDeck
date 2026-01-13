@@ -49,6 +49,7 @@ export default function DeckRecognizer() {
         selectedCardInfo,
         isDetailLoading,
       originalImage,
+        modelDownloadProgress,
         session,
         wasmDb,
         processImage,
@@ -367,7 +368,7 @@ export default function DeckRecognizer() {
                 statusText={statusText}
                 progress={progress}
                 processingStage={processingStage}
-                show={processingStage !== 'idle'}
+                show={uploadedImage !== null || originalImage !== null}
             />
 
             <div className={`flex flex-1 overflow-hidden relative ${isMobile ? 'flex-col' : ''}`}>
@@ -382,6 +383,7 @@ export default function DeckRecognizer() {
                 {!originalImage && (
                     <UploadArea
                         isInitializing={isInitializing}
+                        modelDownloadProgress={modelDownloadProgress}
                         onFileSelect={handleFile}
                     />
                 )}
@@ -418,7 +420,6 @@ export default function DeckRecognizer() {
                 {!isMobile && (
                     <Sidebar
                         processingStage={processingStage}
-                        processingVisual={processingVisual}
                         recognizedCards={recognizedCards}
                         selectedCardIndex={selectedCardIndex}
                         selectedCardInfo={selectedCardInfo}
@@ -439,7 +440,6 @@ export default function DeckRecognizer() {
                             isOpen={showCardListDrawer}
                             onClose={() => setShowCardListDrawer(false)}
                             processingStage={processingStage}
-                            processingVisual={processingVisual}
                             recognizedCards={recognizedCards}
                             onSelectCard={handleCardSelect}
                         />

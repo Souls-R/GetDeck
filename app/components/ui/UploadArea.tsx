@@ -2,10 +2,11 @@ import React, { useRef, useState } from 'react';
 
 interface UploadAreaProps {
     isInitializing: boolean;
+    modelDownloadProgress: number | null;
     onFileSelect: (file: File) => void;
 }
 
-export default function UploadArea({ isInitializing, onFileSelect }: UploadAreaProps) {
+export default function UploadArea({ isInitializing, modelDownloadProgress, onFileSelect }: UploadAreaProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isDragOver, setIsDragOver] = useState(false);
 
@@ -62,9 +63,26 @@ export default function UploadArea({ isInitializing, onFileSelect }: UploadAreaP
                             <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full border-4 border-[var(--card-border)] border-t-[var(--primary)] animate-spin"></div>
                         </div>
                         <div className="text-center">
-                            <p className="text-[var(--foreground)] font-medium mb-1">正在加载模型资源</p>
-                            <p className="text-xs sm:text-sm text-[var(--foreground-muted)]">首次加载可能需要几秒钟...</p>
+                            <p className="text-[var(--foreground)] font-medium mb-1">
+                                {modelDownloadProgress !== null ? '正在下载模型...' : '正在加载模型资源'}
+                            </p>
+                            <p className="text-xs sm:text-sm text-[var(--foreground-muted)]">
+                                {modelDownloadProgress !== null
+                                    ? `下载进度: ${modelDownloadProgress}%`
+                                    : '首次加载可能需要几秒钟...'}
+                            </p>
                         </div>
+                        {/* 下载进度条 */}
+                        {modelDownloadProgress !== null && (
+                            <div className="w-full max-w-xs">
+                                <div className="h-2 bg-[var(--card-border)] rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-300 ease-out"
+                                        style={{ width: `${modelDownloadProgress}%` }}
+                                    />
+                                </div>
+                            </div>
+                        )}
                     </div>
                 ) : (
                     <div
@@ -127,7 +145,7 @@ export default function UploadArea({ isInitializing, onFileSelect }: UploadAreaP
                 {/* Features - 移动端隐藏 */}
                 <div className="hidden sm:grid mt-10 grid-cols-3 gap-6">
                     {[
-                        { icon: '🚀', title: '快速识别', desc: 'AI驱动的卡片检测' },
+                        { icon: '🚀', title: '快速识别', desc: '瞬间完成卡片识别' },
                         { icon: '🎯', title: '高精度', desc: '图像哈希精确匹配' },
                         { icon: '✨', title: '本地处理', desc: '无需上传到服务器' }
                     ].map((feature, i) => (

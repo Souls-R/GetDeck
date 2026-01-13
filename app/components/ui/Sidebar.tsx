@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { RecognizedCard, CardInfo } from '../../types';
-import { ProcessingStage, ProcessingVisual } from '../../hooks/useRecognition';
+import { ProcessingStage } from '../../hooks/useRecognition';
 
 interface SidebarProps {
     processingStage: ProcessingStage;
-    processingVisual: ProcessingVisual | null;
     recognizedCards: RecognizedCard[];
     selectedCardIndex: number;
     selectedCardInfo: CardInfo | null;
@@ -76,7 +75,6 @@ function formatCardDesc(desc: string): string {
 
 export default function Sidebar({
     processingStage,
-    processingVisual,
     recognizedCards,
     selectedCardIndex,
     selectedCardInfo,
@@ -95,33 +93,11 @@ export default function Sidebar({
 
     return (
         <div className="w-[400px] border-l border-[var(--card-border)] bg-[var(--card-bg)] flex flex-col shrink-0 overflow-hidden">
-            {/* 处理中状态 */}
-            {processingStage === 'identifying' && (
-                <div className="h-full flex flex-col items-center justify-center p-8 text-center animate-float-in">
-                    <div className="mb-6">
-                        <span className="badge">正在识别</span>
-                    </div>
-
-                    <div className="relative w-36 h-36 rounded-2xl overflow-hidden border-2 border-[var(--primary)]/20 bg-[var(--background-secondary)] shadow-xl mb-6">
-                        {processingVisual?.artworkUrl && (
-                            <img
-                                src={processingVisual.artworkUrl}
-                                className="w-full h-full object-contain animate-pulse-soft"
-                                alt="processing"
-                            />
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-[var(--primary)]/20 to-transparent" />
-                    </div>
-
-                    <div className="space-y-2">
-                        <div className="text-4xl font-light text-[var(--foreground)]">
-                            {processingVisual?.index || 0}
-                            <span className="text-xl text-[var(--foreground-muted)]"> / {recognizedCards.length}</span>
-                        </div>
-                        <div className="text-sm text-[var(--foreground-muted)] truncate max-w-[200px]">
-                            {processingVisual?.currentMatchName}
-                        </div>
-                    </div>
+            {/* 处理中状态 - 简化显示 */}
+            {(processingStage === 'detecting' || processingStage === 'identifying') && (
+                <div className="h-full flex flex-col items-center justify-center p-8 text-center">
+                    <div className="w-12 h-12 rounded-full border-2 border-[var(--card-border)] border-t-[var(--primary)] animate-spin mb-4" />
+                    <p className="text-[var(--foreground)] font-medium">正在识别...</p>
                 </div>
             )}
 
