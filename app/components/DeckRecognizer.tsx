@@ -230,6 +230,117 @@ export default function DeckRecognizer() {
         }
     }, [recognizedCards, selectCard, updateArtworkPreview, isMobile]);
 
+    // PC端方向键切换卡片
+    useEffect(() => {
+        if (isMobile) return;
+
+        const handleKeyDown = (e: KeyboardEvent) => {
+            // 只在有选中卡片且有识别结果时处理
+            if (selectedCardIndex === -1 || recognizedCards.length === 0) return;
+
+            // 检查是否是方向键
+            if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) return;
+
+            e.preventDefault();
+
+            const currentCard = recognizedCards[selectedCardIndex];
+            const currentCenterX = (currentCard.box.x1 + currentCard.box.x2) / 2;
+            const currentCenterY = (currentCard.box.y1 + currentCard.box.y2) / 2;
+            const cardHeight = currentCard.box.y2 - currentCard.box.y1;
+
+            let bestIndex = -1;
+            let bestScore = Infinity;
+
+            // 用于左右换行：先找最近的行，再在该行中找目标
+            let nextRowY = Infinity;  // 下一行的 Y 坐标
+            let prevRowY = -Infinity; // 上一行的 Y 坐标
+
+            // 第一遍：找到最近的下一行和上一行的 Y 坐标
+            recognizedCards.forEach((card, index) => {
+                if (index === selectedCardIndex) return;
+                const centerY = (card.box.y1 + card.box.y2) / 2;
+                const dy = centerY - currentCenterY;
+
+                // 下一行：Y 坐标比当前大，但要找最近的
+                if (dy > cardHeight * 0.5 && centerY < nextRowY) {
+                    nextRowY = centerY;
+                }
+                // 上一行：Y 坐标比当前小，但要找最近的
+                if (dy < -cardHeight * 0.5 && centerY > prevRowY) {
+                    prevRowY = centerY;
+                }
+            });
+
+            recognizedCards.forEach((card, index) => {
+                if (index === selectedCardIndex) return;
+
+                const centerX = (card.box.x1 + card.box.x2) / 2;
+                const centerY = (card.box.y1 + card.box.y2) / 2;
+                const dx = centerX - currentCenterX;
+                const dy = centerY - currentCenterY;
+
+                let isValidDirection = false;
+                let score = Infinity;
+
+                switch (e.key) {
+                    case 'ArrowUp':
+                        // 向上：目标卡片中心在当前卡片上方
+                        if (dy < -10) {
+                            isValidDirection = true;
+                            // 优先选择正上方的，横向偏移作为惩罚
+                            score = Math.abs(dy) + Math.abs(dx) * 2;
+                        }
+                        break;
+                    case 'ArrowDown':
+                        // 向下：目标卡片中心在当前卡片下方
+                        if (dy > 10) {
+                            isValidDirection = true;
+                            score = Math.abs(dy) + Math.abs(dx) * 2;
+                        }
+                        break;
+                    case 'ArrowLeft':
+                        // 向左：目标卡片中心在当前卡片左侧（同行）
+                        if (dx < -10 && Math.abs(dy) < cardHeight * 0.5) {
+                            isValidDirection = true;
+                            score = Math.abs(dx) + Math.abs(dy) * 2;
+                        }
+                        // 换行备选：上一行最右边的卡片
+                        else if (prevRowY > -Infinity && Math.abs(centerY - prevRowY) < cardHeight * 0.5) {
+                            // 在上一行中，选择最右边的
+                            isValidDirection = true;
+                            score = 100000 - centerX; // 大基数确保换行优先级低于同行，centerX 越大分数越小
+                        }
+                        break;
+                    case 'ArrowRight':
+                        // 向右：目标卡片中心在当前卡片右侧（同行）
+                        if (dx > 10 && Math.abs(dy) < cardHeight * 0.5) {
+                            isValidDirection = true;
+                            score = Math.abs(dx) + Math.abs(dy) * 2;
+                        }
+                        // 换行备选：下一行最左边的卡片
+                        else if (nextRowY < Infinity && Math.abs(centerY - nextRowY) < cardHeight * 0.5) {
+                            // 在下一行中，选择最左边的
+                            isValidDirection = true;
+                            score = 100000 + centerX; // 大基数确保换行优先级低于同行，centerX 越小分数越小
+                        }
+                        break;
+                }
+
+                if (isValidDirection && score < bestScore) {
+                    bestScore = score;
+                    bestIndex = index;
+                }
+            });
+
+            if (bestIndex !== -1) {
+                handleCardSelect(bestIndex);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isMobile, selectedCardIndex, recognizedCards, handleCardSelect]);
+
     const toggleCardMode = useCallback(() => {
         if (selectedCardIndex === -1) return;
         const newMode = !forcePendulumMode;
