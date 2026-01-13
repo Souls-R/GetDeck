@@ -349,15 +349,15 @@ export default function DeckRecognizer() {
     const selectedCard = selectedCardIndex !== -1 ? recognizedCards[selectedCardIndex] : null;
 
     return (
-        <div className="flex flex-col h-dvh bg-[var(--background)] text-[var(--foreground)] overflow-hidden">
+        <div className="flex flex-col h-dvh bg-background text-foreground overflow-hidden">
             {/* 全局拖拽覆盖层 */}
             {isDragOver && (
-                <div className="fixed inset-0 z-50 bg-[var(--primary)]/10 backdrop-blur-sm flex items-center justify-center pointer-events-none animate-fade-in">
-                    <div className="flex flex-col items-center gap-4 p-8 rounded-2xl bg-[var(--card-bg)] border-2 border-dashed border-[var(--primary)] shadow-2xl">
-                        <svg className="w-12 h-12 text-[var(--primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="fixed inset-0 z-50 bg-(--primary)/10 backdrop-blur-sm flex items-center justify-center pointer-events-none animate-fade-in">
+                    <div className="flex flex-col items-center gap-4 p-8 rounded-2xl bg-(--card-bg) border-2 border-dashed border-(--primary) shadow-2xl">
+                        <svg className="w-12 h-12 text-(--primary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                         </svg>
-                        <span className="text-lg font-medium text-[var(--foreground)]">松开以上传图片</span>
+                        <span className="text-lg font-medium text-foreground">松开以上传图片</span>
                     </div>
                 </div>
             )}
