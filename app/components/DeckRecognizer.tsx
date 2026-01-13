@@ -80,11 +80,15 @@ export default function DeckRecognizer() {
     const [isGeneratingDeckCode, setIsGeneratingDeckCode] = useState(false);
     const [deckCodeModal, setDeckCodeModal] = useState<{ show: boolean; code?: string; error?: string }>({ show: false });
 
+    // 画布缩放状态
+    const [isCanvasZoomed, setIsCanvasZoomed] = useState(false);
+
     const canvasInteraction = useCanvasInteraction({
         originalImage,
         recognizedCards,
         selectedCardIndex,
         forcePendulumMode,
+        isZoomed: isCanvasZoomed,
         onSelectCard: (index) => {
             if (index === -1) {
                 setSelectedCardIndex(-1);
@@ -483,6 +487,7 @@ export default function DeckRecognizer() {
                         onCardTap={isMobile ? (index) => {
                             handleCardSelect(index);
                         } : undefined}
+                        onZoomChange={setIsCanvasZoomed}
                     />
 
                     {/* 底部浮动工具栏 */}

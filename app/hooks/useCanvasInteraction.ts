@@ -21,6 +21,7 @@ interface UseCanvasInteractionProps {
     recognizedCards: RecognizedCard[];
     selectedCardIndex: number;
     forcePendulumMode: boolean;
+    isZoomed?: boolean;
     isMobile?: boolean;
     onSelectCard: (index: number) => void;
     onUpdateCardBox: (index: number, box: Box) => void;
@@ -43,6 +44,7 @@ export function useCanvasInteraction({
     recognizedCards,
     selectedCardIndex,
     forcePendulumMode,
+    isZoomed = false,
     onSelectCard,
     onUpdateCardBox,
     onReprocessCard
@@ -122,19 +124,22 @@ export function useCanvasInteraction({
                 onSelectCard(clickedIndex);
             }
 
-            longPressTimerRef.current = setTimeout(() => {
-                setDragState({
-                    isDragging: true,
-                    startX: x,
-                    startY: y,
-                    initialBox: { ...recognizedCards[clickedIndex].box }
-                });
-                updateCropMagnifier({ ...recognizedCards[clickedIndex].box }, rawX, rawY);
-            }, 600);
+            // 缩放状态下禁用长按拖动微调功能
+            if (!isZoomed) {
+                longPressTimerRef.current = setTimeout(() => {
+                    setDragState({
+                        isDragging: true,
+                        startX: x,
+                        startY: y,
+                        initialBox: { ...recognizedCards[clickedIndex].box }
+                    });
+                    updateCropMagnifier({ ...recognizedCards[clickedIndex].box }, rawX, rawY);
+                }, 600);
+            }
         } else {
             onSelectCard(-1);
         }
-    }, [originalImage, recognizedCards, selectedCardIndex, getMousePos, onSelectCard, updateCropMagnifier]);
+    }, [originalImage, recognizedCards, selectedCardIndex, getMousePos, onSelectCard, updateCropMagnifier, isZoomed]);
 
     const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
         if (dragState.isDragging) {

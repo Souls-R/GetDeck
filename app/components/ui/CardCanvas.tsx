@@ -13,6 +13,7 @@ interface CardCanvasProps {
     onMouseUp: () => void;
     onMouseLeave: () => void;
     onCardTap?: (index: number) => void;
+    onZoomChange?: (isZoomed: boolean) => void;
 }
 
 export default function CardCanvas({
@@ -26,7 +27,8 @@ export default function CardCanvas({
     onMouseMove,
     onMouseUp,
     onMouseLeave,
-    onCardTap
+    onCardTap,
+    onZoomChange
 }: CardCanvasProps) {
     // 缩放和平移状态 - 使用 ref 避免状态更新延迟
     const [, forceUpdate] = useState(0);
@@ -150,9 +152,11 @@ export default function CardCanvas({
         if (panelRef.current) {
             const { scale, x, y } = transformRef.current;
             panelRef.current.style.transform = `scale(${scale}) translate(${x / scale}px, ${y / scale}px)`;
-            setIsZoomed(scale > 1);
+            const zoomed = scale > 1;
+            setIsZoomed(zoomed);
+            onZoomChange?.(zoomed);
         }
-    }, []);
+    }, [onZoomChange]);
 
     // 计算两点之间的距离
     const getDistance = (touch1: React.Touch, touch2: React.Touch) => {
@@ -432,6 +436,9 @@ export default function CardCanvas({
     // PC端双击重置
     const lastClickRef = useRef(0);
     const handlePanelDoubleClick = useCallback((e: React.MouseEvent) => {
+        // 只有点击的是 panel 本身（不是 canvas）时才触发双击重置
+        if (e.target !== panelRef.current) return;
+
         const now = Date.now();
         if (now - lastClickRef.current < 300) {
             // 双击检测 - 重置
@@ -470,12 +477,12 @@ export default function CardCanvas({
             >
                 <canvas
                     ref={canvasRef}
-                    onMouseDown={isZoomed ? undefined : onMouseDown}
-                    onMouseMove={isZoomed ? undefined : onMouseMove}
-                    onMouseUp={isZoomed ? undefined : onMouseUp}
-                    onMouseLeave={isZoomed ? undefined : onMouseLeave}
+                    onMouseDown={onMouseDown}
+                    onMouseMove={onMouseMove}
+                    onMouseUp={onMouseUp}
+                    onMouseLeave={onMouseLeave}
                     className="block"
-                    style={{ opacity: originalImage ? 1 : 0, pointerEvents: isZoomed ? 'none' : 'auto' }}
+                    style={{ opacity: originalImage ? 1 : 0 }}
                 />
             </div>
         </div>
