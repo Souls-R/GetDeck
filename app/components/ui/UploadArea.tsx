@@ -146,7 +146,7 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
                 <div className="hidden sm:grid mt-10 grid-cols-3 gap-6">
                     {[
                         { icon: '🚀', title: '快速识别', desc: '瞬间完成卡片识别' },
-                        { icon: '🎯', title: '高精度', desc: '图像哈希精确匹配' },
+                        { icon: '🎯', title: '卡组码生成', desc: '一键获取MasterDuel可用的卡组码' },
                         { icon: '✨', title: '本地处理', desc: '无需上传到服务器' }
                     ].map((feature, i) => (
                         <div key={i} className="text-center animate-float-in" style={{ animationDelay: `${i * 100}ms` }}>
