@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { RecognizedCard } from '../../types';
 import { ProcessingStage } from '../../hooks/useRecognition';
 import BottomDrawer from './BottomDrawer';
@@ -9,6 +9,8 @@ interface MobileCardListDrawerProps {
     processingStage: ProcessingStage;
     recognizedCards: RecognizedCard[];
     onSelectCard: (index: number) => void;
+    scrollPosition: number;
+    onScrollPositionChange: (position: number) => void;
 }
 
 export default function MobileCardListDrawer({
@@ -16,8 +18,31 @@ export default function MobileCardListDrawer({
     onClose,
     processingStage,
     recognizedCards,
-    onSelectCard
+    onSelectCard,
+    scrollPosition,
+    onScrollPositionChange
 }: MobileCardListDrawerProps) {
+    // 卡片列表滚动容器 ref
+    const cardListScrollRef = useRef<HTMLDivElement>(null);
+
+    // 滚动时实时保存位置
+    const handleScroll = () => {
+        if (cardListScrollRef.current) {
+            onScrollPositionChange(cardListScrollRef.current.scrollTop);
+        }
+    };
+
+    // 当抽屉打开时恢复滚动位置
+    useEffect(() => {
+        if (isOpen) {
+            setTimeout(() => {
+                if (cardListScrollRef.current) {
+                    cardListScrollRef.current.scrollTop = scrollPosition;
+                }
+            }, 0);
+        }
+    }, [isOpen, scrollPosition]);
+
     // 合并相同卡片
     const cardGroups: { name: string; count: number; indices: number[]; cardType: string }[] = [];
     recognizedCards.forEach((card, index) => {
@@ -70,7 +95,7 @@ export default function MobileCardListDrawer({
                     </div>
 
                     {/* 卡片列表 */}
-                    <div className="p-2 space-y-1">
+                    <div ref={cardListScrollRef} onScroll={handleScroll} className="p-2 space-y-1 overflow-y-auto">
                         {cardGroups.map((group, groupIndex) => (
                             <button
                                 key={groupIndex}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { RecognizedCard, CardInfo } from '../../types';
 import { ProcessingStage } from '../../hooks/useRecognition';
 
@@ -14,6 +14,8 @@ interface SidebarProps {
     onSelectAltMatch: (matchIndex: number) => void;
     onSelectCard: (index: number) => void;
     onMoveCardBox: (direction: 'up' | 'down' | 'left' | 'right') => void;
+    scrollPosition: number;
+    onScrollPositionChange: (position: number) => void;
 }
 
 // 解析卡片类型字符串
@@ -84,9 +86,35 @@ export default function Sidebar({
     onToggleCardMode,
     onSelectAltMatch,
     onSelectCard,
-    onMoveCardBox
+    onMoveCardBox,
+    scrollPosition,
+    onScrollPositionChange
 }: SidebarProps) {
     const [isSourcePanelExpanded, setIsSourcePanelExpanded] = useState(false);
+
+    // 卡片列表滚动容器 ref
+    const cardListScrollRef = useRef<HTMLDivElement>(null);
+
+    // 滚动时实时保存位置
+    const handleScroll = () => {
+        if (cardListScrollRef.current) {
+            onScrollPositionChange(cardListScrollRef.current.scrollTop);
+        }
+    };
+
+    // 当从详情视图切换回列表视图时，恢复滚动位置
+    const prevSelectedCardIndexRef = useRef<number>(selectedCardIndex);
+    useEffect(() => {
+        // 从详情视图切换回列表视图时，恢复滚动位置
+        if (prevSelectedCardIndexRef.current !== -1 && selectedCardIndex === -1) {
+            setTimeout(() => {
+                if (cardListScrollRef.current) {
+                    cardListScrollRef.current.scrollTop = scrollPosition;
+                }
+            }, 0);
+        }
+        prevSelectedCardIndexRef.current = selectedCardIndex;
+    }, [selectedCardIndex, scrollPosition]);
 
     const selectedCard = selectedCardIndex !== -1 ? recognizedCards[selectedCardIndex] : null;
     const currentMatch = selectedCard?.matches?.[selectedCard.selectedMatchIndex];
@@ -338,8 +366,8 @@ export default function Sidebar({
                             </div>
                         </div>
 
-                        {/* 卡片列表 */}
-                        <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
+                   {/* 卡片列表 */}
+                        <div ref={cardListScrollRef} onScroll={handleScroll} className="flex-1 overflow-y-auto custom-scrollbar p-2">
                             <div className="space-y-1">
                                 {cardGroups.map((group, groupIndex) => (
                                     <button

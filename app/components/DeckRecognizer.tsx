@@ -72,6 +72,10 @@ export default function DeckRecognizer() {
     const [showCardListDrawer, setShowCardListDrawer] = useState(false);
     const [showCardDetailDrawer, setShowCardDetailDrawer] = useState(false);
 
+    // 卡片列表滚动位置（提升到父组件以防止子组件卸载时丢失）
+    const [sidebarScrollPosition, setSidebarScrollPosition] = useState(0);
+    const [mobileDrawerScrollPosition, setMobileDrawerScrollPosition] = useState(0);
+
     const canvasInteraction = useCanvasInteraction({
         originalImage,
         recognizedCards,
@@ -427,6 +431,8 @@ export default function DeckRecognizer() {
                         onSelectAltMatch={handleAltMatchSelect}
                         onSelectCard={handleCardSelect}
                         onMoveCardBox={handleMoveCardBox}
+                        scrollPosition={sidebarScrollPosition}
+                        onScrollPositionChange={setSidebarScrollPosition}
                     />
                 )}
 
@@ -439,6 +445,8 @@ export default function DeckRecognizer() {
                             processingStage={processingStage}
                             recognizedCards={recognizedCards}
                             onSelectCard={handleCardSelect}
+                            scrollPosition={mobileDrawerScrollPosition}
+                            onScrollPositionChange={setMobileDrawerScrollPosition}
                         />
 
                         <MobileCardDetailDrawer
