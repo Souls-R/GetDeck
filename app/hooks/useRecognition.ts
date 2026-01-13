@@ -84,7 +84,26 @@ export function useRecognition(): UseRecognitionReturn {
         async function initialize() {
             try {
                 await init();
-                ort.env.wasm.wasmPaths = "/";
+
+                // 判断是否为国内用户，选择合适的 CDN
+                const isChinaUser = () => {
+                    // 1. 检查浏览器语言
+                    const lang = navigator.language || (navigator as any).userLanguage || '';
+                    if (lang.toLowerCase().startsWith('zh')) return true;
+
+                    // 2. 检查时区 (UTC+8)
+                    const offset = new Date().getTimezoneOffset();
+                    if (offset === -480) return true; // UTC+8
+
+                    return false;
+                };
+
+                // 国内用户使用 npmmirror，国外用户使用 jsdelivr (全球 CDN)
+                const wasmCdnPath = isChinaUser()
+                    ? 'https://registry.npmmirror.com/onnxruntime-web/1.23.2/files/dist/'
+                    : 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.23.2/dist/';
+
+                ort.env.wasm.wasmPaths = wasmCdnPath;
                 ort.env.wasm.numThreads = 1;
 
                 const db = new Database();
