@@ -15,7 +15,7 @@ const MODEL_PATH = '/best.onnx';
 const HASH_DB_PATH = '/card_hash.json';
 
 // 全局缓存（模块作用域）
-const globalCardInfoCache: Record<string, CardInfo> = {};
+export const globalCardInfoCache: Record<string, CardInfo> = {};
 const pendingRequests: Record<string, Promise<CardInfo>> = {};
 
 export type ProcessingStage = 'idle' | 'detecting' | 'identifying' | 'done';
