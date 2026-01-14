@@ -6,6 +6,7 @@ interface BottomDrawerProps {
     title?: string;
     children: React.ReactNode;
     maxHeight?: string;
+    enableHorizontalSwipe?: boolean;
 }
 
 export default function BottomDrawer({
@@ -13,7 +14,8 @@ export default function BottomDrawer({
     onClose,
     title,
     children,
-    maxHeight = '70vh'
+    maxHeight = '70vh',
+    enableHorizontalSwipe = false
 }: BottomDrawerProps) {
     const [isAnimating, setIsAnimating] = useState(false);
     const [shouldRender, setShouldRender] = useState(false);
@@ -21,9 +23,14 @@ export default function BottomDrawer({
     const drawerRef = useRef<HTMLDivElement>(null);
     const contentRef = useRef<HTMLDivElement>(null);
     const startY = useRef(0);
+    const startX = useRef(0);
     const currentY = useRef(0);
     const canDragClose = useRef(false);
     const isClosingByDragRef = useRef(false);
+
+    // 手势方向判断
+    const gestureDirection = useRef<'horizontal' | 'vertical' | null>(null);
+    const hasDecidedDirection = useRef(false);
 
     useEffect(() => {
         if (isOpen) {
@@ -51,15 +58,45 @@ export default function BottomDrawer({
 
     const handleTouchStart = (e: React.TouchEvent) => {
         startY.current = e.touches[0].clientY;
+        startX.current = e.touches[0].clientX;
         currentY.current = 0;
+
+        // 重置方向判断
+        gestureDirection.current = null;
+        hasDecidedDirection.current = false;
+
         const content = contentRef.current;
         canDragClose.current = !content || content.scrollTop <= 0;
     };
 
     const handleTouchMove = (e: React.TouchEvent) => {
+        const deltaY = e.touches[0].clientY - startY.current;
+        const deltaX = e.touches[0].clientX - startX.current;
+
+        // 首次移动时决定方向
+        if (!hasDecidedDirection.current) {
+            const absDx = Math.abs(deltaX);
+            const absDy = Math.abs(deltaY);
+
+            // 需要移动超过 10px 才决定方向
+            if (absDx > 10 || absDy > 10) {
+                hasDecidedDirection.current = true;
+                gestureDirection.current = absDx > absDy ? 'horizontal' : 'vertical';
+            }
+        }
+
+        // 如果启用了水平滑动且检测到水平方向，不处理下拉关闭
+        if (enableHorizontalSwipe && gestureDirection.current === 'horizontal') {
+            return;
+        }
+
+        // 只处理垂直方向的下拉关闭
+        if (gestureDirection.current !== 'vertical') {
+            return;
+        }
+
         if (!canDragClose.current) return;
 
-        const deltaY = e.touches[0].clientY - startY.current;
         if (deltaY > 0) {
             currentY.current = deltaY;
             if (drawerRef.current) {
@@ -70,8 +107,17 @@ export default function BottomDrawer({
     };
 
     const handleTouchEnd = () => {
+        // 如果是水平滑动，不处理
+        if (enableHorizontalSwipe && gestureDirection.current === 'horizontal') {
+            gestureDirection.current = null;
+            hasDecidedDirection.current = false;
+            return;
+        }
+
         if (!canDragClose.current) {
             currentY.current = 0;
+            gestureDirection.current = null;
+            hasDecidedDirection.current = false;
             return;
         }
 
@@ -95,6 +141,8 @@ export default function BottomDrawer({
             }
         }
         currentY.current = 0;
+        gestureDirection.current = null;
+        hasDecidedDirection.current = false;
     };
 
     if (!shouldRender) return null;
@@ -130,7 +178,11 @@ export default function BottomDrawer({
                     </div>
                 )}
 
-                <div ref={contentRef} className="overflow-y-auto custom-scrollbar" style={{ maxHeight: `calc(${maxHeight} - 60px)` }}>
+                <div
+                    ref={contentRef}
+                    className="overflow-y-auto custom-scrollbar"
+                    style={{ maxHeight: `calc(${maxHeight} - 60px)` }}
+                >
                     {children}
                 </div>
             </div>

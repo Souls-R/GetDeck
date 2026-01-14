@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { RecognizedCard, CardInfo } from '../../types';
 import BottomDrawer from './BottomDrawer';
+import MobileCardCarousel from './MobileCardCarousel';
 
 interface MobileCardDetailDrawerProps {
     isOpen: boolean;
     onClose: () => void;
-    selectedCard: RecognizedCard | null;
-    selectedCardInfo: CardInfo | null;
+    recognizedCards: RecognizedCard[];
+    selectedCardIndex: number;
+    onSelectCard: (index: number) => void;
+    getCardInfo: (cardName: string) => CardInfo | null;
     isDetailLoading: boolean;
-    selectedCardArtwork: string | null;
+    getCardArtwork: (index: number) => string | null;
     forcePendulumMode: boolean;
     onToggleCardMode: () => void;
     onSelectAltMatch: (matchIndex: number) => void;
@@ -16,35 +19,27 @@ interface MobileCardDetailDrawerProps {
 }
 
 // 解析卡片类型字符串
-// API格式: "[怪兽|效果] 鸟兽/风\n[★4] 100/600"
 function parseCardTypes(typesStr: string): string[] {
     const badges: string[] = [];
 
-    // 提取主类型 [怪兽|效果]
     const mainTypeMatch = typesStr.match(/\[([^\]]+)\]/);
     if (mainTypeMatch) {
         const mainType = mainTypeMatch[1];
-        // 排除星级
         if (!mainType.startsWith('★') && !mainType.startsWith('☆')) {
             badges.push(mainType.replace(/\|/g, '/'));
         }
     }
 
-    // 提取种族/属性（在第一个方括号后、换行前的部分）
     let badget2 = '';
     const firstLine = typesStr.split('\n')[0];
     const afterBracket = firstLine.replace(/\[[^\]]+\]\s*/, '').trim();
     if (afterBracket) {
-        // 分割种族/属性，每个单独一个徽章
         const subTypes = afterBracket.split('/').map(s => s.trim()).filter(s => s);
-        // badges.push(...subTypes);
         badget2 = subTypes.join('/');
     }
 
-    // 提取星级
     const starMatch = typesStr.match(/\[(★\d+|☆\d+)\]/);
     if (starMatch) {
-        // badges.push(starMatch[1]);
         if (badget2) {
             badget2 = badget2 + '/' + starMatch[1];
         }
@@ -53,7 +48,6 @@ function parseCardTypes(typesStr: string): string[] {
         badges.push(badget2);
     }
 
-    // 提取 ATK/DEF（第二行的数值）
     const secondLine = typesStr.split('\n')[1];
     if (secondLine) {
         const atkDefMatch = secondLine.match(/(\d+)\/(\d+)/);
@@ -65,71 +59,254 @@ function parseCardTypes(typesStr: string): string[] {
     return badges;
 }
 
-// 格式化卡片描述文字，在①②③等效果编号前添加换行
+// 格式化卡片描述文字
 function formatCardDesc(desc: string): string {
     if (!desc) return '';
-    // 在①②③④⑤⑥⑦⑧⑨⑩前面添加换行（如果前面不是换行符）
     return desc.replace(/([^\n])(①|②|③|④|⑤|⑥|⑦|⑧|⑨|⑩)(?=：|:)/g, '$1\n$2');
+}
+
+// 带渐变过渡的图片组件
+function FadeImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
+    const [displaySrc, setDisplaySrc] = useState(src);
+    const [isTransitioning, setIsTransitioning] = useState(false);
+
+    useEffect(() => {
+        if (src !== displaySrc) {
+            setIsTransitioning(true);
+            const timer = setTimeout(() => {
+                setDisplaySrc(src);
+                setIsTransitioning(false);
+            }, 150);
+            return () => clearTimeout(timer);
+        }
+    }, [src, displaySrc]);
+
+    return (
+        <img
+            src={displaySrc}
+            alt={alt}
+            className={`transition-opacity duration-150 ${isTransitioning ? 'opacity-50' : 'opacity-100'} ${className || ''}`}
+            draggable={false}
+        />
+    );
 }
 
 export default function MobileCardDetailDrawer({
     isOpen,
     onClose,
-    selectedCard,
-    selectedCardInfo,
+    recognizedCards,
+    selectedCardIndex,
+    onSelectCard,
+    getCardInfo,
     isDetailLoading,
-    selectedCardArtwork,
+    getCardArtwork,
     forcePendulumMode,
     onToggleCardMode,
     onSelectAltMatch,
     onMoveCardBox
 }: MobileCardDetailDrawerProps) {
+    // 识别源面板状态
     const [showSourcePanel, setShowSourcePanel] = useState(false);
-    const currentMatch = selectedCard?.matches?.[selectedCard.selectedMatchIndex];
 
-    if (!selectedCard) return null;
+    // 当前卡片信息（用于固定头部显示）
+    const currentCard = recognizedCards[selectedCardIndex];
+    const currentMatch = currentCard?.matches?.[currentCard?.selectedMatchIndex];
+    const cardInfo = currentMatch ? getCardInfo(currentMatch.name) : null;
+    const artwork = getCardArtwork(selectedCardIndex);
+
+    // 卡片名称渐变动画
+    const [displayName, setDisplayName] = useState(currentMatch?.name || '');
+    const [isNameFading, setIsNameFading] = useState(false);
+
+    // 徽章渐变动画
+    const [displayBadges, setDisplayBadges] = useState<string[]>([]);
+    const [isBadgesFading, setIsBadgesFading] = useState(false);
+
+    useEffect(() => {
+        const newName = currentMatch?.name || '';
+        if (newName !== displayName && newName) {
+            setIsNameFading(true);
+            const timer = setTimeout(() => {
+                setDisplayName(newName);
+                setIsNameFading(false);
+            }, 150);
+            return () => clearTimeout(timer);
+        }
+    }, [currentMatch?.name, displayName]);
+
+    useEffect(() => {
+        const types = cardInfo?.result?.[0]?.text?.types;
+        const newBadges = types ? parseCardTypes(types) : [];
+        const badgesKey = newBadges.join('|');
+        const displayKey = displayBadges.join('|');
+
+        if (badgesKey !== displayKey) {
+            setIsBadgesFading(true);
+            const timer = setTimeout(() => {
+                setDisplayBadges(newBadges);
+                setIsBadgesFading(false);
+            }, 150);
+            return () => clearTimeout(timer);
+        }
+    }, [cardInfo?.result?.[0]?.text?.types, displayBadges]);
+
+    // 处理轮播索引变化
+    const handleIndexChange = useCallback((newIndex: number) => {
+        onSelectCard(newIndex);
+    }, [onSelectCard]);
+
+    // 切换识别源面板
+    const handleToggleSourcePanel = useCallback(() => {
+        setShowSourcePanel(prev => !prev);
+    }, []);
+
+    // 提取卡片的唯一键
+    const keyExtractor = useCallback((_card: RecognizedCard, index: number) => {
+        return index;
+    }, []);
+
+    // 渲染单个卡片的滑动内容（只有卡图、ATK/DEF、描述、备选匹配）
+    const renderCardContent = useCallback((card: RecognizedCard, index: number, isActive: boolean) => {
+        const match = card.matches[card.selectedMatchIndex];
+        const info = match ? getCardInfo(match.name) : null;
+        const cardResult = info?.result?.[0];
+
+        return (
+            <div className="p-4 space-y-4">
+                {/* 官方卡图 */}
+                {cardResult && (
+                    <div className="space-y-4">
+                        <div className="w-full rounded-xl overflow-hidden shadow-lg border border-[var(--card-border)]">
+                            <FadeImage
+                                src={`https://cdn.233.momobako.com/ygoimg/sc/${cardResult.id}.webp`}
+                                alt="Official Art"
+                                className="w-full"
+                            />
+                        </div>
+
+                        {/* ATK/DEF */}
+                        {(cardResult.text.atk !== undefined || cardResult.text.def !== undefined) && (
+                            <div className="flex gap-3">
+                                {cardResult.text.atk !== undefined && (
+                                    <div className="flex-1 panel p-3 text-center">
+                                        <div className="text-xs text-[var(--foreground-muted)]">ATK</div>
+                                        <div className="text-xl font-bold text-[var(--warning)]">
+                                            {cardResult.text.atk}
+                                        </div>
+                                    </div>
+                                )}
+                                {cardResult.text.def !== undefined && (
+                                    <div className="flex-1 panel p-3 text-center">
+                                        <div className="text-xs text-[var(--foreground-muted)]">DEF</div>
+                                        <div className="text-xl font-bold text-[var(--primary)]">
+                                            {cardResult.text.def}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* 卡片描述 */}
+                        {cardResult.text.desc && (
+                            <div className="panel p-3">
+                                <p className="text-sm text-[var(--foreground)] leading-relaxed whitespace-pre-line">
+                                    {formatCardDesc(cardResult.text.desc)}
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* 加载状态 */}
+                {isActive && isDetailLoading && (
+                    <div className="flex items-center justify-center py-6">
+                        <div className="w-8 h-8 rounded-full border-2 border-[var(--card-border)] border-t-[var(--primary)] animate-spin" />
+                    </div>
+                )}
+
+                {/* 备选匹配 */}
+                {card.matches.length > 1 && (
+                    <div className="space-y-2">
+                        <h3 className="text-xs font-semibold text-[var(--foreground-muted)] uppercase tracking-wider">
+                            备选匹配
+                        </h3>
+                        {card.matches.map((m, idx) => (
+                            idx !== card.selectedMatchIndex && (
+                                <button
+                                    key={idx}
+                                    onClick={() => onSelectAltMatch(idx)}
+                                    className="w-full text-left p-3 rounded-xl bg-[var(--background-secondary)] active:bg-[var(--card-border)] border border-transparent transition-all duration-200"
+                                >
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm text-[var(--foreground)] truncate flex-1 font-medium">
+                                            {m.name}
+                                        </span>
+                                        <span className="text-xs text-[var(--foreground-muted)] ml-3 font-mono bg-[var(--card-bg)] px-2 py-1 rounded">
+                                            {m.distance}
+                                        </span>
+                                    </div>
+                                </button>
+                            )
+                        ))}
+                    </div>
+                )}
+            </div>
+        );
+    }, [getCardInfo, isDetailLoading, onSelectAltMatch]);
+
+    if (recognizedCards.length === 0) return null;
 
     return (
-        <BottomDrawer isOpen={isOpen} onClose={onClose} maxHeight="80vh">
-            <div className="flex flex-col">
-                {/* 头部 */}
-                <div className="p-4 border-b border-[var(--card-border)] bg-gradient-card">
+        <BottomDrawer
+            isOpen={isOpen}
+            onClose={onClose}
+            maxHeight="80vh"
+            enableHorizontalSwipe={true}
+        >
+            <div className="flex flex-col h-full">
+                {/* 固定头部 */}
+                <div className="flex-shrink-0 p-4 border-b border-[var(--card-border)] bg-gradient-card">
                     <div className="flex items-center justify-between gap-3 mb-2">
-                        <h2 className="text-lg font-bold text-[var(--foreground)] line-clamp-2 leading-tight flex-1 min-w-0">
-                            {currentMatch?.name}
+                        <h2 className={`text-lg font-bold text-[var(--foreground)] line-clamp-2 leading-tight flex-1 min-w-0 transition-opacity duration-150 ${isNameFading ? 'opacity-0' : 'opacity-100'}`}>
+                            {displayName}
                         </h2>
-                        {/* 识别源按钮 */}
-                        <button
-                            onClick={() => setShowSourcePanel(!showSourcePanel)}
-                            className={`p-1 rounded-lg transition-colors shrink-0 ${
-                                showSourcePanel
-                                    ? 'bg-[var(--primary)] text-white'
-                                    : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]'
-                            }`}
-                            title="识别源图像"
-                        >
-                            <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                        </button>
-                    </div>
-                    {selectedCardInfo?.result?.[0]?.text?.types && (
-                        <div className="flex flex-wrap gap-1.5">
-                            {parseCardTypes(selectedCardInfo.result[0].text.types).map((badge, i) => (
-                                <span key={i} className="badge text-xs">{badge}</span>
-                            ))}
+                        {/* 位置指示器 + 识别源按钮 */}
+                        <div className="flex items-center gap-2 shrink-0">
+                            <span className="text-xs text-[var(--foreground-muted)] font-mono">
+                                {selectedCardIndex + 1}/{recognizedCards.length}
+                            </span>
+                            <button
+                                onClick={handleToggleSourcePanel}
+                                className={`p-1 rounded-lg transition-colors ${
+                                    showSourcePanel
+                                        ? 'bg-[var(--primary)] text-white'
+                                        : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]'
+                                }`}
+                                title="识别源图像"
+                            >
+                                <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                            </button>
                         </div>
-                    )}
+                    </div>
 
-                    {/* 识别源面板 - 展开时显示 */}
+                    {/* 徽章 */}
+                    <div className={`flex flex-wrap gap-1.5 transition-opacity duration-150 ${isBadgesFading ? 'opacity-0' : 'opacity-100'}`}>
+                        {displayBadges.map((badge, i) => (
+                            <span key={i} className="badge text-xs">{badge}</span>
+                        ))}
+                    </div>
+
+                    {/* 识别源面板 */}
                     {showSourcePanel && (
                         <div className="mt-3 pt-3 border-t border-[var(--card-border)] animate-slide-up">
                             <div className="flex items-center gap-3">
-                                {/* 预览图 */}
+                                {/* 预览图 - 只有这个会随卡片变化 */}
                                 <div className="w-14 h-14 rounded-lg bg-[var(--background-secondary)] border border-[var(--card-border)] flex items-center justify-center overflow-hidden shrink-0">
-                                    {selectedCardArtwork ? (
-                                        <img src={selectedCardArtwork} className="w-full h-full object-contain" alt="source crop" draggable={false} />
+                                    {artwork ? (
+                                        <FadeImage src={artwork} alt="source crop" className="w-full h-full object-contain" />
                                     ) : (
                                         <span className="text-xs text-[var(--foreground-muted)]">无</span>
                                     )}
@@ -152,7 +329,7 @@ export default function MobileCardDetailDrawer({
                                             className={`px-2.5 py-1 text-xs rounded-lg font-medium transition-all ${
                                                 forcePendulumMode
                                                     ? 'bg-[var(--success)] text-white shadow-md'
-                                             : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)]'
+                                                    : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)]'
                                             }`}
                                         >
                                             灵摆
@@ -201,87 +378,16 @@ export default function MobileCardDetailDrawer({
                     )}
                 </div>
 
-                {/* 内容区域 */}
-                <div className="p-4 space-y-4">
-                    {/* 官方卡图 */}
-                    {selectedCardInfo?.result?.[0] && (
-                        <div className="space-y-4">
-                            {/* 卡图 - 占满宽度 */}
-                            <div className="w-full rounded-xl overflow-hidden shadow-lg border border-[var(--card-border)]">
-                                <img
-                                    src={`https://cdn.233.momobako.com/ygoimg/sc/${selectedCardInfo.result[0].id}.webp`}
-                                    className="w-full"
-                                    alt="Official Art"
-                                />
-                            </div>
-
-                            {/* ATK/DEF */}
-                            {(selectedCardInfo.result[0].text.atk !== undefined ||
-                                selectedCardInfo.result[0].text.def !== undefined) && (
-                                <div className="flex gap-3">
-                                    {selectedCardInfo.result[0].text.atk !== undefined && (
-                                        <div className="flex-1 panel p-3 text-center">
-                                            <div className="text-xs text-[var(--foreground-muted)]">ATK</div>
-                                            <div className="text-xl font-bold text-[var(--warning)]">
-                                                {selectedCardInfo.result[0].text.atk}
-                                            </div>
-                                        </div>
-                                    )}
-                                    {selectedCardInfo.result[0].text.def !== undefined && (
-                                        <div className="flex-1 panel p-3 text-center">
-                                            <div className="text-xs text-[var(--foreground-muted)]">DEF</div>
-                                            <div className="text-xl font-bold text-[var(--primary)]">
-                                                {selectedCardInfo.result[0].text.def}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-
-                            {/* 卡片描述 */}
-                            {selectedCardInfo.result[0].text.desc && (
-                                <div className="panel p-3">
-                                    <p className="text-sm text-[var(--foreground)] leading-relaxed whitespace-pre-line">
-                                        {formatCardDesc(selectedCardInfo.result[0].text.desc)}
-                                    </p>
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {/* 加载状态 */}
-                    {isDetailLoading && (
-                        <div className="flex items-center justify-center py-6">
-                            <div className="w-8 h-8 rounded-full border-2 border-[var(--card-border)] border-t-[var(--primary)] animate-spin" />
-                        </div>
-                    )}
-
-                    {/* 备选匹配 */}
-                    {selectedCard.matches.length > 1 && (
-                        <div className="space-y-2">
-                            <h3 className="text-xs font-semibold text-[var(--foreground-muted)] uppercase tracking-wider">
-                                备选匹配
-                            </h3>
-                            {selectedCard.matches.map((m, idx) => (
-                                idx !== selectedCard.selectedMatchIndex && (
-                                    <button
-                                        key={idx}
-                                        onClick={() => onSelectAltMatch(idx)}
-                                        className="w-full text-left p-3 rounded-xl bg-[var(--background-secondary)] active:bg-[var(--card-border)] border border-transparent transition-all duration-200"
-                                    >
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-sm text-[var(--foreground)] truncate flex-1 font-medium">
-                                                {m.name}
-                                            </span>
-                                            <span className="text-xs text-[var(--foreground-muted)] ml-3 font-mono bg-[var(--card-bg)] px-2 py-1 rounded">
-                                                {m.distance}
-                                            </span>
-                                        </div>
-                                    </button>
-                                )
-                            ))}
-                        </div>
-                    )}
+                {/* 可滑动的内容区域 */}
+                <div className="flex-1 min-h-0">
+                    <MobileCardCarousel
+                        items={recognizedCards}
+                        currentIndex={selectedCardIndex >= 0 ? selectedCardIndex : 0}
+                        onIndexChange={handleIndexChange}
+                        renderItem={renderCardContent}
+                        keyExtractor={keyExtractor}
+                        showIndicator={false}
+                    />
                 </div>
             </div>
         </BottomDrawer>

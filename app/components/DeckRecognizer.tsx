@@ -83,6 +83,52 @@ export default function DeckRecognizer() {
     // 画布缩放状态
     const [isCanvasZoomed, setIsCanvasZoomed] = useState(false);
 
+    // Artwork 缓存（避免重复绘制 canvas）
+    const artworkCacheRef = useRef<Map<string, string>>(new Map());
+
+    // 获取卡片 artwork 的函数（带缓存）
+    const getCardArtwork = useCallback((index: number): string | null => {
+        if (index === selectedCardIndex) {
+            return selectedCardArtwork;
+        }
+        if (!originalImage || index < 0 || index >= recognizedCards.length) {
+            return null;
+        }
+
+        const card = recognizedCards[index];
+        const currentMatch = card.matches[card.selectedMatchIndex];
+        const isPendulum = currentMatch?.cardType === 'pendulum';
+
+        // 生成缓存 key
+        const cacheKey = `${index}-${card.box.x1}-${card.box.y1}-${card.box.x2}-${card.box.y2}-${isPendulum}`;
+
+        // 检查缓存
+        if (artworkCacheRef.current.has(cacheKey)) {
+            return artworkCacheRef.current.get(cacheKey)!;
+        }
+
+        // 生成 artwork
+        const canvas = document.createElement('canvas');
+        canvas.width = originalImage.width;
+        canvas.height = originalImage.height;
+        const ctx = canvas.getContext('2d')!;
+        ctx.drawImage(originalImage, 0, 0);
+
+        const cropConfig = isPendulum ? PENDULUM_CARD : STANDARD_CARD;
+        const artworkData = extractArtwork(ctx, card.box, cropConfig);
+
+        const artworkCanvas = document.createElement('canvas');
+        artworkCanvas.width = artworkData.width;
+        artworkCanvas.height = artworkData.height;
+        artworkCanvas.getContext('2d')!.putImageData(artworkData, 0, 0);
+        const dataUrl = artworkCanvas.toDataURL();
+
+        // 存入缓存
+        artworkCacheRef.current.set(cacheKey, dataUrl);
+
+        return dataUrl;
+    }, [originalImage, recognizedCards, selectedCardIndex, selectedCardArtwork]);
+
     const canvasInteraction = useCanvasInteraction({
         originalImage,
         recognizedCards,
@@ -663,10 +709,12 @@ export default function DeckRecognizer() {
                                 setShowCardDetailDrawer(false);
                                 setSelectedCardIndex(-1);
                             }}
-                            selectedCard={selectedCard}
-                            selectedCardInfo={selectedCardInfo}
+                            recognizedCards={recognizedCards}
+                            selectedCardIndex={selectedCardIndex}
+                            onSelectCard={handleCardSelect}
+                            getCardInfo={(cardName) => globalCardInfoCache[cardName] || null}
                             isDetailLoading={isDetailLoading}
-                            selectedCardArtwork={selectedCardArtwork}
+                            getCardArtwork={getCardArtwork}
                             forcePendulumMode={forcePendulumMode}
                             onToggleCardMode={toggleCardMode}
                             onSelectAltMatch={handleAltMatchSelect}
