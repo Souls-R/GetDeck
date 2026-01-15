@@ -12,7 +12,7 @@ import {
 } from '../utils/recognition';
 
 const MODEL_PATH = '/best.onnx';
-const HASH_DB_PATH = '/card_hash.json';
+const HASH_DB_PATH = '/card_data.json';
 
 // 全局缓存（模块作用域）
 export const globalCardInfoCache: Record<string, CardInfo> = {};
