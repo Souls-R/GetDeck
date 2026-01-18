@@ -80,7 +80,7 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
 
                     {/* 副标题 */}
                     <p className="text-lg sm:text-xl text-(--foreground-muted) max-w-2xl mx-auto mb-8 sm:mb-12 leading-relaxed">
-                        上传游戏截图，AI 自动识别所有卡片，<br className="hidden sm:block" />
+                        上传游戏卡组截图，瞬间识别所有卡片，<br className="hidden sm:block" />
                         一键生成可直接导入游戏的卡组码
                     </p>
 
