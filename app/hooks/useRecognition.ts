@@ -11,7 +11,7 @@ import {
     PENDULUM_CARD
 } from '../utils/recognition';
 
-const MODEL_PATH = 'https://assets.get-deck.tech/best.onnx';
+const MODEL_PATH = 'https://cdn.get-deck.tech/best.onnx';
 const HASH_DB_PATH = '/card_data.json';
 
 // 全局缓存（模块作用域）
