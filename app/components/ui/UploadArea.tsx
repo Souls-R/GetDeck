@@ -84,68 +84,42 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
                         一键生成可直接导入游戏的卡组码
                     </p>
 
-                    {/* 上传区域 */}
-                    {isInitializing ? (
-                        <div className="max-w-xl mx-auto p-8 sm:p-12 rounded-2xl border-2 border-dashed border-(--card-border) bg-(--background-secondary)">
-                            <div className="flex flex-col items-center gap-4">
-                                <div className="w-12 h-12 rounded-full border-3 border-(--card-border) border-t-(--primary) animate-spin"></div>
-                                <div className="text-center">
-                                    <p className="text-(--foreground) font-medium mb-1">
-                                        {modelDownloadProgress !== null ? '正在下载识别模型' : '正在加载模型'}
-                                    </p>
-                                    <p className="text-sm text-(--foreground-muted)">
-                                        {modelDownloadProgress !== null
-                                            ? `${modelDownloadProgress}%`
-                                            : '首次访问需要几秒钟下载模型文件...'}
-                                    </p>
-                                </div>
-                                {modelDownloadProgress !== null && (
-                                    <div className="w-full max-w-xs h-1.5 bg-(--card-border) rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-(--primary) transition-all duration-300"
-                                            style={{ width: `${modelDownloadProgress}%` }}
-                                        />
-                                    </div>
-                                )}
+                    {/* 上传区域 - 即使模型在下载也允许上传 */}
+                    <div
+                        className={`max-w-xl mx-auto p-8 sm:p-12 rounded-2xl border-2 border-dashed transition-all duration-200 cursor-pointer ${
+                            isDragOver
+                                ? 'border-(--primary) bg-(--primary-light) scale-[1.02]'
+                                : 'border-(--card-border) hover:border-(--primary) hover:bg-(--background-secondary)'
+                        }`}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
+                        onClick={() => fileInputRef.current?.click()}
+                    >
+                        <div className="flex flex-col items-center gap-4">
+                            <div className={`w-14 h-14 rounded-xl flex items-center justify-center transition-colors ${
+                                isDragOver ? 'bg-(--primary) text-white' : 'bg-(--background-tertiary) text-(--foreground-muted)'
+                            }`}>
+                                <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
                             </div>
-                        </div>
-                    ) : (
-                        <div
-                            className={`max-w-xl mx-auto p-8 sm:p-12 rounded-2xl border-2 border-dashed transition-all duration-200 cursor-pointer ${
-                                isDragOver
-                                    ? 'border-(--primary) bg-(--primary-light) scale-[1.02]'
-                                    : 'border-(--card-border) hover:border-(--primary) hover:bg-(--background-secondary)'
-                            }`}
-                            onDragOver={handleDragOver}
-                            onDragLeave={handleDragLeave}
-                            onDrop={handleDrop}
-                            onClick={() => fileInputRef.current?.click()}
-                        >
-                            <div className="flex flex-col items-center gap-4">
-                                <div className={`w-14 h-14 rounded-xl flex items-center justify-center transition-colors ${
-                                    isDragOver ? 'bg-(--primary) text-white' : 'bg-(--background-tertiary) text-(--foreground-muted)'
-                                }`}>
-                                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                </div>
-                                <div className="text-center">
-                                    <p className="text-lg font-medium text-(--foreground) mb-1">
-                                        {isDragOver ? '释放以上传图片' : '拖拽截图到这里'}
-                                    </p>
-                                    <p className="text-sm text-(--foreground-muted)">
-                                        支持 PNG、JPG 格式
-                                    </p>
-                                </div>
-                                <button className="px-6 py-2.5 bg-(--primary) text-white rounded-lg font-medium hover:bg-(--primary-hover) transition-colors">
-                                    选择文件
-                                </button>
-                                <p className="text-xs text-(--foreground-subtle) hidden sm:block">
-                                    或按 <kbd className="px-1.5 py-0.5 rounded bg-(--background-tertiary) border border-(--card-border) font-mono">Ctrl+V</kbd> 粘贴截图
+                            <div className="text-center">
+                                <p className="text-lg font-medium text-(--foreground) mb-1">
+                                    {isDragOver ? '释放以上传图片' : '拖拽截图到这里'}
+                                </p>
+                                <p className="text-sm text-(--foreground-muted)">
+                                    支持 PNG、JPG 格式
                                 </p>
                             </div>
+                            <button className="px-6 py-2.5 bg-(--primary) text-white rounded-lg font-medium hover:bg-(--primary-hover) transition-colors">
+                                选择文件
+                            </button>
+                            <p className="text-xs text-(--foreground-subtle) hidden sm:block">
+                                或按 <kbd className="px-1.5 py-0.5 rounded bg-(--background-tertiary) border border-(--card-border) font-mono">Ctrl+V</kbd> 粘贴截图
+                            </p>
                         </div>
-                    )}
+                    </div>
                 </div>
             </section>
 

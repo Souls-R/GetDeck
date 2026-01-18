@@ -32,6 +32,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN">
+      <head>
+        {/* 预加载 ONNX 模型，加速首次加载 */}
+        <link
+          rel="preload"
+          href="https://cdn.get-deck.tech/best.onnx"
+          as="fetch"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body
         className={`${inter.variable} ${geistMono.variable} antialiased`}
       >

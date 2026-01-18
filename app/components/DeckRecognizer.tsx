@@ -48,7 +48,7 @@ export default function DeckRecognizer() {
         selectedCardIndex,
         selectedCardInfo,
         isDetailLoading,
-      originalImage,
+        originalImage,
         modelDownloadProgress,
         session,
         wasmDb,
@@ -59,7 +59,8 @@ export default function DeckRecognizer() {
         updateCardBox,
         setOriginalImage,
         setSelectedCardIndex,
-        resetState
+        resetState,
+        waitForInit
     } = recognition;
 
     const [showCropper, setShowCropper] = useState(false);
@@ -161,8 +162,6 @@ export default function DeckRecognizer() {
     } = canvasInteraction;
 
     const handleFile = useCallback(async (file: File) => {
-        if (!session || !wasmDb) return;
-
         resetState();
         setForcePendulumMode(false);
         setSelectedCardArtwork(null);
@@ -173,7 +172,10 @@ export default function DeckRecognizer() {
             const img = await loadImage(file);
             setUploadedImage(img);
 
-            // 检查是否需要自动裁剪
+            // 先等待模型初始化完成
+            await waitForInit();
+
+            // 模型就绪后，检查是否需要自动裁剪
             if (shouldAutoCrop(img, isMobile)) {
                 setShowCropper(true);
             } else {
@@ -183,7 +185,7 @@ export default function DeckRecognizer() {
         } catch (error: any) {
             console.error('图片加载失败:', error);
         }
-    }, [session, wasmDb, resetState, setOriginalImage, processImage, isMobile]);
+    }, [resetState, setOriginalImage, processImage, isMobile, waitForInit]);
 
     useEffect(() => {
         const handlePaste = (e: ClipboardEvent) => {
@@ -572,6 +574,7 @@ export default function DeckRecognizer() {
             resetState();
             setForcePendulumMode(false);
             setSelectedCardArtwork(null);
+            // 模型已在 handleFile 中等待完成，可直接处理
             processImage(croppedImage);
         } catch (error: any) {
             console.error('裁剪失败:', error);
@@ -583,6 +586,7 @@ export default function DeckRecognizer() {
         // 如果取消裁剪且没有已处理的图片，直接使用原图
         if (uploadedImage && !originalImage) {
             setOriginalImage(uploadedImage);
+            // 模型已在 handleFile 中等待完成，可直接处理
             processImage(uploadedImage);
         }
     };
@@ -612,7 +616,8 @@ export default function DeckRecognizer() {
             />
 
             <div className={`flex flex-1 overflow-hidden relative ${isMobile ? 'flex-col' : ''}`}>
-                {showCropper && uploadedImage && (
+                {/* 裁剪器 - 只在模型就绪后显示 */}
+                {showCropper && uploadedImage && !isInitializing && (
                     <CropperModal
                         imageSrc={uploadedImage.src}
                         onApply={applyCrop}
@@ -620,12 +625,43 @@ export default function DeckRecognizer() {
                     />
                 )}
 
-                {!originalImage && (
+                {/* 上传区域 - 未上传图片时显示 */}
+                {!uploadedImage && !originalImage && (
                     <UploadArea
                         isInitializing={isInitializing}
                         modelDownloadProgress={modelDownloadProgress}
                         onFileSelect={handleFile}
                     />
+                )}
+
+                {/* 等待模型加载界面 - 已上传图片但模型还在加载时显示 */}
+                {uploadedImage && !originalImage && isInitializing && (
+                    <div className="absolute inset-0 z-20 flex items-center justify-center bg-(--background)">
+                        <div className="flex flex-col items-center gap-4 p-8">
+                            <div className="w-12 h-12 rounded-full border-3 border-(--card-border) border-t-(--primary) animate-spin"></div>
+                            <div className="text-center">
+                                <p className="text-(--foreground) font-medium mb-1">
+                                    {modelDownloadProgress !== null ? '正在下载识别模型' : '正在加载模型'}
+                                </p>
+                                <p className="text-sm text-(--foreground-muted)">
+                                    {modelDownloadProgress !== null
+                                        ? `${modelDownloadProgress}%`
+                                        : '首次访问需要几秒钟下载模型文件...'}
+                                </p>
+                            </div>
+                            {modelDownloadProgress !== null && (
+                                <div className="w-full max-w-xs h-1.5 bg-(--card-border) rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full bg-(--primary) transition-all duration-300"
+                                        style={{ width: `${modelDownloadProgress}%` }}
+                                    />
+                                </div>
+                            )}
+                            <p className="text-xs text-(--foreground-subtle) mt-2">
+                                图片已准备好，模型加载完成后将自动处理
+                            </p>
+                        </div>
+                    </div>
                 )}
 
                 {/* 主画布区域 */}

@@ -54,7 +54,14 @@ export interface UseRecognitionReturn {
     setSelectedCardIndex: (index: number) => void;
     setRecognizedCards: React.Dispatch<React.SetStateAction<RecognizedCard[]>>;
     resetState: () => void;
+    waitForInit: () => Promise<void>;
 }
+
+// 初始化 Promise 的 resolve 函数引用
+let initResolve: (() => void) | null = null;
+const initPromise = new Promise<void>((resolve) => {
+    initResolve = resolve;
+});
 
 export function useRecognition(): UseRecognitionReturn {
     // 会话状态
@@ -64,6 +71,9 @@ export function useRecognition(): UseRecognitionReturn {
     const [isInitializing, setIsInitializing] = useState(true);
     const [statusText, setStatusText] = useState('正在初始化模型...');
     const [modelDownloadProgress, setModelDownloadProgress] = useState<number | null>(null);
+    
+    // 等待初始化完成的方法
+    const waitForInit = useCallback(() => initPromise, []);
 
     // 图像和处理状态
     const [originalImage, setOriginalImage] = useState<HTMLImageElement | null>(null);
@@ -144,8 +154,14 @@ export function useRecognition(): UseRecognitionReturn {
                 })();
 
                 // 下载模型文件（带进度）
+                // 注意：layout.tsx 中已配置 <link rel="preload"> 来提前开始下载
+                // 这里的 fetch 会自动复用 preload 的请求/缓存，但仍保留进度显示逻辑
+                // 如果 preload 已完成，fetch 会直接从缓存读取；如果正在下载，会共享同一个请求
                 const modelDownloadPromise = (async () => {
-                    const response = await fetch(MODEL_PATH);
+                    const response = await fetch(MODEL_PATH, {
+                        // 确保与 preload 使用相同的 credentials 模式
+                        credentials: 'same-origin'
+                    });
                     if (!response.ok) throw new Error(`模型加载失败: ${response.statusText}`);
 
                     const contentLength = response.headers.get('content-length');
@@ -219,6 +235,11 @@ export function useRecognition(): UseRecognitionReturn {
                 setIsInitializing(false);
                 setModelDownloadProgress(null);
                 setStatusText('就绪');
+                
+                // 通知等待初始化的代码
+                if (initResolve) {
+                    initResolve();
+                }
             } catch (error: any) {
                 setStatusText(`初始化失败: ${error.message}`);
                 setModelDownloadProgress(null);
@@ -543,6 +564,7 @@ export function useRecognition(): UseRecognitionReturn {
         setOriginalImage,
         setSelectedCardIndex,
         setRecognizedCards,
-        resetState
+        resetState,
+        waitForInit
     };
 }
