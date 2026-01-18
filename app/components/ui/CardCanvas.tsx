@@ -14,6 +14,7 @@ interface CardCanvasProps {
     onMouseLeave: () => void;
     onCardTap?: (index: number) => void;
     onZoomChange?: (isZoomed: boolean) => void;
+    onBackgroundClick?: () => void;
 }
 
 export default function CardCanvas({
@@ -28,7 +29,8 @@ export default function CardCanvas({
     onMouseUp,
     onMouseLeave,
     onCardTap,
-    onZoomChange
+    onZoomChange,
+    onBackgroundClick
 }: CardCanvasProps) {
     // 缩放和平移状态 - 使用 ref 避免状态更新延迟
     const [, forceUpdate] = useState(0);
@@ -392,8 +394,8 @@ export default function CardCanvas({
 
     // PC端鼠标拖动开始
     const handlePanelMouseDown = useCallback((e: React.MouseEvent) => {
-        // 只在缩放状态下且是左键点击时启用拖动
-        if (transformRef.current.scale > 1 && e.button === 0) {
+        // 左键点击时启用拖动（无论是否缩放）
+        if (e.button === 0) {
             mouseStateRef.current.isDragging = true;
             mouseStateRef.current.lastMousePos = { x: e.clientX, y: e.clientY };
             setIsPanDragging(true);
@@ -403,7 +405,7 @@ export default function CardCanvas({
 
     // PC端鼠标拖动移动
     const handlePanelMouseMove = useCallback((e: React.MouseEvent) => {
-        if (mouseStateRef.current.isDragging && transformRef.current.scale > 1) {
+        if (mouseStateRef.current.isDragging) {
             const dx = e.clientX - mouseStateRef.current.lastMousePos.x;
             const dy = e.clientY - mouseStateRef.current.lastMousePos.y;
 
@@ -419,13 +421,7 @@ export default function CardCanvas({
     const handlePanelMouseUp = useCallback(() => {
         mouseStateRef.current.isDragging = false;
         setIsPanDragging(false);
-
-        // 如果缩放回到1，重置平移
-        if (transformRef.current.scale <= 1) {
-            transformRef.current = { scale: 1, x: 0, y: 0 };
-            updateTransform();
-        }
-    }, [updateTransform]);
+    }, []);
 
     // PC端鼠标离开
     const handlePanelMouseLeave = useCallback(() => {
@@ -448,16 +444,25 @@ export default function CardCanvas({
         lastClickRef.current = now;
     }, [updateTransform]);
 
+    // 点击背景处理（PC端）
+    const handleContainerClick = useCallback((e: React.MouseEvent) => {
+        // 只有点击容器本身（不是panel或canvas）时才触发
+        if (e.target === containerRef.current && onBackgroundClick) {
+            onBackgroundClick();
+        }
+    }, [onBackgroundClick, containerRef]);
+
     return (
         <div
             ref={containerRef}
             className="flex-1 relative overflow-hidden flex items-center justify-center p-2 sm:p-6 bg-[var(--background-secondary)]"
             style={{ paddingBottom: 'max(4rem, 15%)' }}
+            onClick={handleContainerClick}
         >
             {/* Canvas面板 */}
             <div
                 ref={panelRef}
-                className={`panel panel-elevated overflow-hidden ${isDragging ? 'scale-[1.005]' : ''} ${isZoomed ? (isPanDragging ? 'cursor-grabbing' : 'cursor-grab') : ''}`}
+                className={`panel panel-elevated overflow-hidden ${isDragging ? 'scale-[1.005]' : ''} ${isPanDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
                 style={{
                     touchAction: 'none',
                     willChange: 'transform'

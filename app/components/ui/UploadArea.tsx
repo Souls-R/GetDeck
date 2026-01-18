@@ -52,7 +52,7 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
                         GetDeck
                     </h1>
                     <p className="text-sm sm:text-lg text-(--foreground-muted)">
-                        上传 Master Duel 卡组截图，智能识别卡组内容
+                        上传 Master Duel 卡组截图，瞬间识别卡组内容，一键生成卡组码
                     </p>
                 </div>
 

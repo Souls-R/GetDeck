@@ -645,6 +645,7 @@ export default function DeckRecognizer() {
                             handleCardSelect(index);
                         } : undefined}
                         onZoomChange={setIsCanvasZoomed}
+                        onBackgroundClick={!isMobile ? () => setSelectedCardIndex(-1) : undefined}
                     />
 
                     {/* 底部浮动工具栏 */}
