@@ -1,36 +1,39 @@
 @import "tailwindcss";
 
 :root {
-  /* 柔和的配色系统 */
-  --background: #f8fafc;
-  --background-secondary: #f1f5f9;
-  --foreground: #1e293b;
-  --foreground-muted: #64748b;
+  /* 干净专业的配色系统 */
+  --background: #ffffff;
+  --background-secondary: #fafafa;
+  --background-tertiary: #f5f5f5;
+  --foreground: #171717;
+  --foreground-muted: #525252;
+  --foreground-subtle: #a3a3a3;
 
   /* 卡片和面板 */
   --card-bg: #ffffff;
-  --card-border: #e2e8f0;
-  --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --card-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --card-shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --card-border: #e5e5e5;
+  --card-shadow: 0 1px 3px rgb(0 0 0 / 0.06);
+  --card-shadow-lg: 0 4px 12px rgb(0 0 0 / 0.08);
+  --card-shadow-xl: 0 8px 24px rgb(0 0 0 / 0.1);
 
-  /* 主题色 */
+  /* 主题色 - 蓝色 */
   --primary: #3b82f6;
   --primary-hover: #2563eb;
   --primary-light: #eff6ff;
-  --accent: #8b5cf6;
-  --success: #10b981;
-  --warning: #f59e0b;
+  --accent: #3b82f6;
+  --accent-light: #eff6ff;
+  --success: #22c55e;
+  --warning: #eab308;
 }
 
 /* 自定义文字选中颜色 */
 ::selection {
-  background-color: rgba(139, 92, 246, 0.3);
+  background-color: rgba(59, 130, 246, 0.2);
   color: inherit;
 }
 
 ::-moz-selection {
-  background-color: rgba(139, 92, 246, 0.3);
+  background-color: rgba(59, 130, 246, 0.2);
   color: inherit;
 }
 
@@ -44,18 +47,23 @@
 /* 深色模式 */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0f172a;
-    --background-secondary: #1e293b;
-    --foreground: #f1f5f9;
-    --foreground-muted: #94a3b8;
+    --background: #0a0a0a;
+    --background-secondary: #171717;
+    --background-tertiary: #262626;
+    --foreground: #fafafa;
+    --foreground-muted: #a3a3a3;
+    --foreground-subtle: #737373;
 
-    --card-bg: #1e293b;
-    --card-border: #334155;
-    --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
-    --card-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
-    --card-shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.5);
+    --card-bg: #171717;
+    --card-border: #262626;
+    --card-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
+    --card-shadow-lg: 0 4px 12px rgb(0 0 0 / 0.4);
+    --card-shadow-xl: 0 8px 24px rgb(0 0 0 / 0.5);
 
+    --primary: #60a5fa;
+    --primary-hover: #3b82f6;
     --primary-light: #1e3a5f;
+    --accent-light: #1e3a5f;
   }
 }
 
@@ -188,13 +196,26 @@ body {
   animation: fade-in 0.15s ease-out forwards;
 }
 
-/* 渐变背景 */
+/* 简洁背景 */
 .bg-gradient-main {
-  background: linear-gradient(135deg, var(--background) 0%, var(--background-secondary) 100%);
+  background: var(--background);
 }
 
 .bg-gradient-card {
-  background: linear-gradient(180deg, var(--card-bg) 0%, color-mix(in srgb, var(--card-bg) 95%, var(--background-secondary)) 100%);
+  background: var(--card-bg);
+}
+
+/* 点阵装饰背景 */
+.bg-dots {
+  background-image: radial-gradient(circle, var(--card-border) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* 网格装饰背景 */
+.bg-grid {
+  background-image: linear-gradient(var(--card-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--card-border) 1px, transparent 1px);
+  background-size: 48px 48px;
 }
 
 /* 玻璃效果 */
