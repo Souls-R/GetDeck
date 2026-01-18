@@ -59,12 +59,6 @@ export default function AboutPage() {
             <main className="max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
                 {/* 页面标题 */}
                 <div className="mb-12 sm:mb-16">
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-(--primary-light) text-(--primary) text-sm font-medium mb-4">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        技术文档
-                    </div>
                     <h1 className="text-3xl sm:text-4xl font-bold text-neutral-700 dark:text-neutral-200 mb-4">
                         关于 <span className="text-(--primary)">GetDeck</span>
                     </h1>
@@ -277,6 +271,53 @@ export default function AboutPage() {
                                 </p>
                             </div>
                         </div>
+                    </div>
+                </section>
+
+                {/* 致谢 */}
+                <section className="mb-12">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="w-10 h-10 rounded-xl bg-(--primary) flex items-center justify-center text-white">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                        </div>
+                        <h2 className="text-xl sm:text-2xl font-bold text-(--foreground)">致谢</h2>
+                    </div>
+
+                    <div className="p-5 rounded-xl border border-(--card-border) bg-(--card-bg)">
+                        <p className="text-sm text-(--foreground-muted) leading-relaxed mb-4">
+                            GetDeck 的开发离不开以下开源项目和服务的支持：
+                        </p>
+                        <ul className="space-y-3">
+                            <li className="flex items-start gap-3">
+                                <span className="shrink-0 w-6 h-6 rounded-full bg-(--primary-light) flex items-center justify-center text-(--primary) text-xs font-bold">1</span>
+                                <div>
+                                    <a href="https://ygocdb.com" target="_blank" rel="noopener noreferrer" className="font-medium text-(--foreground) hover:text-(--primary) transition-colors">
+                                        百鸽 (ygocdb.com)
+                                    </a>
+                                    <p className="text-sm text-(--foreground-muted)">提供卡片详细信息查询 API</p>
+                                </div>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="shrink-0 w-6 h-6 rounded-full bg-(--primary-light) flex items-center justify-center text-(--primary) text-xs font-bold">2</span>
+                                <div>
+                                    <a href="https://onnxruntime.ai" target="_blank" rel="noopener noreferrer" className="font-medium text-(--foreground) hover:text-(--primary) transition-colors">
+                                        ONNX Runtime
+                                    </a>
+                                    <p className="text-sm text-(--foreground-muted)">提供高性能的浏览器端 AI 推理能力</p>
+                                </div>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="shrink-0 w-6 h-6 rounded-full bg-(--primary-light) flex items-center justify-center text-(--primary) text-xs font-bold">3</span>
+                                <div>
+                                    <a href="https://github.com/ultralytics/ultralytics" target="_blank" rel="noopener noreferrer" className="font-medium text-(--foreground) hover:text-(--primary) transition-colors">
+                                        Ultralytics YOLO
+                                    </a>
+                                    <p className="text-sm text-(--foreground-muted)">提供目标检测模型架构</p>
+                                </div>
+                            </li>
+                        </ul>
                     </div>
                 </section>
 
