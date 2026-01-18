@@ -273,7 +273,7 @@ export default function AboutPage() {
                                 <p className="text-sm text-(--foreground-muted) leading-relaxed">
                                     GetDeck 的所有处理均在您的浏览器本地完成。您上传的图片不会发送到任何服务器，
                                     也不会被收集或存储。模型和数据库文件仅在首次访问时下载并缓存在本地。
-                                    本项目开源在Github(游戏资源解包及其CI/CD部分暂不开源)。
+                                    本项目开源在Github(游戏资源解包及其CI/CD部分，以及卡组码生成部分暂不开源)。
                                 </p>
                             </div>
                         </div>

@@ -299,7 +299,7 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
                     <div className="flex gap-6">
                         <a href="/about" className="hover:text-(--primary) transition-colors">关于</a>
                         <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-(--primary) transition-colors">GitHub</a>
-                        <a href="#" className="hover:text-(--primary) transition-colors">反馈</a>
+                        <a href="https://github.com/Souls-R/GetDeck/issues" target="_blank" rel="noopener noreferrer" className="hover:text-(--primary) transition-colors">反馈</a>
                     </div>
                 </div>
             </footer>
