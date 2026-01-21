@@ -10,7 +10,8 @@ import {
     upscaleForHash,
     STANDARD_CARD,
     PENDULUM_CARD,
-    SAMPLE_OFFSETS
+    SAMPLE_OFFSETS,
+    EARLY_EXIT_DISTANCE
 } from '../utils/recognition';
 
 const MODEL_PATH = 'https://cdn.get-deck.tech/best.onnx';
@@ -369,7 +370,11 @@ export function useRecognition(): UseRecognitionReturn {
                 // 多采样识别：在中心点及周围偏移点进行采样，取最佳匹配
                 let bestMatchResult = { distance: Infinity, matches: [] as Match[], hashStandard: '', hashPendulum: '' };
 
+                const startTime = performance.now();
+                let sampleCount = 0;
+
                 for (const offset of SAMPLE_OFFSETS) {
+                    sampleCount++;
                     const sampleBox = {
                         ...box,
                         x1: box.x1 + offset.dx,
@@ -419,7 +424,15 @@ export function useRecognition(): UseRecognitionReturn {
                             hashPendulum
                         };
                     }
+
+                    // 性能优化：如果首个采样点（中心点）的匹配距离小于阈值，则直接采纳，跳过后续采样
+                    // 这样对于清晰的图片，性能消耗与修改前基本一致
+                    if (sampleCount === 1 && bestDist < EARLY_EXIT_DISTANCE) {
+                        break;
+                    }
                 }
+
+                // console.log(`[Card ${i}] Processed with ${sampleCount} samples, best distance: ${bestMatchResult.distance}. Time: ${(performance.now() - startTime).toFixed(1)}ms`);
 
                 // 使用中心点的放大图作为预览
                 const artworkStandard = extractArtwork(ctx, box, STANDARD_CARD);
@@ -516,7 +529,11 @@ export function useRecognition(): UseRecognitionReturn {
         // 多采样识别
         let bestMatchResult = { distance: Infinity, matches: [] as Match[], hashStandard: '', hashPendulum: '' };
 
+        const startTime = performance.now();
+        let sampleCount = 0;
+
         for (const offset of SAMPLE_OFFSETS) {
+            sampleCount++;
             const sampleBox = {
                 ...box,
                 x1: box.x1 + offset.dx,
@@ -564,7 +581,14 @@ export function useRecognition(): UseRecognitionReturn {
                     hashPendulum
                 };
             }
+
+            // 性能优化：Early Exit
+            if (sampleCount === 1 && bestDist < EARLY_EXIT_DISTANCE) {
+                break;
+            }
         }
+
+        // console.log(`[Reprocess Card ${index}] Processed with ${sampleCount} samples, best distance: ${bestMatchResult.distance}. Time: ${(performance.now() - startTime).toFixed(1)}ms`);
 
         const matches = bestMatchResult.matches;
         const hashStandard = bestMatchResult.hashStandard;

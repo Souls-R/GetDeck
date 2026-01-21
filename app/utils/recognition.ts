@@ -17,6 +17,10 @@ export const SAMPLE_OFFSETS = [
     { dx: 0, dy: 1 },   // 下移 1 像素
 ];
 
+// 性能优化：如果匹配距离小于此阈值，则认为匹配足够好，不再进行多采样
+// 设置为 50 比较保守，只有非常确信的匹配才跳过采样。
+export const EARLY_EXIT_DISTANCE = 50;
+
 export function preprocessImage(image: HTMLImageElement | HTMLCanvasElement): { tensor: ort.Tensor; scale: number; padX: number; padY: number } {
     const canvas = document.createElement('canvas');
     canvas.width = INPUT_SIZE;
