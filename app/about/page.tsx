@@ -8,25 +8,31 @@ export default function AboutPage() {
     useEffect(() => {
         const html = document.documentElement;
         const body = document.body;
-        
+
         // 保存原始样式
         const originalHtmlOverflow = html.style.overflow;
         const originalBodyOverflow = body.style.overflow;
         const originalBodyPosition = body.style.position;
         const originalBodyHeight = body.style.height;
         const originalBodyWidth = body.style.width;
-        
-        // 解除 html 和 body 的限制
+        const originalHtmlOverscrollBehavior = html.style.overscrollBehavior;
+        const originalBodyOverscrollBehavior = body.style.overscrollBehavior;
+
+        // 解除 html 和 body 的限制，确保鼠标滚轮可以滚动
         html.style.overflow = 'auto';
+        html.style.overscrollBehavior = 'auto';
         body.style.overflow = 'auto';
+        body.style.overscrollBehavior = 'auto';
         body.style.position = 'static';
         body.style.height = 'auto';
         body.style.width = 'auto';
-        
+
         // 清理函数：恢复原始样式
         return () => {
             html.style.overflow = originalHtmlOverflow;
+            html.style.overscrollBehavior = originalHtmlOverscrollBehavior;
             body.style.overflow = originalBodyOverflow;
+            body.style.overscrollBehavior = originalBodyOverscrollBehavior;
             body.style.position = originalBodyPosition;
             body.style.height = originalBodyHeight;
             body.style.width = originalBodyWidth;
@@ -46,7 +52,7 @@ export default function AboutPage() {
                         </div>
                         <span className="font-semibold text-(--foreground)">GetDeck</span>
                     </Link>
-                    <Link 
+                    <Link
                         href="/"
                         className="text-sm text-(--foreground-muted) hover:text-(--primary) transition-colors"
                     >
@@ -78,7 +84,7 @@ export default function AboutPage() {
                         </div>
                         <h2 className="text-xl sm:text-2xl font-bold text-(--foreground)">技术架构</h2>
                     </div>
-                    
+
                     <div className="grid sm:grid-cols-2 gap-4">
                         {[
                             {
@@ -127,7 +133,7 @@ export default function AboutPage() {
                     <div className="relative">
                         {/* 连接线 */}
                         <div className="absolute left-6 top-12 bottom-12 w-0.5 bg-(--primary)/30 hidden sm:block"></div>
-                        
+
                         <div className="space-y-6">
                             {[
                                 {
@@ -233,7 +239,7 @@ export default function AboutPage() {
                                     { cat: '框架', tech: 'Next.js', desc: 'React 全栈框架，Turbopack 构建' },
                                     { cat: 'UI', tech: 'Tailwind CSS 4', desc: '原子化 CSS，JIT 编译' },
                                     { cat: 'AI', tech: 'ONNX Runtime Web', desc: 'WebGL/WebGPU 加速推理' },
-                                    { cat: '模型', tech: 'YOLOv8n', desc: '轻量级目标检测模型' },
+                                    { cat: '模型', tech: 'YOLOv11n', desc: '轻量级目标检测模型' },
                                     { cat: 'WASM', tech: 'Rust + wasm-pack', desc: '高性能图像处理' },
                                     { cat: '哈希', tech: 'pHash (感知哈希)', desc: '图像相似度匹配' },
                                     { cat: '语言', tech: 'TypeScript', desc: '类型安全的 JavaScript' }
@@ -263,10 +269,11 @@ export default function AboutPage() {
                                 </svg>
                             </div>
                             <div>
-                                <h3 className="font-semibold text-(--primary) mb-2">隐私保护声明</h3>
+                                <h3 className="font-semibold text-(--primary) mb-2">隐私声明</h3>
                                 <p className="text-sm text-(--foreground-muted) leading-relaxed">
                                     GetDeck 的所有处理均在您的浏览器本地完成。您上传的图片不会发送到任何服务器，
-                                    也不会被收集或存储。模型和数据库文件仅在首次访问时下载并缓存在本地。
+                                    也不会被收集或存储。识别后的卡组信息可能会上传可乐妹服务器以创建卡组码，本项目不会保存。模型和数据库文件仅在首次访问时下载并缓存在本地。
+
                                     本项目开源在Github(游戏资源解包及其CI/CD部分，以及卡组码生成部分暂不开源)。
                                 </p>
                             </div>
@@ -323,8 +330,8 @@ export default function AboutPage() {
 
                 {/* 底部 CTA */}
                 <section className="text-center py-8 border-t border-(--card-border)">
-                    <h3 className="text-lg font-semibold text-(--foreground) mb-3">准备好试试了吗？</h3>
-                    <Link 
+                    <h3 className="text-lg font-semibold text-(--foreground) mb-3">尝试一下？</h3>
+                    <Link
                         href="/"
                         className="inline-flex items-center gap-2 px-6 py-2.5 bg-(--primary) text-white rounded-lg font-medium hover:bg-(--primary-hover) transition-colors"
                     >

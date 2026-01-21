@@ -36,7 +36,7 @@ function parseCardTypes(typesStr: string): string[] {
     }
 
     // 提取种族/属性（在第一个方括号后、换行前的部分）
-    let badget2='';
+    let badget2 = '';
     const firstLine = typesStr.split('\n')[0];
     const afterBracket = firstLine.replace(/\[[^\]]+\]\s*/, '').trim();
     if (afterBracket) {
@@ -145,11 +145,10 @@ export default function Sidebar({
                             {/* 识别源按钮 */}
                             <button
                                 onClick={() => setIsSourcePanelExpanded(!isSourcePanelExpanded)}
-                                className={`p-1.5 rounded-lg transition-colors shrink-0 ${
-                                    isSourcePanelExpanded
+                                className={`p-1.5 rounded-lg transition-colors shrink-0 ${isSourcePanelExpanded
                                         ? 'bg-[var(--primary)] text-white'
                                         : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]'
-                                }`}
+                                    }`}
                                 title="识别源图像"
                             >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -184,21 +183,19 @@ export default function Sidebar({
                                     <div className="flex items-center gap-1.5">
                                         <button
                                             onClick={() => { if (forcePendulumMode) onToggleCardMode(); }}
-                                            className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-all ${
-                                                !forcePendulumMode
+                                            className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-all ${!forcePendulumMode
                                                     ? 'bg-[var(--primary)] text-white shadow-md'
                                                     : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]'
-                                            }`}
+                                                }`}
                                         >
                                             标准卡
                                         </button>
                                         <button
-                                onClick={() => { if (!forcePendulumMode) onToggleCardMode(); }}
-                                            className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-all ${
-                                                forcePendulumMode
+                                            onClick={() => { if (!forcePendulumMode) onToggleCardMode(); }}
+                                            className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-all ${forcePendulumMode
                                                     ? 'bg-[var(--success)] text-white shadow-md'
                                                     : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]'
-                                            }`}
+                                                }`}
                                         >
                                             灵摆卡
                                         </button>
@@ -242,11 +239,11 @@ export default function Sidebar({
                                             </svg>
                                         </button>
                                         {/* 中心点 */}
-                                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[var(--foreground-muted)]/30" />
+                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[var(--foreground-muted)]/30" />
                                     </div>
-                              </div>
+                                </div>
                                 <p className="text-xs text-[var(--foreground-muted)] leading-relaxed">
-                                    使用方向键微调选区位置，或在画布上长按拖动卡片边框
+                                    使用上方的方向键微调选区位置，调整识别区域
                                 </p>
                             </div>
                         )}
@@ -265,25 +262,25 @@ export default function Sidebar({
                                 {/* ATK/DEF */}
                                 {(selectedCardInfo.result[0].text.atk !== undefined ||
                                     selectedCardInfo.result[0].text.def !== undefined) && (
-                                    <div className="flex gap-3">
-                                        {selectedCardInfo.result[0].text.atk !== undefined && (
-                                            <div className="flex-1 panel p-3 text-center">
-                                                <div className="text-xs text-[var(--foreground-muted)] mb-1">ATK</div>
-                                                <div className="text-lg font-bold text-[var(--warning)]">
-                                                    {selectedCardInfo.result[0].text.atk}
+                                        <div className="flex gap-3">
+                                            {selectedCardInfo.result[0].text.atk !== undefined && (
+                                                <div className="flex-1 panel p-3 text-center">
+                                                    <div className="text-xs text-[var(--foreground-muted)] mb-1">ATK</div>
+                                                    <div className="text-lg font-bold text-[var(--warning)]">
+                                                        {selectedCardInfo.result[0].text.atk}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        )}
-                                        {selectedCardInfo.result[0].text.def !== undefined && (
-                                            <div className="flex-1 panel p-3 text-center">
-                                                <div className="text-xs text-[var(--foreground-muted)] mb-1">DEF</div>
-                                                <div className="text-lg font-bold text-[var(--primary)]">
-                                                    {selectedCardInfo.result[0].text.def}
+                                            )}
+                                            {selectedCardInfo.result[0].text.def !== undefined && (
+                                                <div className="flex-1 panel p-3 text-center">
+                                                    <div className="text-xs text-[var(--foreground-muted)] mb-1">DEF</div>
+                                                    <div className="text-lg font-bold text-[var(--primary)]">
+                                                        {selectedCardInfo.result[0].text.def}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
+                                            )}
+                                        </div>
+                                    )}
 
                                 {/* 卡片描述 */}
                                 <div className="panel p-4">
@@ -371,11 +368,10 @@ export default function Sidebar({
                                 <button
                                     onClick={onGenerateDeckCode}
                                     disabled={isGeneratingDeckCode}
-                                    className={`px-3 py-1.5 text-sm rounded-lg font-medium transition-colors flex items-center gap-1.5 ${
-                                        isGeneratingDeckCode
+                                    className={`px-3 py-1.5 text-sm rounded-lg font-medium transition-colors flex items-center gap-1.5 ${isGeneratingDeckCode
                                             ? 'bg-(--primary)/70 text-white cursor-not-allowed'
                                             : 'bg-(--primary) text-white hover:bg-(--primary)/90'
-                                    }`}
+                                        }`}
                                     title="生成卡组码"
                                 >
                                     {isGeneratingDeckCode ? (
@@ -393,7 +389,7 @@ export default function Sidebar({
                             </div>
                         </div>
 
-                   {/* 卡片列表 */}
+                        {/* 卡片列表 */}
                         <div ref={cardListScrollRef} onScroll={handleScroll} className="flex-1 overflow-y-auto custom-scrollbar p-2">
                             <div className="space-y-1">
                                 {cardGroups.map((group, groupIndex) => (
@@ -404,11 +400,10 @@ export default function Sidebar({
                                     >
                                         <div className="flex items-center gap-2">
                                             {/* 数量 */}
-                                            <div className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 text-xs font-bold ${
-                                                group.count > 1
+                                            <div className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 text-xs font-bold ${group.count > 1
                                                     ? 'bg-[var(--primary)] text-white'
                                                     : 'bg-[var(--card-bg)] border border-[var(--card-border)] text-[var(--foreground-muted)]'
-                                            }`}>
+                                                }`}>
                                                 {group.count}
                                             </div>
                                             {/* 卡名 */}

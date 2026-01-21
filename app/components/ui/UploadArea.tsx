@@ -49,9 +49,9 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
                         </div>
                         <span className="font-semibold text-(--foreground)">GetDeck</span>
                     </div>
-                    <a 
-                        href="https://github.com" 
-                        target="_blank" 
+                    <a
+                        href="https://github.com"
+                        target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-1.5 text-sm text-(--foreground-muted) hover:text-(--foreground) transition-colors"
                     >
@@ -69,7 +69,7 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
                     {/* 标签 */}
                     <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-(--background-secondary) border border-(--card-border) mb-6 sm:mb-8">
                         <span className="w-2 h-2 rounded-full bg-(--accent) animate-pulse"></span>
-                        <span className="text-xs sm:text-sm text-(--foreground-muted)">开源免费 · 完全离线</span>
+                        <span className="text-xs sm:text-sm text-(--foreground-muted)">开源免费 · 离线识别</span>
                     </div>
 
                     {/* 主标题 */}
@@ -86,20 +86,18 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
 
                     {/* 上传区域 - 即使模型在下载也允许上传 */}
                     <div
-                        className={`max-w-xl mx-auto p-8 sm:p-12 rounded-2xl border-2 border-dashed transition-all duration-200 cursor-pointer ${
-                            isDragOver
-                                ? 'border-(--primary) bg-(--primary-light) scale-[1.02]'
-                                : 'border-(--card-border) hover:border-(--primary) hover:bg-(--background-secondary)'
-                        }`}
+                        className={`max-w-xl mx-auto p-8 sm:p-12 rounded-2xl border-2 border-dashed transition-all duration-200 cursor-pointer ${isDragOver
+                            ? 'border-(--primary) bg-(--primary-light) scale-[1.02]'
+                            : 'border-(--card-border) hover:border-(--primary) hover:bg-(--background-secondary)'
+                            }`}
                         onDragOver={handleDragOver}
                         onDragLeave={handleDragLeave}
                         onDrop={handleDrop}
                         onClick={() => fileInputRef.current?.click()}
                     >
                         <div className="flex flex-col items-center gap-4">
-                            <div className={`w-14 h-14 rounded-xl flex items-center justify-center transition-colors ${
-                                isDragOver ? 'bg-(--primary) text-white' : 'bg-(--background-tertiary) text-(--foreground-muted)'
-                            }`}>
+                            <div className={`w-14 h-14 rounded-xl flex items-center justify-center transition-colors ${isDragOver ? 'bg-(--primary) text-white' : 'bg-(--background-tertiary) text-(--foreground-muted)'
+                                }`}>
                                 <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
@@ -213,8 +211,8 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
                                 desc: '识别结果可手动调整，支持框选修正和候选卡片切换，确保结果准确'
                             }
                         ].map((feature, i) => (
-                            <div 
-                                key={i} 
+                            <div
+                                key={i}
                                 className="p-6 rounded-xl border border-(--card-border) hover:border-(--foreground-muted) transition-colors"
                             >
                                 <div className="w-10 h-10 rounded-lg bg-(--primary) flex items-center justify-center text-white mb-4">
@@ -272,7 +270,7 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
                     <p>© 2026 GetDeck. 开源项目，使用 MIT 协议。</p>
                     <div className="flex gap-6">
                         <a href="/about" className="hover:text-(--primary) transition-colors">关于</a>
-                        <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-(--primary) transition-colors">GitHub</a>
+                        <a href="https://github.com/Souls-R/GetDeck" target="_blank" rel="noopener noreferrer" className="hover:text-(--primary) transition-colors">GitHub</a>
                         <a href="https://github.com/Souls-R/GetDeck/issues" target="_blank" rel="noopener noreferrer" className="hover:text-(--primary) transition-colors">反馈</a>
                     </div>
                 </div>

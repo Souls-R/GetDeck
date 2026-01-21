@@ -124,18 +124,19 @@ export function useCanvasInteraction({
                 onSelectCard(clickedIndex);
             }
 
-            // 缩放状态下禁用长按拖动微调功能
-            if (!isZoomed) {
-                longPressTimerRef.current = setTimeout(() => {
-                    setDragState({
-                        isDragging: true,
-                        startX: x,
-                        startY: y,
-                        initialBox: { ...recognizedCards[clickedIndex].box }
-                    });
-                    updateCropMagnifier({ ...recognizedCards[clickedIndex].box }, rawX, rawY);
-                }, 600);
-            }
+            // 长按拖动微调功能已禁用（与画布拖动功能冲突）
+            // 请使用小眼睛面板中的方向键微调选区位置
+            // if (!isZoomed) {
+            //     longPressTimerRef.current = setTimeout(() => {
+            //         setDragState({
+            //             isDragging: true,
+            //             startX: x,
+            //             startY: y,
+            //             initialBox: { ...recognizedCards[clickedIndex].box }
+            //         });
+            //         updateCropMagnifier({ ...recognizedCards[clickedIndex].box }, rawX, rawY);
+            //     }, 600);
+            // }
         } else {
             onSelectCard(-1);
         }
