@@ -8,6 +8,15 @@ export const IOU_THRESHOLD = 0.5;
 export const STANDARD_CARD = { width: 130, height: 186, left: 15, top: 33, right: 115, bottom: 133 };
 export const PENDULUM_CARD = { width: 405, height: 591, left: 26, top: 106, right: 379, bottom: 367 };
 
+// 多采样偏移量：在多个位置采样以找到最佳匹配（解决 1-2 像素检测误差问题）
+export const SAMPLE_OFFSETS = [
+    { dx: 0, dy: 0 },   // 原始位置
+    { dx: -1, dy: 0 },  // 左移 1 像素
+    { dx: 1, dy: 0 },   // 右移 1 像素
+    { dx: 0, dy: -1 },  // 上移 1 像素
+    { dx: 0, dy: 1 },   // 下移 1 像素
+];
+
 export function preprocessImage(image: HTMLImageElement | HTMLCanvasElement): { tensor: ort.Tensor; scale: number; padX: number; padY: number } {
     const canvas = document.createElement('canvas');
     canvas.width = INPUT_SIZE;
@@ -140,3 +149,33 @@ export function extractArtwork(ctx: CanvasRenderingContext2D, box: Box, cardType
 
     return ctx.getImageData(Math.round(left), Math.round(top), width, height);
 }
+
+// 将 artwork 统一缩放到固定尺寸以保证 hash 计算一致性
+// 无论原图大小如何，都统一到 targetSize x targetSize
+export function upscaleForHash(imageData: ImageData, targetSize: number = 128): ImageData {
+    // 如果已经是目标尺寸，直接返回
+    if (imageData.width === targetSize && imageData.height === targetSize) {
+        return imageData;
+    }
+
+    // 创建临时 canvas 放置原始 ImageData
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = imageData.width;
+    tempCanvas.height = imageData.height;
+    const tempCtx = tempCanvas.getContext('2d')!;
+    tempCtx.putImageData(imageData, 0, 0);
+
+    // 创建目标 canvas 并缩放
+    const scaledCanvas = document.createElement('canvas');
+    scaledCanvas.width = targetSize;
+    scaledCanvas.height = targetSize;
+    const scaledCtx = scaledCanvas.getContext('2d')!;
+
+    // 使用高质量缩放
+    scaledCtx.imageSmoothingEnabled = true;
+    scaledCtx.imageSmoothingQuality = 'high';
+    scaledCtx.drawImage(tempCanvas, 0, 0, targetSize, targetSize);
+
+    return scaledCtx.getImageData(0, 0, targetSize, targetSize);
+}
+

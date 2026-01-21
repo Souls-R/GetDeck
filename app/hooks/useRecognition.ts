@@ -7,8 +7,10 @@ import {
     postprocessYOLO,
     sortBoxesByRow,
     extractArtwork,
+    upscaleForHash,
     STANDARD_CARD,
-    PENDULUM_CARD
+    PENDULUM_CARD,
+    SAMPLE_OFFSETS
 } from '../utils/recognition';
 
 const MODEL_PATH = 'https://cdn.get-deck.tech/best.onnx';
@@ -47,7 +49,7 @@ export interface UseRecognitionReturn {
     // 方法
     processImage: (img: HTMLImageElement) => Promise<void>;
     selectCard: (index: number) => Promise<void>;
-    reprocessCard: (index: number, forcePendulum?: boolean) => Promise<void>;
+    reprocessCard: (index: number, forcePendulum?: boolean, boxOverride?: Box) => Promise<void>;
     handleSelectAltMatch: (matchIndex: number) => void;
     updateCardBox: (index: number, box: Box) => void;
     setOriginalImage: (img: HTMLImageElement | null) => void;
@@ -71,7 +73,7 @@ export function useRecognition(): UseRecognitionReturn {
     const [isInitializing, setIsInitializing] = useState(true);
     const [statusText, setStatusText] = useState('正在初始化模型...');
     const [modelDownloadProgress, setModelDownloadProgress] = useState<number | null>(null);
-    
+
     // 等待初始化完成的方法
     const waitForInit = useCallback(() => initPromise, []);
 
@@ -235,7 +237,7 @@ export function useRecognition(): UseRecognitionReturn {
                 setIsInitializing(false);
                 setModelDownloadProgress(null);
                 setStatusText('就绪');
-                
+
                 // 通知等待初始化的代码
                 if (initResolve) {
                     initResolve();
@@ -364,39 +366,76 @@ export function useRecognition(): UseRecognitionReturn {
 
             for (let i = 0; i < sortedBoxes.length; i++) {
                 const box = sortedBoxes[i];
+                // 多采样识别：在中心点及周围偏移点进行采样，取最佳匹配
+                let bestMatchResult = { distance: Infinity, matches: [] as Match[], hashStandard: '', hashPendulum: '' };
+
+                for (const offset of SAMPLE_OFFSETS) {
+                    const sampleBox = {
+                        ...box,
+                        x1: box.x1 + offset.dx,
+                        y1: box.y1 + offset.dy,
+                        x2: box.x2 + offset.dx,
+                        y2: box.y2 + offset.dy
+                    };
+
+                    const artworkStandard = extractArtwork(ctx, sampleBox, STANDARD_CARD);
+                    const artworkPendulum = extractArtwork(ctx, sampleBox, PENDULUM_CARD);
+
+                    // 放大 artwork 以提高 hash 计算精度
+                    const upscaledStandard = upscaleForHash(artworkStandard);
+                    const upscaledPendulum = upscaleForHash(artworkPendulum);
+
+                    const hashStandard = get_phash_raw(
+                        new Uint8Array(upscaledStandard.data.buffer),
+                        upscaledStandard.width,
+                        upscaledStandard.height
+                    );
+                    const hashPendulum = get_phash_raw(
+                        new Uint8Array(upscaledPendulum.data.buffer),
+                        upscaledPendulum.width,
+                        upscaledPendulum.height
+                    );
+
+                    const matchesStandard = wasmDb.find_best_match(hashStandard, 'standard');
+                    const matchesPendulum = wasmDb.find_best_match(hashPendulum, 'pendulum');
+                    const allMatches = [...matchesStandard, ...matchesPendulum].sort(
+                        (a: any, b: any) => a.distance - b.distance
+                    );
+
+                    const bestDist = allMatches[0]?.distance || Infinity;
+
+                    // 如果找到更好的匹配（距离更小），更新最佳结果
+                    if (bestDist < bestMatchResult.distance) {
+                        bestMatchResult = {
+                            distance: bestDist,
+                            matches: allMatches.slice(0, 3).map((m: any) => ({
+                                id: m.id,
+                                name: m.name,
+                                distance: m.distance,
+                                cardType: m.cardType,
+                                dbHash: m.dbHash
+                            })),
+                            hashStandard,
+                            hashPendulum
+                        };
+                    }
+                }
+
+                // 使用中心点的放大图作为预览
                 const artworkStandard = extractArtwork(ctx, box, STANDARD_CARD);
-                const artworkPendulum = extractArtwork(ctx, box, PENDULUM_CARD);
-
+                const upscaledStandard = upscaleForHash(artworkStandard);
                 const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = artworkStandard.width;
-                tempCanvas.height = artworkStandard.height;
+                tempCanvas.width = upscaledStandard.width;
+                tempCanvas.height = upscaledStandard.height;
                 const tempCtx = tempCanvas.getContext('2d')!;
-                tempCtx.putImageData(artworkStandard, 0, 0);
-                const artworkUrl = tempCanvas.toDataURL('image/jpeg', 0.7);
+                tempCtx.putImageData(upscaledStandard, 0, 0);
+                const artworkUrl = tempCanvas.toDataURL('image/png');
 
-                const hashStandard = get_phash_raw(
-                    new Uint8Array(artworkStandard.data.buffer),
-                    artworkStandard.width,
-                    artworkStandard.height
-                );
-                const hashPendulum = get_phash_raw(
-                    new Uint8Array(artworkPendulum.data.buffer),
-                    artworkPendulum.width,
-                    artworkPendulum.height
-                );
+                const matches = bestMatchResult.matches;
+                const hashStandard = bestMatchResult.hashStandard;
+                const hashPendulum = bestMatchResult.hashPendulum;
 
-                const matchesStandard = wasmDb.find_best_match(hashStandard, 'standard');
-                const matchesPendulum = wasmDb.find_best_match(hashPendulum, 'pendulum');
-                const allMatches = [...matchesStandard, ...matchesPendulum].sort(
-                    (a: any, b: any) => a.distance - b.distance
-                );
-                const matches: Match[] = allMatches.slice(0, 3).map((m: any) => ({
-                    id: m.id,
-                    name: m.name,
-                    distance: m.distance,
-                    cardType: m.cardType,
-                    dbHash: m.dbHash
-                }));
+
 
                 setProcessingVisual({
                     index: i + 1,
@@ -462,41 +501,74 @@ export function useRecognition(): UseRecognitionReturn {
     }, [recognizedCards, fetchCardInfo]);
 
     // 重新处理卡片
-    const reprocessCard = useCallback(async (index: number, forcePendulum: boolean = false) => {
+    // box 参数可选，如果传入则使用传入的 box，否则从 recognizedCards 读取
+    // 这解决了状态更新时序问题：当调用者已经有新的 box 时，直接传入避免读取旧状态
+    const reprocessCard = useCallback(async (index: number, forcePendulum: boolean = false, boxOverride?: Box) => {
         if (!originalImage || !hashDatabase || !wasmDb) return;
         const card = recognizedCards[index];
+        const box = boxOverride || card.box;
 
         const ctx = document.createElement('canvas').getContext('2d', { willReadFrequently: true })!;
         ctx.canvas.width = originalImage.width;
         ctx.canvas.height = originalImage.height;
         ctx.drawImage(originalImage, 0, 0);
 
-        const artworkStandard = extractArtwork(ctx, card.box, STANDARD_CARD);
-        const artworkPendulum = extractArtwork(ctx, card.box, PENDULUM_CARD);
+        // 多采样识别
+        let bestMatchResult = { distance: Infinity, matches: [] as Match[], hashStandard: '', hashPendulum: '' };
 
-        const hashStandard = get_phash_raw(
-            new Uint8Array(artworkStandard.data.buffer),
-            artworkStandard.width,
-            artworkStandard.height
-        );
-        const hashPendulum = get_phash_raw(
-            new Uint8Array(artworkPendulum.data.buffer),
-            artworkPendulum.width,
-            artworkPendulum.height
-        );
+        for (const offset of SAMPLE_OFFSETS) {
+            const sampleBox = {
+                ...box,
+                x1: box.x1 + offset.dx,
+                y1: box.y1 + offset.dy,
+                x2: box.x2 + offset.dx,
+                y2: box.y2 + offset.dy
+            };
 
-        const matchesStandard = wasmDb.find_best_match(hashStandard, 'standard');
-        const matchesPendulum = wasmDb.find_best_match(hashPendulum, 'pendulum');
-        const allMatches = [...matchesStandard, ...matchesPendulum].sort(
-            (a: any, b: any) => a.distance - b.distance
-        );
-        const matches: Match[] = allMatches.slice(0, 3).map((m: any) => ({
-            id: m.id,
-            name: m.name,
-            distance: m.distance,
-            cardType: m.cardType,
-            dbHash: m.dbHash
-        }));
+            const artworkStandard = extractArtwork(ctx, sampleBox, STANDARD_CARD);
+            const artworkPendulum = extractArtwork(ctx, sampleBox, PENDULUM_CARD);
+
+            const upscaledStandard = upscaleForHash(artworkStandard);
+            const upscaledPendulum = upscaleForHash(artworkPendulum);
+
+            const hashStandard = get_phash_raw(
+                new Uint8Array(upscaledStandard.data.buffer),
+                upscaledStandard.width,
+                upscaledStandard.height
+            );
+            const hashPendulum = get_phash_raw(
+                new Uint8Array(upscaledPendulum.data.buffer),
+                upscaledPendulum.width,
+                upscaledPendulum.height
+            );
+
+            const matchesStandard = wasmDb.find_best_match(hashStandard, 'standard');
+            const matchesPendulum = wasmDb.find_best_match(hashPendulum, 'pendulum');
+            const allMatches = [...matchesStandard, ...matchesPendulum].sort(
+                (a: any, b: any) => a.distance - b.distance
+            );
+
+            const bestDist = allMatches[0]?.distance || Infinity;
+
+            if (bestDist < bestMatchResult.distance) {
+                bestMatchResult = {
+                    distance: bestDist,
+                    matches: allMatches.slice(0, 3).map((m: any) => ({
+                        id: m.id,
+                        name: m.name,
+                        distance: m.distance,
+                        cardType: m.cardType,
+                        dbHash: m.dbHash
+                    })),
+                    hashStandard,
+                    hashPendulum
+                };
+            }
+        }
+
+        const matches = bestMatchResult.matches;
+        const hashStandard = bestMatchResult.hashStandard;
+        const hashPendulum = bestMatchResult.hashPendulum;
 
         setRecognizedCards(prev => {
             const next = [...prev];
