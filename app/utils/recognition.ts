@@ -5,7 +5,7 @@ export const INPUT_SIZE = 1280;
 export const CONF_THRESHOLD = 0.7;
 export const IOU_THRESHOLD = 0.5;
 
-export const STANDARD_CARD = { width: 130, height: 186, left: 15, top: 33, right: 115, bottom: 133 };
+export const STANDARD_CARD = { width: 130, height: 186, left: 16, top: 34, right: 114, bottom: 131 };
 export const PENDULUM_CARD = { width: 405, height: 591, left: 26, top: 106, right: 379, bottom: 367 };
 
 // 多采样偏移量：在多个位置采样以找到最佳匹配（解决 1-2 像素检测误差问题）
