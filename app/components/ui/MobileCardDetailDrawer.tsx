@@ -267,7 +267,15 @@ export default function MobileCardDetailDrawer({
                 {/* 固定头部 */}
                 <div className="flex-shrink-0 p-4 border-b border-[var(--card-border)] bg-gradient-card">
                     <div className="flex items-center justify-between gap-3 mb-2">
-                        <h2 className={`text-lg font-bold text-[var(--foreground)] line-clamp-2 leading-tight flex-1 min-w-0 transition-opacity duration-150 ${isNameFading ? 'opacity-0' : 'opacity-100'}`}>
+                        <h2
+                            onClick={() => {
+                                const baigeId = cardInfo?.result?.[0]?.id;
+                                if (baigeId) {
+                                    window.open(`https://ygocdb.com/card/${baigeId}`, '_blank');
+                                }
+                            }}
+                            className={`text-lg font-bold text-[var(--foreground)] line-clamp-2 leading-tight flex-1 min-w-0 transition-opacity duration-150 cursor-pointer ${isNameFading ? 'opacity-0' : 'opacity-100'}`}
+                        >
                             {displayName}
                         </h2>
                         {/* 位置指示器 + 识别源按钮 */}

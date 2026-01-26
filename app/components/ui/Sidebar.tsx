@@ -140,7 +140,15 @@ export default function Sidebar({
                     {/* 头部 */}
                     <div className="p-6 border-b border-[var(--card-border)] bg-gradient-card">
                         <div className="flex items-center justify-between gap-3 mb-2">
-                            <h2 className="text-xl font-bold text-[var(--foreground)] line-clamp-2 leading-tight flex-1 min-w-0">
+                            <h2
+                                onClick={() => {
+                                    const baigeId = selectedCardInfo?.result?.[0]?.id;
+                                    if (baigeId) {
+                                        window.open(`https://ygocdb.com/card/${baigeId}`, '_blank');
+                                    }
+                                }}
+                                className="text-xl font-bold text-[var(--foreground)] line-clamp-2 leading-tight flex-1 min-w-0 cursor-pointer"
+                            >
                                 {currentMatch?.name}
                             </h2>
                             {/* 识别源按钮 */}
