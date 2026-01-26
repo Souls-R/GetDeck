@@ -6,8 +6,7 @@ import {
     preprocessImage,
     postprocessYOLO,
     sortBoxesByRow,
-    extractArtwork,
-    upscaleForHash,
+    ImageProcessor,
     STANDARD_CARD,
     PENDULUM_CARD,
     SAMPLE_OFFSETS,
@@ -365,6 +364,8 @@ export function useRecognition(): UseRecognitionReturn {
             const finalResults: RecognizedCard[] = [...initialCards];
             const BATCH_SIZE = 10;
 
+            const imageProcessor = new ImageProcessor(128);
+
             for (let i = 0; i < sortedBoxes.length; i++) {
                 const box = sortedBoxes[i];
                 // 多采样识别：在中心点及周围偏移点进行采样，取最佳匹配
@@ -383,23 +384,13 @@ export function useRecognition(): UseRecognitionReturn {
                         y2: box.y2 + offset.dy
                     };
 
-                    const artworkStandard = extractArtwork(ctx, sampleBox, STANDARD_CARD);
-                    const artworkPendulum = extractArtwork(ctx, sampleBox, PENDULUM_CARD);
+                    // 使用优化的处理器直接获取处理后的数据
+                    const dataStandard = imageProcessor.process(ctx, sampleBox, STANDARD_CARD);
+                    const dataPendulum = imageProcessor.process(ctx, sampleBox, PENDULUM_CARD);
 
-                    // 放大 artwork 以提高 hash 计算精度
-                    const upscaledStandard = upscaleForHash(artworkStandard);
-                    const upscaledPendulum = upscaleForHash(artworkPendulum);
-
-                    const hashStandard = get_phash_raw(
-                        new Uint8Array(upscaledStandard.data.buffer),
-                        upscaledStandard.width,
-                        upscaledStandard.height
-                    );
-                    const hashPendulum = get_phash_raw(
-                        new Uint8Array(upscaledPendulum.data.buffer),
-                        upscaledPendulum.width,
-                        upscaledPendulum.height
-                    );
+                    // ImageProcessor 固定输出 128x128
+                    const hashStandard = get_phash_raw(dataStandard, 128, 128);
+                    const hashPendulum = get_phash_raw(dataPendulum, 128, 128);
 
                     const matchesStandard = wasmDb.find_best_match(hashStandard, 'standard');
                     const matchesPendulum = wasmDb.find_best_match(hashPendulum, 'pendulum');
@@ -435,14 +426,7 @@ export function useRecognition(): UseRecognitionReturn {
                 // console.log(`[Card ${i}] Processed with ${sampleCount} samples, best distance: ${bestMatchResult.distance}. Time: ${(performance.now() - startTime).toFixed(1)}ms`);
 
                 // 使用中心点的放大图作为预览
-                const artworkStandard = extractArtwork(ctx, box, STANDARD_CARD);
-                const upscaledStandard = upscaleForHash(artworkStandard);
-                const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = upscaledStandard.width;
-                tempCanvas.height = upscaledStandard.height;
-                const tempCtx = tempCanvas.getContext('2d')!;
-                tempCtx.putImageData(upscaledStandard, 0, 0);
-                const artworkUrl = tempCanvas.toDataURL('image/png');
+                const artworkUrl = imageProcessor.getProcessDataURL(ctx, box, STANDARD_CARD);
 
                 const matches = bestMatchResult.matches;
                 const hashStandard = bestMatchResult.hashStandard;
@@ -529,6 +513,7 @@ export function useRecognition(): UseRecognitionReturn {
         // 多采样识别
         let bestMatchResult = { distance: Infinity, matches: [] as Match[], hashStandard: '', hashPendulum: '' };
 
+        const imageProcessor = new ImageProcessor(128);
         const startTime = performance.now();
         let sampleCount = 0;
 
@@ -542,22 +527,11 @@ export function useRecognition(): UseRecognitionReturn {
                 y2: box.y2 + offset.dy
             };
 
-            const artworkStandard = extractArtwork(ctx, sampleBox, STANDARD_CARD);
-            const artworkPendulum = extractArtwork(ctx, sampleBox, PENDULUM_CARD);
+            const dataStandard = imageProcessor.process(ctx, sampleBox, STANDARD_CARD);
+            const dataPendulum = imageProcessor.process(ctx, sampleBox, PENDULUM_CARD);
 
-            const upscaledStandard = upscaleForHash(artworkStandard);
-            const upscaledPendulum = upscaleForHash(artworkPendulum);
-
-            const hashStandard = get_phash_raw(
-                new Uint8Array(upscaledStandard.data.buffer),
-                upscaledStandard.width,
-                upscaledStandard.height
-            );
-            const hashPendulum = get_phash_raw(
-                new Uint8Array(upscaledPendulum.data.buffer),
-                upscaledPendulum.width,
-                upscaledPendulum.height
-            );
+            const hashStandard = get_phash_raw(dataStandard, 128, 128);
+            const hashPendulum = get_phash_raw(dataPendulum, 128, 128);
 
             const matchesStandard = wasmDb.find_best_match(hashStandard, 'standard');
             const matchesPendulum = wasmDb.find_best_match(hashPendulum, 'pendulum');

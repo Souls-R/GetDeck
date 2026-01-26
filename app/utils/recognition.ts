@@ -183,3 +183,71 @@ export function upscaleForHash(imageData: ImageData, targetSize: number = 128): 
     return scaledCtx.getImageData(0, 0, targetSize, targetSize);
 }
 
+/**
+ * 优化的图像处理器，用于减少 Canvas 创建和上下文切换开销
+ * 复用内部 canvas 进行裁剪和缩放
+ */
+export class ImageProcessor {
+    private canvas: HTMLCanvasElement;
+    private ctx: CanvasRenderingContext2D;
+    private targetSize: number;
+
+    constructor(targetSize: number = 128) {
+        this.targetSize = targetSize;
+        this.canvas = document.createElement('canvas');
+        this.canvas.width = targetSize;
+        this.canvas.height = targetSize;
+        this.ctx = this.canvas.getContext('2d', { willReadFrequently: true })!;
+        this.ctx.imageSmoothingEnabled = true;
+        this.ctx.imageSmoothingQuality = 'high';
+    }
+
+    /**
+     * 直接从源 Canvas 中裁剪并缩放到目标尺寸，返回 Uint8Array 供 WASM 使用
+     * 避免了中间的 ImageData 创建和额外的 Canvas 分配
+     */
+    public process(
+        sourceCtx: CanvasRenderingContext2D,
+        box: Box,
+        cardType: { width: number; height: number; left: number; top: number; right: number; bottom: number }
+    ): Uint8Array {
+        const cardW = box.x2 - box.x1;
+        const cardH = box.y2 - box.y1;
+
+        const left = box.x1 + cardW * (cardType.left / cardType.width);
+        const top = box.y1 + cardH * (cardType.top / cardType.height);
+        const right = box.x1 + cardW * (cardType.right / cardType.width);
+        const bottom = box.y1 + cardH * (cardType.bottom / cardType.height);
+
+        const width = Math.max(1, right - left);
+        const height = Math.max(1, bottom - top);
+
+        // 清除画布（可选，因为直接覆盖了，但为了安全起见）
+        // this.ctx.clearRect(0, 0, this.targetSize, this.targetSize);
+
+        // 一步完成裁剪和缩放
+        this.ctx.drawImage(
+            sourceCtx.canvas,
+            left, top, width, height, // Source crop
+            0, 0, this.targetSize, this.targetSize // Destination scale
+        );
+
+        // 获取数据
+        const imageData = this.ctx.getImageData(0, 0, this.targetSize, this.targetSize);
+        return new Uint8Array(imageData.data.buffer);
+    }
+
+    public getCanvas(): HTMLCanvasElement {
+        return this.canvas;
+    }
+
+    public getProcessDataURL(
+        sourceCtx: CanvasRenderingContext2D,
+        box: Box,
+        cardType: { width: number; height: number; left: number; top: number; right: number; bottom: number }
+    ): string {
+        this.process(sourceCtx, box, cardType);
+        return this.canvas.toDataURL('image/png');
+    }
+}
+
