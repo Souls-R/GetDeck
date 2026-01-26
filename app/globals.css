@@ -336,8 +336,8 @@ body {
   width: 100%;
   aspect-ratio: 680 / 986;
   /* Accurate YGO ratio */
+
   border-radius: 12px;
-  /* Fixed radius */
   overflow: visible;
   /* Changed to visible for thickness */
 
@@ -358,11 +358,13 @@ body {
 .holo-card-content {
   position: absolute;
   inset: 0;
-  border-radius: inherit;
+  /* border-radius: inherit; */
+  clip-path: url(#holo-card-squircle);
   overflow: hidden;
   transform: translateZ(0);
   /* Force front face */
   background: #000;
+  z-index: 2;
 }
 
 /* Thickness Simulation */
@@ -370,12 +372,14 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: inherit;
+  /* border-radius: inherit; */
+  clip-path: url(#holo-card-squircle);
   background: #333;
   /* Dark edge color */
   transform: translateZ(-2px);
   /* Push back for thickness */
   pointer-events: none;
+  z-index: -1;
 }
 
 .holo-card.interacting {
