@@ -2,6 +2,7 @@ import React, { useCallback, useState, useEffect } from 'react';
 import { RecognizedCard, CardInfo } from '../../types';
 import BottomDrawer from './BottomDrawer';
 import MobileCardCarousel from './MobileCardCarousel';
+import HoloCard from './HoloCard';
 
 interface MobileCardDetailDrawerProps {
     isOpen: boolean;
@@ -176,11 +177,10 @@ export default function MobileCardDetailDrawer({
                 {/* 官方卡图 */}
                 {cardResult && (
                     <div className="space-y-4">
-                        <div className="w-full rounded-xl overflow-hidden shadow-lg border border-[var(--card-border)]">
-                            <FadeImage
+                        <div className="w-full rounded-xl overflow-visible">
+                            <HoloCard
                                 src={`https://cdn.233.momobako.com/ygoimg/sc/${cardResult.id}.webp`}
                                 alt="Official Art"
-                                className="w-full"
                             />
                         </div>
 
@@ -277,11 +277,10 @@ export default function MobileCardDetailDrawer({
                             </span>
                             <button
                                 onClick={handleToggleSourcePanel}
-                                className={`p-1 rounded-lg transition-colors ${
-                                    showSourcePanel
-                                        ? 'bg-[var(--primary)] text-white'
-                                        : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]'
-                                }`}
+                                className={`p-1 rounded-lg transition-colors ${showSourcePanel
+                                    ? 'bg-[var(--primary)] text-white'
+                                    : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]'
+                                    }`}
                                 title="识别源图像"
                             >
                                 <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -316,21 +315,19 @@ export default function MobileCardDetailDrawer({
                                     <div className="flex items-center gap-1.5">
                                         <button
                                             onClick={() => { if (forcePendulumMode) onToggleCardMode(); }}
-                                            className={`px-2.5 py-1 text-xs rounded-lg font-medium transition-all ${
-                                                !forcePendulumMode
-                                                    ? 'bg-[var(--primary)] text-white shadow-md'
-                                                    : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)]'
-                                            }`}
+                                            className={`px-2.5 py-1 text-xs rounded-lg font-medium transition-all ${!forcePendulumMode
+                                                ? 'bg-[var(--primary)] text-white shadow-md'
+                                                : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)]'
+                                                }`}
                                         >
                                             标准
                                         </button>
                                         <button
                                             onClick={() => { if (!forcePendulumMode) onToggleCardMode(); }}
-                                            className={`px-2.5 py-1 text-xs rounded-lg font-medium transition-all ${
-                                                forcePendulumMode
-                                                    ? 'bg-[var(--success)] text-white shadow-md'
-                                                    : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)]'
-                                            }`}
+                                            className={`px-2.5 py-1 text-xs rounded-lg font-medium transition-all ${forcePendulumMode
+                                                ? 'bg-[var(--success)] text-white shadow-md'
+                                                : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)]'
+                                                }`}
                                         >
                                             灵摆
                                         </button>

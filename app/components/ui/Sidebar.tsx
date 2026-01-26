@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { RecognizedCard, CardInfo } from '../../types';
 import { ProcessingStage } from '../../hooks/useRecognition';
+import HoloCard from './HoloCard';
 
 interface SidebarProps {
     processingStage: ProcessingStage;
@@ -146,8 +147,8 @@ export default function Sidebar({
                             <button
                                 onClick={() => setIsSourcePanelExpanded(!isSourcePanelExpanded)}
                                 className={`p-1.5 rounded-lg transition-colors shrink-0 ${isSourcePanelExpanded
-                                        ? 'bg-[var(--primary)] text-white'
-                                        : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]'
+                                    ? 'bg-[var(--primary)] text-white'
+                                    : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]'
                                     }`}
                                 title="识别源图像"
                             >
@@ -184,8 +185,8 @@ export default function Sidebar({
                                         <button
                                             onClick={() => { if (forcePendulumMode) onToggleCardMode(); }}
                                             className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-all ${!forcePendulumMode
-                                                    ? 'bg-[var(--primary)] text-white shadow-md'
-                                                    : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]'
+                                                ? 'bg-[var(--primary)] text-white shadow-md'
+                                                : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]'
                                                 }`}
                                         >
                                             标准卡
@@ -193,8 +194,8 @@ export default function Sidebar({
                                         <button
                                             onClick={() => { if (!forcePendulumMode) onToggleCardMode(); }}
                                             className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-all ${forcePendulumMode
-                                                    ? 'bg-[var(--success)] text-white shadow-md'
-                                                    : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]'
+                                                ? 'bg-[var(--success)] text-white shadow-md'
+                                                : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]'
                                                 }`}
                                         >
                                             灵摆卡
@@ -251,10 +252,9 @@ export default function Sidebar({
                         {/* 官方卡图 */}
                         {selectedCardInfo?.result?.[0] && (
                             <div className="space-y-4">
-                                <div className="w-full rounded-xl overflow-hidden shadow-xl border border-[var(--card-border)] card-hover">
-                                    <img
+                                <div className="w-full rounded-xl overflow-visible">
+                                    <HoloCard
                                         src={`https://cdn.233.momobako.com/ygoimg/sc/${selectedCardInfo.result[0].id}.webp`}
-                                        className="w-full"
                                         alt="Official Art"
                                     />
                                 </div>
@@ -369,8 +369,8 @@ export default function Sidebar({
                                     onClick={onGenerateDeckCode}
                                     disabled={isGeneratingDeckCode}
                                     className={`px-3 py-1.5 text-sm rounded-lg font-medium transition-colors flex items-center gap-1.5 ${isGeneratingDeckCode
-                                            ? 'bg-(--primary)/70 text-white cursor-not-allowed'
-                                            : 'bg-(--primary) text-white hover:bg-(--primary)/90'
+                                        ? 'bg-(--primary)/70 text-white cursor-not-allowed'
+                                        : 'bg-(--primary) text-white hover:bg-(--primary)/90'
                                         }`}
                                     title="生成卡组码"
                                 >
@@ -401,8 +401,8 @@ export default function Sidebar({
                                         <div className="flex items-center gap-2">
                                             {/* 数量 */}
                                             <div className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 text-xs font-bold ${group.count > 1
-                                                    ? 'bg-[var(--primary)] text-white'
-                                                    : 'bg-[var(--card-bg)] border border-[var(--card-border)] text-[var(--foreground-muted)]'
+                                                ? 'bg-[var(--primary)] text-white'
+                                                : 'bg-[var(--card-bg)] border border-[var(--card-border)] text-[var(--foreground-muted)]'
                                                 }`}>
                                                 {group.count}
                                             </div>

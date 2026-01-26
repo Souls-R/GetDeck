@@ -115,6 +115,7 @@ body {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -126,6 +127,7 @@ body {
     opacity: 0;
     transform: scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -137,6 +139,7 @@ body {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -144,9 +147,12 @@ body {
 }
 
 @keyframes pulse-soft {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.7;
   }
@@ -156,6 +162,7 @@ body {
   0% {
     background-position: -200% 0;
   }
+
   100% {
     background-position: 200% 0;
   }
@@ -178,7 +185,7 @@ body {
 }
 
 .animate-shimmer {
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
@@ -187,6 +194,7 @@ body {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -297,4 +305,128 @@ body {
 
 .panel-elevated {
   box-shadow: var(--card-shadow-xl);
+}
+
+/* ------------------------------------------------------------
+   Holographic Card Effects
+   Based on modern CSS 3D transforms
+------------------------------------------------------------ */
+
+.holo-card-container {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  /* Prevent clipping during rotation */
+}
+
+.holo-card {
+  /* Default values */
+  --rx: 0deg;
+  --ry: 0deg;
+  --mx: 50%;
+  --my: 50%;
+  --sx: 0px;
+  --sy: 0px;
+
+  position: relative;
+  width: 100%;
+  aspect-ratio: 680 / 986;
+  /* Accurate YGO ratio */
+  border-radius: 12px;
+  /* Fixed radius */
+  overflow: visible;
+  /* Changed to visible for thickness */
+
+  transform: rotate3d(1, 0, 0, var(--rx)) rotate3d(0, 1, 0, var(--ry));
+  transform-style: preserve-3d;
+  transition: transform 0.1s ease-out;
+  /* Faster transition for smoother tracking */
+  will-change: transform;
+  z-index: 1;
+
+  /* Dynamic Depth Shadow */
+  box-shadow:
+    var(--sx) var(--sy) 40px -10px rgba(0, 0, 0, 0.4),
+    0 10px 20px -10px rgba(0, 0, 0, 0.2);
+}
+
+/* Inner content wrapper that clips image */
+.holo-card-content {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  transform: translateZ(0);
+  /* Force front face */
+  background: #000;
+}
+
+/* Thickness Simulation */
+.holo-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: #333;
+  /* Dark edge color */
+  transform: translateZ(-2px);
+  /* Push back for thickness */
+  pointer-events: none;
+}
+
+.holo-card.interacting {
+  transition: none;
+}
+
+.holo-card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  object-fit: cover;
+}
+
+/* Glare layer - Softer white reflection */
+.holo-card__glare {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  mix-blend-mode: overlay;
+  opacity: 0;
+  z-index: 10;
+  pointer-events: none;
+  /* light wash */
+  background: radial-gradient(farthest-corner circle at var(--mx) var(--my),
+      rgba(255, 255, 255, 0.25) 0%,
+      rgba(255, 255, 255, 0.10) 40%,
+      rgba(255, 255, 255, 0.04) 90%,
+      transparent 120%);
+  transition: opacity 0.3s ease;
+}
+
+/* Trigger on hover OR interaction */
+.holo-card:hover .holo-card__glare,
+.holo-card.interacting .holo-card__glare {
+  opacity: 1;
+}
+
+/* Holo/Rainbow layer - Removed as requested */
+.holo-card__holo {
+  display: none;
+}
+
+/* Trigger on hover OR interaction */
+.holo-card:hover .holo-card__holo,
+.holo-card.interacting .holo-card__holo {
+  opacity: 0.5;
+  /* Reduced max opacity */
+}
+
+/* Sparkles removed */
+.holo-card__sparkles {
+  display: none;
 }
