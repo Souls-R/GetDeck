@@ -241,10 +241,12 @@ export default function CardCanvas({
                 const dy = center.y - touchStateRef.current.lastCenter.y;
 
                 if (newScale > 1) {
-                    // 以双指中心为缩放中心进行缩放
+                    // 以双指中心为缩放中心
+                    // 补偿缩放产生的位移: M_vis * (1 - K)
+                    // 加上拖动产生的位移: dx
                     const actualScaleChange = newScale / oldScale;
-                    transformRef.current.x = pinchCenterX - (pinchCenterX - transformRef.current.x) * actualScaleChange + dx;
-                    transformRef.current.y = pinchCenterY - (pinchCenterY - transformRef.current.y) * actualScaleChange + dy;
+                    transformRef.current.x = transformRef.current.x + pinchCenterX * (1 - actualScaleChange) + dx;
+                    transformRef.current.y = transformRef.current.y + pinchCenterY * (1 - actualScaleChange) + dy;
                 } else {
                     transformRef.current.x = 0;
                     transformRef.current.y = 0;
@@ -365,31 +367,56 @@ export default function CardCanvas({
     }, [updateTransform]);
 
     // PC端滚轮缩放
-    const handleWheel = useCallback((e: React.WheelEvent) => {
-        e.preventDefault();
+    // PC端滚轮缩放 - 使用非被动事件监听器以支持 preventDefault
+    useEffect(() => {
+        const panel = panelRef.current;
+        if (!panel) return;
 
-        const delta = e.deltaY > 0 ? 0.9 : 1.1;
-        const newScale = Math.min(Math.max(transformRef.current.scale * delta, 1), 5);
+        const onWheel = (e: WheelEvent) => {
+            e.preventDefault();
 
-        // 以鼠标位置为中心缩放
-        if (panelRef.current) {
-            const rect = panelRef.current.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left - rect.width / 2;
-            const mouseY = e.clientY - rect.top - rect.height / 2;
+            // 使用指数平滑缩放
+            const sensitivity = 0.001;
+            const delta = Math.exp(-e.deltaY * sensitivity);
 
-            const scaleChange = newScale / transformRef.current.scale;
+            const oldScale = transformRef.current.scale;
+            const newScale = Math.min(Math.max(oldScale * delta, 1), 5);
+
+            // 以鼠标位置为中心缩放
+            // 获取面板当前的屏幕位置
+            const rect = panel.getBoundingClientRect();
+
+            // 面板中心点在屏幕上的坐标 (transform-origin 默认为 center)
+            const panelCenterX = rect.left + rect.width / 2;
+            const panelCenterY = rect.top + rect.height / 2;
+
+            // 鼠标相对于面板中心的向量
+            const mouseX = e.clientX - panelCenterX;
+            const mouseY = e.clientY - panelCenterY;
+
+            // 计算缩放比例变化
+            const scaleChange = newScale / oldScale;
 
             if (newScale > 1) {
-                transformRef.current.x = mouseX - (mouseX - transformRef.current.x) * scaleChange;
-                transformRef.current.y = mouseY - (mouseY - transformRef.current.y) * scaleChange;
+                // 更新平移量，保持鼠标下的点位置不变
+                // 公式: NewTranslate = OldTranslate + MouseVector * (1 - ScaleFactor)
+                transformRef.current.x += mouseX * (1 - scaleChange);
+                transformRef.current.y += mouseY * (1 - scaleChange);
             } else {
+                // 缩放回 1 时重置位置
                 transformRef.current.x = 0;
                 transformRef.current.y = 0;
             }
-        }
 
-        transformRef.current.scale = newScale;
-        updateTransform();
+            transformRef.current.scale = newScale;
+            updateTransform();
+        };
+
+        panel.addEventListener('wheel', onWheel, { passive: false });
+
+        return () => {
+            panel.removeEventListener('wheel', onWheel);
+        };
     }, [updateTransform]);
 
     // PC端鼠标拖动开始
@@ -473,7 +500,7 @@ export default function CardCanvas({
                 }}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
-                onWheel={handleWheel}
+
                 onMouseDown={handlePanelMouseDown}
                 onMouseMove={handlePanelMouseMove}
                 onMouseUp={handlePanelMouseUp}
