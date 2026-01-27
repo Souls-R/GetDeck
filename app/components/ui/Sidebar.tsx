@@ -395,6 +395,19 @@ export default function Sidebar({
                                     卡组码
                                 </button>
                             </div>
+                            {/* 识别数量较少时的提示 */}
+                            {recognizedCards.length < 20 && (
+                                <div className="mt-3 px-3 py-3 rounded-xl border border-[var(--warning)]/30 bg-[var(--warning)]/5 text-[var(--warning)] animate-fade-in">
+                                    <div className="flex gap-2.5 items-center">
+                                        <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span className="text-xs font-medium leading-normal opacity-90">
+                                            识别有误？请点击屏幕下方的 <svg className="w-3.5 h-3.5 inline-block align-text-bottom" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="6" r="3" /><circle cx="6" cy="18" r="3" /><line x1="20" y1="4" x2="8.12" y2="15.88" /><line x1="14.47" y1="14.48" x2="20" y2="20" /><line x1="8.12" y1="8.12" x2="12" y2="12" /></svg> 按钮尝试裁剪
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* 卡片列表 */}
