@@ -7471,7 +7471,7 @@
   },
   {
     "id": 5234,
-    "name": "阿佩普的化身",
+    "name": "阿波菲斯的化神",
     "phash": "e9603dc3995271664b322f35ad394d92af1e37cce2e76323d289f6982caaa656",
     "card_type": "standard"
   },
@@ -71797,7 +71797,7 @@
   },
   {
     "id": 17728,
-    "name": "淀神阿佩普",
+    "name": "淀神 阿波菲斯",
     "phash": "e626f40479a62bcbcf44de44ee0c8c2ca404139539e6e11dca93daf3e63e040f",
     "card_type": "standard"
   },
@@ -80724,6 +80724,12 @@
     "card_type": "standard"
   },
   {
+    "id": 21165,
+    "name": "直播☆双子 璃拉甜心",
+    "phash": "159d29bc180c9a599754f761d272dd306c334d895689aea9732e5a26cd2be0a8",
+    "card_type": "standard"
+  },
+  {
     "id": 21166,
     "name": "莫桑壹白骨",
     "phash": "c7c4e3e0a33993db8d63cf226797b196a792e658638c4b92c3321fc15ca59f03",
@@ -81288,6 +81294,18 @@
     "card_type": "standard"
   },
   {
+    "id": 21377,
+    "name": "K9－66a号 冰精",
+    "phash": "873d2799c592c5714f49472b8d76cb0c591aeb32d164dd28cd49134b329fe6be",
+    "card_type": "standard"
+  },
+  {
+    "id": 21382,
+    "name": "K9－EX “狼人”",
+    "phash": "fa61fe1071d334e77ee6661e463d0b1d321637361f3ecf2687662367a8668ece",
+    "card_type": "standard"
+  },
+  {
     "id": 21406,
     "name": "月之魔术师",
     "phash": "623ad1288320cb1049c02763e734cce44f659c339cc199339b638be28b768a36",
@@ -81435,6 +81453,12 @@
     "id": 21432,
     "name": "正义的传说 海马人",
     "phash": "1f4bc996cd9dd858b93239d83db64ce6cccce5e9b8c99cd94b310de1e689fd30",
+    "card_type": "standard"
+  },
+  {
+    "id": 21433,
+    "name": "对击斗魂 神圣苏",
+    "phash": "6353737a674ae138f131d8a4506a535c582c762f61376065a14a71867860ac60",
     "card_type": "standard"
   },
   {
@@ -81996,6 +82020,12 @@
     "card_type": "standard"
   },
   {
+    "id": 21907,
+    "name": "废品战士・极致",
+    "phash": "8c25ab73d3c391c6c12fa6cdac5a0dda17782e30a663344ef13871b44acec053",
+    "card_type": "standard"
+  },
+  {
     "id": 21965,
     "name": "救援兔",
     "phash": "9cb3996b9335a5199b149f199b13871259784c34c975d9b4ae371c317c5a4dce",
@@ -82035,6 +82065,12 @@
     "id": 22136,
     "name": "DDD 圣贤王阿尔弗雷德",
     "phash": "97427686cd31cc66ce461bd3939c9634b346b9c26db34ca6460ccbcccf49a395",
+    "card_type": "standard"
+  },
+  {
+    "id": 22150,
+    "name": "枪管战幕龙",
+    "phash": "57b010989c9ccc94ac9cccb0ac904a8f658bf11a609ce09632d5b187c1f14d38",
     "card_type": "standard"
   }
 ]
