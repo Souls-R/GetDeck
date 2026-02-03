@@ -177,7 +177,10 @@ function CardItem({
 
     return (
         <div
-            onClick={onClick}
+            onClick={(e) => {
+                e.stopPropagation();
+                onClick();
+            }}
             className={`relative overflow-hidden cursor-pointer transition-all aspect-[59/86] ${
                 isSelected ? 'ring-2 ring-[var(--primary)] scale-105 z-10' : 'hover:brightness-110'
             }`}
@@ -630,9 +633,9 @@ function DeckContent() {
 
                         <button
                             onClick={handleCopy}
-                            className="btn-primary flex items-center gap-2 px-3 py-1.5 text-sm"
+                            className="btn-primary flex items-center gap-2 py-1.5 text-sm"
                         >
-                            {copied ? (
+                            {/* {copied ? (
                                 <>
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -646,7 +649,7 @@ function DeckContent() {
                                     </svg>
                                     <span className="hidden sm:inline">复制卡组码</span>
                                 </>
-                            )}
+                            )} */}
                         </button>
                     </div>
                 )}
@@ -681,6 +684,12 @@ function DeckContent() {
                                 onMouseMove={!isMobile ? handleMouseMove : undefined}
                                 onMouseUp={!isMobile ? handleMouseUp : undefined}
                                 onMouseLeave={!isMobile ? handleMouseUp : undefined}
+                                onClick={(e) => {
+                                    // 点击空白区域时取消选中（PC端显示卡组列表）
+                                    if (e.target === e.currentTarget || (e.target as HTMLElement).closest('.space-y-4') === e.target) {
+                                        setSelectedCardIndex(-1);
+                                    }
+                                }}
                             >
                                 <div className={`space-y-4 select-none ${isMobile ? 'w-full' : ''}`}>
                                     {/* 主卡组 */}
@@ -753,18 +762,81 @@ function DeckContent() {
                         </div>
 
                         {/* 右侧：卡片详情侧边栏 - 复用 Sidebar 样式 */}
-                        <div className="hidden lg:flex w-[400px] border-l border-[var(--card-border)] bg-[var(--card-bg)] flex-col shrink-0 overflow-hidden rounded-tl-2xl">
+                        <div className="hidden lg:flex w-[400px] border-l border-[var(--card-border)] bg-[var(--card-bg)] flex-col shrink-0 overflow-hidden">
                             {selectedGameId ? (
                                 <CardDetailPanel
                                     gameId={selectedGameId}
                                     onClose={() => setSelectedCardIndex(-1)}
                                 />
                             ) : (
-                                <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-                                    <svg className="w-16 h-16 text-[var(--foreground-muted)] mb-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
-                                    </svg>
-                                    <p className="text-sm text-[var(--foreground-muted)]">点击卡片查看详情</p>
+                                <div className="flex flex-col h-full">
+                                    {/* 头部统计 */}
+                                    <div className="p-4 border-b border-[var(--card-border)] bg-gradient-card">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-xl bg-[var(--accent)] flex items-center justify-center shadow">
+                                                    <span className="text-lg font-bold text-white">{deckData.card_count}</span>
+                                                </div>
+                                                <div>
+                                                    <h2 className="text-base font-bold text-[var(--foreground)]">卡组详情</h2>
+                                                    <p className="text-xs text-[var(--foreground-muted)]">
+                                                        主卡组 {mainDeck.length} · 额外 {extraDeck.length}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <button
+                                                onClick={handleCopy}
+                                                className={`px-3 py-1.5 text-sm rounded-lg font-medium transition-colors flex items-center gap-1.5 ${
+                                                    copied
+                                                        ? 'bg-[var(--success)] text-white'
+                                                        : 'bg-[var(--primary)] text-white hover:bg-[var(--primary)]/90'
+                                                }`}
+                                                title="复制卡组码"
+                                            >
+                                                {copied ? (
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                ) : (
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                                    </svg>
+                                                )}
+                                                {copied ? '已复制' : '卡组码'}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* 卡片列表 */}
+                                    <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
+                                        <div className="space-y-1">
+                                            {cardGroups.map((group, groupIndex) => (
+                                                <button
+                                                    key={groupIndex}
+                                                    onClick={() => setSelectedCardIndex(group.indices[0])}
+                                                    className="w-full text-left px-3 py-2 rounded-lg bg-[var(--background-secondary)] hover:bg-[var(--card-border)] border border-transparent hover:border-[var(--primary)]/30 transition-all duration-150 group"
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        {/* 数量 */}
+                                                        <div className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 text-xs font-bold ${
+                                                            group.count > 1
+                                                                ? 'bg-[var(--primary)] text-white'
+                                                                : 'bg-[var(--card-bg)] border border-[var(--card-border)] text-[var(--foreground-muted)]'
+                                                        }`}>
+                                                            {group.count}
+                                                        </div>
+                                                        {/* 卡名 */}
+                                                        <span className="flex-1 text-sm text-[var(--foreground)] group-hover:text-[var(--primary)] truncate transition-colors">
+                                                            {group.name}
+                                                        </span>
+                                                        <svg className="w-3.5 h-3.5 text-[var(--foreground-muted)] group-hover:text-[var(--primary)] transition-colors opacity-0 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                                        </svg>
+                                                    </div>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                         </div>

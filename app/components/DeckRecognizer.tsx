@@ -880,7 +880,7 @@ export default function DeckRecognizer() {
 
                 {/* 电脑端侧边栏 */}
                 {!isMobile && originalImage && (
-                    <div className="animate-fade-in">
+                    <div className="animate-fade-in h-full">
                         <Sidebar
                             processingStage={processingStage}
                             recognizedCards={recognizedCards}
@@ -915,6 +915,7 @@ export default function DeckRecognizer() {
                             onScrollPositionChange={setMobileDrawerScrollPosition}
                             onGenerateDeckCode={handleGenerateDeckCode}
                             isGeneratingDeckCode={isGeneratingDeckCode}
+                            onShare={handleShare}
                         />
 
                         <MobileCardDetailDrawer

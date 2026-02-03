@@ -338,6 +338,10 @@ export default function CardCanvas({
         if (!panel) return;
 
         const onWheel = (e: WheelEvent) => {
+            // 只有当鼠标在 panel 内部时才处理缩放，避免阻止 Sidebar 滚动
+            if (!panel.contains(e.target as Node)) {
+                return;
+            }
             e.preventDefault();
 
             // 使用指数平滑缩放

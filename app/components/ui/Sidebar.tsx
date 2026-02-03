@@ -127,7 +127,7 @@ export default function Sidebar({
     const currentMatch = selectedCard?.matches?.[selectedCard.selectedMatchIndex];
 
     return (
-        <div className="w-[400px] border-l border-[var(--card-border)] bg-[var(--card-bg)] flex flex-col shrink-0 overflow-hidden">
+        <div className="w-[400px] h-full border-l border-[var(--card-border)] bg-[var(--card-bg)] flex flex-col shrink-0 overflow-hidden">
             {/* 处理中状态 - 简化显示 */}
             {(processingStage === 'detecting' || processingStage === 'identifying') && (
                 <div className="h-full flex flex-col items-center justify-center p-8 text-center">
