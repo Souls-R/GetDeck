@@ -308,15 +308,24 @@ function DeckContent() {
     const [showCardDetailDrawer, setShowCardDetailDrawer] = useState(false);
     const [cardNameMap, setCardNameMap] = useState<Map<string, string>>(new Map());
 
+    // 检测是否为移动端
+    const [isMobile, setIsMobile] = useState(false);
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
     // PC端卡片高度状态（用于自适应布局）
     const [cardHeight, setCardHeight] = useState<number | null>(null);
     const [baseCardHeight, setBaseCardHeight] = useState<number | null>(null); // 基准高度，用于计算百分比
     const [autoSizeCalculated, setAutoSizeCalculated] = useState(false);
     const cardGridRef = useRef<HTMLDivElement>(null);
 
-    // 计算卡片高度，使所有卡片在一屏内显示
+    // 计算卡片高度，使所有卡片在一屏内显示（仅 PC 端）
     useEffect(() => {
-        if (!deckData || autoSizeCalculated) return;
+        if (!deckData || autoSizeCalculated || isMobile) return;
 
         const calculateCardHeight = () => {
             const container = cardGridRef.current;
@@ -373,19 +382,22 @@ function DeckContent() {
         // 首次延迟一帧后开始尝试
         const frameId = requestAnimationFrame(tryCalculate);
         return () => cancelAnimationFrame(frameId);
-    }, [deckData, autoSizeCalculated]);
+    }, [deckData, autoSizeCalculated, isMobile]);
 
-    // 缩放按钮处理（调整卡片高度）
+    // 缩放按钮处理（调整卡片高度）- 仅 PC 端
     const handleZoomIn = useCallback(() => {
+        if (isMobile) return;
         setCardHeight(prev => prev ? Math.min(200, prev + 10) : 100);
-    }, []);
+    }, [isMobile]);
 
     const handleZoomOut = useCallback(() => {
+        if (isMobile) return;
         setCardHeight(prev => prev ? Math.max(40, prev - 10) : 80);
-    }, []);
+    }, [isMobile]);
 
-    // 滚轮缩放处理 - 使用原生事件监听以支持 preventDefault
+    // 滚轮缩放处理 - 仅 PC 端
     useEffect(() => {
+        if (isMobile) return;
         const container = cardGridRef.current;
         if (!container || !deckData) return;
 
@@ -402,24 +414,25 @@ function DeckContent() {
 
         container.addEventListener('wheel', handleWheel, { passive: false });
         return () => container.removeEventListener('wheel', handleWheel);
-    }, [deckData]);
+    }, [deckData, isMobile]);
 
-    // 拖动滚动状态
+    // 拖动滚动状态 - 仅 PC 端
     const [isDragging, setIsDragging] = useState(false);
     const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
     const [scrollStart, setScrollStart] = useState({ x: 0, y: 0 });
 
     const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+        if (isMobile) return;
         setIsDragging(true);
         setDragStart({ x: e.clientX, y: e.clientY });
         const container = cardGridRef.current;
         if (container) {
             setScrollStart({ x: container.scrollLeft, y: container.scrollTop });
         }
-    }, []);
+    }, [isMobile]);
 
     const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-        if (!isDragging) return;
+        if (isMobile || !isDragging) return;
         const container = cardGridRef.current;
         if (container) {
             const dx = e.clientX - dragStart.x;
@@ -427,7 +440,7 @@ function DeckContent() {
             container.scrollLeft = scrollStart.x - dx;
             container.scrollTop = scrollStart.y - dy;
         }
-    }, [isDragging, dragStart, scrollStart]);
+    }, [isMobile, isDragging, dragStart, scrollStart]);
 
     const handleMouseUp = useCallback(() => {
         setIsDragging(false);
@@ -488,8 +501,10 @@ function DeckContent() {
 
     const selectedGameId = selectedCardIndex >= 0 ? allCards[selectedCardIndex] : null;
 
-    // 计算主卡组每行数量
-    const mainCardsPerRow = mainDeck.length <= 50 ? 10 : mainDeck.length >= 60 ? 12 : 11;
+    // 计算主卡组每行数量（移动端固定 5 张，PC 端根据数量调整）
+    const mainCardsPerRow = isMobile ? 5 : (mainDeck.length <= 50 ? 10 : mainDeck.length >= 60 ? 12 : 11);
+    // 额外卡组每行数量（移动端固定 5 张，PC 端 10 张）
+    const extraCardsPerRow = isMobile ? 5 : 10;
 
     // 加载卡片名称
     useEffect(() => {
@@ -635,13 +650,13 @@ function DeckContent() {
                             {/* 卡片网格 */}
                             <div
                                 ref={cardGridRef}
-                                className={`flex-1 overflow-auto p-4 flex flex-col items-center scrollbar-hide ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-                                onMouseDown={handleMouseDown}
-                                onMouseMove={handleMouseMove}
-                                onMouseUp={handleMouseUp}
-                                onMouseLeave={handleMouseUp}
+                                className={`flex-1 overflow-auto p-3 lg:p-4 ${isMobile ? 'pb-24' : ''} ${!isMobile && isDragging ? 'cursor-grabbing' : !isMobile ? 'cursor-grab' : ''} ${isMobile ? '' : 'flex flex-col items-center'} scrollbar-hide`}
+                                onMouseDown={!isMobile ? handleMouseDown : undefined}
+                                onMouseMove={!isMobile ? handleMouseMove : undefined}
+                                onMouseUp={!isMobile ? handleMouseUp : undefined}
+                                onMouseLeave={!isMobile ? handleMouseUp : undefined}
                             >
-                                <div className="space-y-4 select-none">
+                                <div className={`space-y-4 select-none ${isMobile ? 'w-full' : ''}`}>
                                     {/* 主卡组 */}
                                     {mainDeck.length > 0 && (
                                         <div className="space-y-2 mb-4">
@@ -652,7 +667,9 @@ function DeckContent() {
                                             </div>
                                             <div
                                                 className="grid gap-0.5"
-                                                style={{
+                                                style={isMobile ? {
+                                                    gridTemplateColumns: `repeat(${mainCardsPerRow}, 1fr)`
+                                                } : {
                                                     gridTemplateColumns: cardHeight
                                                         ? `repeat(${mainCardsPerRow}, ${Math.round(cardHeight * 59 / 86)}px)`
                                                         : `repeat(${mainCardsPerRow}, minmax(0, 1fr))`
@@ -662,7 +679,10 @@ function DeckContent() {
                                                     <CardItem
                                                         key={`main-${cid}-${i}`}
                                                         gameId={cid}
-                                                        onClick={() => setSelectedCardIndex(i)}
+                                                        onClick={() => {
+                                                            setSelectedCardIndex(i);
+                                                            if (isMobile) setShowCardDetailDrawer(true);
+                                                        }}
                                                         isSelected={selectedCardIndex === i}
                                                     />
                                                 ))}
@@ -680,7 +700,9 @@ function DeckContent() {
                                             </div>
                                             <div
                                                 className="grid gap-0.5"
-                                                style={{
+                                                style={isMobile ? {
+                                                    gridTemplateColumns: `repeat(${extraCardsPerRow}, 1fr)`
+                                                } : {
                                                     gridTemplateColumns: cardHeight
                                                         ? `repeat(10, ${Math.round(cardHeight * 59 / 86)}px)`
                                                         : 'repeat(10, minmax(0, 1fr))'
@@ -690,7 +712,10 @@ function DeckContent() {
                                                     <CardItem
                                                         key={`extra-${cid}-${i}`}
                                                         gameId={cid}
-                                                        onClick={() => setSelectedCardIndex(extraStart + i)}
+                                                        onClick={() => {
+                                                            setSelectedCardIndex(extraStart + i);
+                                                            if (isMobile) setShowCardDetailDrawer(true);
+                                                        }}
                                                         isSelected={selectedCardIndex === extraStart + i}
                                                     />
                                                 ))}
@@ -702,7 +727,7 @@ function DeckContent() {
                         </div>
 
                         {/* 右侧：卡片详情侧边栏 - 复用 Sidebar 样式 */}
-                        <div className="hidden lg:flex w-[400px] border-l border-[var(--card-border)] bg-[var(--card-bg)] flex-col shrink-0 overflow-hidden">
+                        <div className="hidden lg:flex w-[400px] border-l border-[var(--card-border)] bg-[var(--card-bg)] flex-col shrink-0 overflow-hidden rounded-tl-2xl">
                             {selectedGameId ? (
                                 <CardDetailPanel
                                     gameId={selectedGameId}

@@ -4,7 +4,7 @@ export default function DeckLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="fixed inset-0 overflow-auto bg-[#0d1117]">
+    <div className="fixed inset-0 overflow-auto bg-[var(--background)]">
       {children}
     </div>
   );

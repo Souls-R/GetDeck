@@ -356,7 +356,7 @@ img {
 .panel {
   background: var(--card-bg);
   border: 1px solid var(--card-border);
-  border-radius: 1rem;
+  border-radius: 0.5rem;
   box-shadow: var(--card-shadow);
 }
 

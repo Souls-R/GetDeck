@@ -512,85 +512,103 @@ export default function DeckRecognizer() {
     }, [selectedCardIndex, recognizedCards, updateCardBox, originalImage, forcePendulumMode, reprocessCard]);
 
     // 生成卡组码
-    const handleGenerateDeckCode = useCallback(() => {
+    const handleGenerateDeckCode = useCallback(async () => {
         if (isGeneratingDeckCode) return;
-
-        // 额外卡组的怪兽类型关键词
-        const extraDeckTypes = ['融合', '超量', '连接', '同调', '链接', '同步'];
-
-        const deck: {
-            monsters: string[];
-            spells: string[];
-            traps: string[];
-            extra: string[];
-        } = {
-            monsters: [],
-            spells: [],
-            traps: [],
-            extra: []
-        };
-
-        recognizedCards.forEach(card => {
-            const match = card.matches[card.selectedMatchIndex];
-            if (!match) return;
-
-            const cid = String(match.id);
-            const cardInfo = globalCardInfoCache[match.name];
-            const types = cardInfo?.result?.[0]?.text?.types || '';
-
-            if (extraDeckTypes.some(t => types.includes(t))) {
-                // 融合/同步/超量/链接怪兽放入额外卡组
-                deck.extra.push(cid);
-                console.log(`Adding to deck: ${match.name} (Types: ${types}) added to Extra Deck`);
-            } else if (types.includes('魔法') && !types.includes('魔法师')) {
-                deck.spells.push(cid);
-            } else if (types.includes('陷阱')) {
-                deck.traps.push(cid);
-            } else {
-                // 其他怪兽卡放入主卡组
-                deck.monsters.push(cid);
-            }
-        });
 
         // 开始加载
         setIsGeneratingDeckCode(true);
 
-        // 调用API生成卡组码
-        const payload = { deck };
-        console.log('Deck data:', payload);
-        fetch('https://api.get-deck.tech/deck-code', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Deck code response:', data);
-                if (data.error) {
-                    setDeckCodeModal({ show: true, error: data.error });
-                } else if (data.deck_code) {
-                    setDeckCodeModal({ show: true, code: data.deck_code });
-                    // 更新历史记录中的卡组码
-                    if (currentHistoryId) {
-                        updateHistory(currentHistoryId, { deckCode: data.deck_code }).catch(console.error);
-                    }
+        try {
+            // 先确保所有卡片信息都已加载
+            const uniqueNames = Array.from(
+                new Set(recognizedCards.map(c => c.matches[c.selectedMatchIndex]?.name).filter(Boolean))
+            );
+
+            // 并行加载所有缺失的卡片信息
+            const missingNames = uniqueNames.filter(name => !globalCardInfoCache[name]);
+            if (missingNames.length > 0) {
+                await Promise.all(
+                    missingNames.map(name =>
+                        fetch(`https://ygocdb.com/api/v0/?search=${encodeURIComponent(name)}`)
+                            .then(r => r.json())
+                            .then(data => {
+                                globalCardInfoCache[name] = data;
+                            })
+                            .catch(err => console.error(`Failed to fetch card info for ${name}:`, err))
+                    )
+                );
+            }
+
+            // 额外卡组的怪兽类型关键词
+            const extraDeckTypes = ['融合', '超量', '连接', '同调', '链接', '同步'];
+
+            const deck: {
+                monsters: string[];
+                spells: string[];
+                traps: string[];
+                extra: string[];
+            } = {
+                monsters: [],
+                spells: [],
+                traps: [],
+                extra: []
+            };
+
+            recognizedCards.forEach(card => {
+                const match = card.matches[card.selectedMatchIndex];
+                if (!match) return;
+
+                const cid = String(match.id);
+                const cardInfo = globalCardInfoCache[match.name];
+                const types = cardInfo?.result?.[0]?.text?.types || '';
+
+                if (extraDeckTypes.some(t => types.includes(t))) {
+                    // 融合/同步/超量/链接怪兽放入额外卡组
+                    deck.extra.push(cid);
+                    console.log(`Adding to deck: ${match.name} (Types: ${types}) added to Extra Deck`);
+                } else if (types.includes('魔法') && !types.includes('魔法师')) {
+                    deck.spells.push(cid);
+                } else if (types.includes('陷阱')) {
+                    deck.traps.push(cid);
                 } else {
-                    setDeckCodeModal({ show: true, error: '未知错误' });
+                    // 其他怪兽卡放入主卡组
+                    deck.monsters.push(cid);
                 }
-            })
-            .catch(error => {
-                console.error('Failed to generate deck code:', error);
-                setDeckCodeModal({ show: true, error: '网络错误，请重试' });
-            })
-            .finally(() => {
-                setIsGeneratingDeckCode(false);
             });
+
+            // 调用API生成卡组码
+            const payload = { deck };
+            console.log('Deck data:', payload);
+            const response = await fetch('https://api.get-deck.tech/deck-code', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+            console.log('Deck code response:', data);
+            if (data.error) {
+                setDeckCodeModal({ show: true, error: data.error });
+            } else if (data.deck_code) {
+                setDeckCodeModal({ show: true, code: data.deck_code });
+                // 更新历史记录中的卡组码
+                if (currentHistoryId) {
+                    updateHistory(currentHistoryId, { deckCode: data.deck_code }).catch(console.error);
+                }
+            } else {
+                setDeckCodeModal({ show: true, error: '未知错误' });
+            }
+        } catch (error) {
+            console.error('Failed to generate deck code:', error);
+            setDeckCodeModal({ show: true, error: '网络错误，请重试' });
+        } finally {
+            setIsGeneratingDeckCode(false);
+        }
     }, [recognizedCards, isGeneratingDeckCode, currentHistoryId]);
 
     // 分享功能：如果已有卡组码直接分享，否则先生成再分享
-    const handleShare = useCallback(() => {
+    const handleShare = useCallback(async () => {
         if (deckCodeModal.code) {
             // 已有卡组码，直接打开分享
             setShowShareModal(true);
@@ -599,70 +617,89 @@ export default function DeckRecognizer() {
 
         if (isGeneratingDeckCode) return;
 
-        // 额外卡组的怪兽类型关键词
-        const extraDeckTypes = ['融合', '超量', '连接', '同调', '链接', '同步'];
-
-        const deck: {
-            monsters: string[];
-            spells: string[];
-            traps: string[];
-            extra: string[];
-        } = {
-            monsters: [],
-            spells: [],
-            traps: [],
-            extra: []
-        };
-
-        recognizedCards.forEach(card => {
-            const match = card.matches[card.selectedMatchIndex];
-            if (!match) return;
-
-            const cid = String(match.id);
-            const cardInfo = globalCardInfoCache[match.name];
-            const types = cardInfo?.result?.[0]?.text?.types || '';
-
-            if (extraDeckTypes.some(t => types.includes(t))) {
-                deck.extra.push(cid);
-            } else if (types.includes('魔法') && !types.includes('魔法师')) {
-                deck.spells.push(cid);
-            } else if (types.includes('陷阱')) {
-                deck.traps.push(cid);
-            } else {
-                deck.monsters.push(cid);
-            }
-        });
-
         setIsGeneratingDeckCode(true);
 
-        fetch('https://api.get-deck.tech/deck-code', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ deck })
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    setDeckCodeModal({ show: true, error: data.error });
-                } else if (data.deck_code) {
-                    setDeckCodeModal({ show: false, code: data.deck_code });
-                    setShowShareModal(true);
-                    if (currentHistoryId) {
-                        updateHistory(currentHistoryId, { deckCode: data.deck_code }).catch(console.error);
-                    }
+        try {
+            // 先确保所有卡片信息都已加载
+            const uniqueNames = Array.from(
+                new Set(recognizedCards.map(c => c.matches[c.selectedMatchIndex]?.name).filter(Boolean))
+            );
+
+            // 并行加载所有缺失的卡片信息
+            const missingNames = uniqueNames.filter(name => !globalCardInfoCache[name]);
+            if (missingNames.length > 0) {
+                await Promise.all(
+                    missingNames.map(name =>
+                        fetch(`https://ygocdb.com/api/v0/?search=${encodeURIComponent(name)}`)
+                            .then(r => r.json())
+                            .then(data => {
+                                globalCardInfoCache[name] = data;
+                            })
+                            .catch(err => console.error(`Failed to fetch card info for ${name}:`, err))
+                    )
+                );
+            }
+
+            // 额外卡组的怪兽类型关键词
+            const extraDeckTypes = ['融合', '超量', '连接', '同调', '链接', '同步'];
+
+            const deck: {
+                monsters: string[];
+                spells: string[];
+                traps: string[];
+                extra: string[];
+            } = {
+                monsters: [],
+                spells: [],
+                traps: [],
+                extra: []
+            };
+
+            recognizedCards.forEach(card => {
+                const match = card.matches[card.selectedMatchIndex];
+                if (!match) return;
+
+                const cid = String(match.id);
+                const cardInfo = globalCardInfoCache[match.name];
+                const types = cardInfo?.result?.[0]?.text?.types || '';
+
+                if (extraDeckTypes.some(t => types.includes(t))) {
+                    deck.extra.push(cid);
+                } else if (types.includes('魔法') && !types.includes('魔法师')) {
+                    deck.spells.push(cid);
+                } else if (types.includes('陷阱')) {
+                    deck.traps.push(cid);
                 } else {
-                    setDeckCodeModal({ show: true, error: '未知错误' });
+                    deck.monsters.push(cid);
                 }
-            })
-            .catch(error => {
-                console.error('Failed to generate deck code:', error);
-                setDeckCodeModal({ show: true, error: '网络错误，请重试' });
-            })
-            .finally(() => {
-                setIsGeneratingDeckCode(false);
             });
+
+            const response = await fetch('https://api.get-deck.tech/deck-code', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ deck })
+            });
+            const data = await response.json();
+
+            if (data.error) {
+                setDeckCodeModal({ show: true, error: data.error });
+            } else if (data.deck_code) {
+                setDeckCodeModal({ show: false, code: data.deck_code });
+                setShowShareModal(true);
+                if (currentHistoryId) {
+                    updateHistory(currentHistoryId, { deckCode: data.deck_code }).catch(console.error);
+                }
+            } else {
+                setDeckCodeModal({ show: true, error: '未知错误' });
+            }
+        } catch (error) {
+            console.error('Failed to generate deck code:', error);
+            setDeckCodeModal({ show: true, error: '网络错误，请重试' });
+        } finally {
+            setIsGeneratingDeckCode(false);
+        }
     }, [recognizedCards, isGeneratingDeckCode, currentHistoryId, deckCodeModal.code]);
 
     const getCroppedImg = (imageSrc: string, pixelCrop: any): Promise<HTMLImageElement> => {
