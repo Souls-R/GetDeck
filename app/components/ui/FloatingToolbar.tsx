@@ -4,6 +4,7 @@ interface FloatingToolbarProps {
     onCropClick: () => void;
     onUploadClick: () => void;
     onCardListClick?: () => void;
+    onHistoryClick?: () => void;
     showCardListButton?: boolean;
     cardCount?: number;
     disabled?: boolean;
@@ -13,6 +14,7 @@ export default function FloatingToolbar({
     onCropClick,
     onUploadClick,
     onCardListClick,
+    onHistoryClick,
     showCardListButton = false,
     cardCount = 0,
     disabled = false
@@ -153,6 +155,23 @@ export default function FloatingToolbar({
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                     </svg>
                 </button>
+
+                {/* History */}
+                {onHistoryClick && (
+                    <>
+                        <div className="w-px h-6 bg-[var(--card-border)]" />
+                        <button
+                            onClick={onHistoryClick}
+                            disabled={disabled}
+                            className="p-3 rounded-xl hover:bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-all disabled:opacity-40 disabled:pointer-events-none"
+                            title="历史记录"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </button>
+                    </>
+                )}
 
                 {/* Card List Button - 移动端和PC端都显示 */}
                 {(showCardListButton || cardCount > 0) && (

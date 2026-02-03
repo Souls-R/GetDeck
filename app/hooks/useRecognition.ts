@@ -55,6 +55,7 @@ export interface UseRecognitionReturn {
     setOriginalImage: (img: HTMLImageElement | null) => void;
     setSelectedCardIndex: (index: number) => void;
     setRecognizedCards: React.Dispatch<React.SetStateAction<RecognizedCard[]>>;
+    setProcessingStage: React.Dispatch<React.SetStateAction<ProcessingStage>>;
     resetState: () => void;
     waitForInit: () => Promise<void>;
 }
@@ -634,6 +635,7 @@ export function useRecognition(): UseRecognitionReturn {
         setOriginalImage,
         setSelectedCardIndex,
         setRecognizedCards,
+        setProcessingStage,
         resetState,
         waitForInit
     };

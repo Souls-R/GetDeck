@@ -5,6 +5,7 @@ import { useRecognition, globalCardInfoCache } from '../hooks/useRecognition';
 import { useCanvasInteraction } from '../hooks/useCanvasInteraction';
 import { useMobile } from '../hooks/useMobile';
 import { extractArtwork, STANDARD_CARD, PENDULUM_CARD } from '../utils/recognition';
+import { saveHistory, updateHistory, getHistoryCount, DeckHistory } from '../utils/historyDb';
 import Header from './ui/Header';
 import UploadArea from './ui/UploadArea';
 import CardCanvas from './ui/CardCanvas';
@@ -14,6 +15,7 @@ import CropperModal from './ui/CropperModal';
 import FloatingToolbar from './ui/FloatingToolbar';
 import MobileCardListDrawer from './ui/MobileCardListDrawer';
 import MobileCardDetailDrawer from './ui/MobileCardDetailDrawer';
+import HistoryDrawer from './ui/HistoryDrawer';
 
 const loadImage = (file: File): Promise<HTMLImageElement> => {
     return new Promise((resolve, reject) => {
@@ -59,6 +61,7 @@ export default function DeckRecognizer() {
         updateCardBox,
         setOriginalImage,
         setSelectedCardIndex,
+        setProcessingStage,
         resetState,
         waitForInit
     } = recognition;
@@ -83,6 +86,11 @@ export default function DeckRecognizer() {
 
     // 画布缩放状态
     const [isCanvasZoomed, setIsCanvasZoomed] = useState(false);
+
+    // 历史记录相关状态
+    const [showHistoryDrawer, setShowHistoryDrawer] = useState(false);
+    const [historyCount, setHistoryCount] = useState(0);
+    const [currentHistoryId, setCurrentHistoryId] = useState<string | null>(null);
 
     // Artwork 缓存（避免重复绘制 canvas）
     const artworkCacheRef = useRef<Map<string, string>>(new Map());
@@ -167,6 +175,7 @@ export default function DeckRecognizer() {
         setSelectedCardArtwork(null);
         setShowCardListDrawer(false);
         setShowCardDetailDrawer(false);
+        setCurrentHistoryId(null);
 
         try {
             const img = await loadImage(file);
@@ -202,6 +211,48 @@ export default function DeckRecognizer() {
         window.addEventListener('paste', handlePaste);
         return () => window.removeEventListener('paste', handlePaste);
     }, [handleFile]);
+
+    // 加载历史记录数量
+    useEffect(() => {
+        getHistoryCount().then(setHistoryCount).catch(console.error);
+    }, []);
+
+    // 识别完成后自动保存历史
+    useEffect(() => {
+        if (processingStage === 'done' && originalImage && recognizedCards.length > 0 && !currentHistoryId) {
+            saveHistory(originalImage, recognizedCards)
+                .then((history) => {
+                    setCurrentHistoryId(history.id);
+                    setHistoryCount((prev) => prev + 1);
+                })
+                .catch(console.error);
+        }
+    }, [processingStage, originalImage, recognizedCards, currentHistoryId]);
+
+    // 加载历史记录
+    const handleLoadHistory = useCallback((image: HTMLImageElement, history: DeckHistory) => {
+        resetState();
+        setForcePendulumMode(false);
+        setSelectedCardArtwork(null);
+        setShowCardListDrawer(false);
+        setShowCardDetailDrawer(false);
+        setCurrentHistoryId(history.id);
+
+        // 设置图片和识别结果
+        setUploadedImage(image);
+        setOriginalImage(image);
+
+        // 恢复识别结果
+        recognition.setRecognizedCards(history.recognizedCards);
+
+        // 设置处理阶段为完成
+        setProcessingStage('done');
+
+        // 如果有卡组码，保存到状态
+        if (history.deckCode) {
+            setDeckCodeModal({ show: false, code: history.deckCode });
+        }
+    }, [resetState, setOriginalImage, recognition, setProcessingStage]);
 
     // 全局拖拽支持
     const [isDragOver, setIsDragOver] = useState(false);
@@ -518,6 +569,10 @@ export default function DeckRecognizer() {
                     setDeckCodeModal({ show: true, error: data.error });
                 } else if (data.deck_code) {
                     setDeckCodeModal({ show: true, code: data.deck_code });
+                    // 更新历史记录中的卡组码
+                    if (currentHistoryId) {
+                        updateHistory(currentHistoryId, { deckCode: data.deck_code }).catch(console.error);
+                    }
                 } else {
                     setDeckCodeModal({ show: true, error: '未知错误' });
                 }
@@ -529,7 +584,7 @@ export default function DeckRecognizer() {
             .finally(() => {
                 setIsGeneratingDeckCode(false);
             });
-    }, [recognizedCards, isGeneratingDeckCode]);
+    }, [recognizedCards, isGeneratingDeckCode, currentHistoryId]);
 
     const getCroppedImg = (imageSrc: string, pixelCrop: any): Promise<HTMLImageElement> => {
         return new Promise((resolve, reject) => {
@@ -631,6 +686,8 @@ export default function DeckRecognizer() {
                         isInitializing={isInitializing}
                         modelDownloadProgress={modelDownloadProgress}
                         onFileSelect={handleFile}
+                        onHistoryClick={() => setShowHistoryDrawer(true)}
+                        historyCount={historyCount}
                     />
                 )}
 
@@ -689,6 +746,7 @@ export default function DeckRecognizer() {
                         <FloatingToolbar
                             onCropClick={() => setShowCropper(true)}
                             onUploadClick={() => fileInputRef.current?.click()}
+                            onHistoryClick={() => setShowHistoryDrawer(true)}
                             onCardListClick={() => {
                                 if (isMobile) {
                                     setShowCardListDrawer(true);
@@ -833,6 +891,14 @@ export default function DeckRecognizer() {
                     </div>
                 </div>
             )}
+
+            {/* 历史记录抽屉 */}
+            <HistoryDrawer
+                isOpen={showHistoryDrawer}
+                onClose={() => setShowHistoryDrawer(false)}
+                onLoadHistory={handleLoadHistory}
+                onHistoryCountChange={setHistoryCount}
+            />
         </div>
     );
 }

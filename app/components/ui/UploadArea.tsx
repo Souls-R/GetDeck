@@ -4,9 +4,11 @@ interface UploadAreaProps {
     isInitializing: boolean;
     modelDownloadProgress: number | null;
     onFileSelect: (file: File) => void;
+    onHistoryClick?: () => void;
+    historyCount?: number;
 }
 
-export default function UploadArea({ isInitializing, modelDownloadProgress, onFileSelect }: UploadAreaProps) {
+export default function UploadArea({ isInitializing, modelDownloadProgress, onFileSelect, onHistoryClick, historyCount = 0 }: UploadAreaProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isDragOver, setIsDragOver] = useState(false);
 
@@ -118,6 +120,25 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
                             </p>
                         </div>
                     </div>
+
+                    {/* 历史记录入口 */}
+                    {onHistoryClick && historyCount > 0 && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onHistoryClick();
+                            }}
+                            className="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-(--background-secondary) border border-(--card-border) text-sm text-(--foreground-muted) hover:text-(--foreground) hover:border-(--foreground-muted) transition-all"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            历史记录
+                            <span className="px-1.5 py-0.5 rounded bg-(--card-border) text-xs">
+                                {historyCount}
+                            </span>
+                        </button>
+                    )}
                 </div>
             </section>
 
