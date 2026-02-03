@@ -561,7 +561,7 @@ function DeckContent() {
                         <>
                             <div className="hidden sm:block h-6 w-px bg-[var(--card-border)]" />
                             <div className="hidden sm:flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                                <div className="w-8 h-8 rounded-lg bg-[var(--accent)] flex items-center justify-center">
                                     <span className="text-sm font-bold text-white">{deckData.card_count}</span>
                                 </div>
                                 <div>
@@ -803,7 +803,7 @@ function DeckContent() {
                     <div className="p-4 border-b border-[var(--card-border)] bg-gradient-card">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow">
+                                <div className="w-10 h-10 rounded-xl bg-[var(--accent)] flex items-center justify-center shadow">
                                     <span className="text-lg font-bold text-white">{deckData?.card_count || 0}</span>
                                 </div>
                                 <div>

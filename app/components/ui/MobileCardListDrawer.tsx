@@ -89,7 +89,7 @@ export default function MobileCardListDrawer({
                     <div className="p-4 border-b border-(--card-border) bg-gradient-card">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow">
+                                <div className="w-10 h-10 rounded-xl bg-[var(--accent)] flex items-center justify-center shadow">
                                     <span className="text-lg font-bold text-white">{recognizedCards.length}</span>
                                 </div>
                                 <div>
