@@ -304,6 +304,13 @@ export function useRecognition(): UseRecognitionReturn {
             const data = await promise;
             globalCardInfoCache[name] = data;
 
+            // 预加载 CDN 图片
+            const baigeId = data?.result?.[0]?.id;
+            if (baigeId) {
+                const img = new Image();
+                img.src = `https://cdn.233.momobako.com/ygoimg/sc/${baigeId}.webp`;
+            }
+
             if (updateUI && name === latestRequestedNameRef.current) {
                 setSelectedCardInfo(data);
             }
