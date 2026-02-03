@@ -22,12 +22,14 @@ export default function FloatingToolbar({
     const [showAboutTip, setShowAboutTip] = useState(false);
     const [isPinned, setIsPinned] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
+    const [isLargeScreen, setIsLargeScreen] = useState(false);
     const tooltipRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
         const checkMobile = () => {
             setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window);
+            setIsLargeScreen(window.innerWidth >= 1024); // lg breakpoint, sidebar visible
         };
         checkMobile();
         window.addEventListener('resize', checkMobile);
@@ -77,7 +79,7 @@ export default function FloatingToolbar({
     };
 
     return (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 animate-slide-up-toolbar">
+        <div className="absolute bottom-6 left-3/5 -translate-x-3/5 z-20 animate-slide-up-toolbar">
             {/* About Tooltip */}
             {showAboutTip && (
                 <div

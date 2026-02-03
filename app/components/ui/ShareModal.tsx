@@ -32,6 +32,7 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
     const [progress, setProgress] = useState(0);
     const [statusText, setStatusText] = useState('');
     const [copied, setCopied] = useState(false);
+    const [linkCopied, setLinkCopied] = useState(false);
 
     // 获取卡片信息（从缓存或API）
     const fetchCardInfo = async (name: string): Promise<CardInfo | null> => {
@@ -348,6 +349,26 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
         link.click();
     };
 
+    // 复制链接到剪贴板
+    const handleCopyLink = async () => {
+        const shareUrl = `${SHARE_DOMAIN}/deck/?code=${deckCode}`;
+        try {
+            await navigator.clipboard.writeText(shareUrl);
+            setLinkCopied(true);
+            setTimeout(() => setLinkCopied(false), 2000);
+        } catch {
+            // 降级方案
+            const textArea = document.createElement('textarea');
+            textArea.value = shareUrl;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            setLinkCopied(true);
+            setTimeout(() => setLinkCopied(false), 2000);
+        }
+    };
+
     // 复制图片到剪贴板
     const handleCopy = async () => {
         const canvas = canvasRef.current;
@@ -495,6 +516,30 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
                         下载图片
+                    </button>
+                    <button
+                        onClick={handleCopyLink}
+                        className={`flex-1 py-2.5 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
+                            linkCopied
+                                ? 'bg-[var(--success)] text-white'
+                                : 'bg-[var(--background-secondary)] text-[var(--foreground)] hover:bg-[var(--card-border)]'
+                        }`}
+                    >
+                        {linkCopied ? (
+                            <>
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                                已复制
+                            </>
+                        ) : (
+                            <>
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                </svg>
+                                复制链接
+                            </>
+                        )}
                     </button>
                 </div>
             </div>
