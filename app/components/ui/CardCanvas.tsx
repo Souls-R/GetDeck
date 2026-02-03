@@ -66,6 +66,9 @@ export default function CardCanvas({
         }
     }, [originalImage]);
 
+    // 存储 canvas 渲染尺寸，用于计算边框位置
+    const [canvasSize, setCanvasSize] = useState({ renderW: 0, renderH: 0 });
+
     const drawCanvas = useCallback(() => {
         const canvas = canvasRef.current;
         const container = containerRef.current;
@@ -97,50 +100,12 @@ export default function CardCanvas({
         canvas.style.width = `${renderW}px`;
         canvas.style.height = `${renderH}px`;
 
+        // 更新渲染尺寸状态
+        setCanvasSize({ renderW, renderH });
+
         const ctx = canvas.getContext('2d')!;
         ctx.drawImage(originalImage, 0, 0);
-
-        recognizedCards.forEach((card, i) => {
-            const { box } = card;
-            const isSelected = i === selectedCardIndex;
-            const isIdentified = card.matches.length > 0;
-
-            if (isSelected) {
-                ctx.strokeStyle = '#8b5cf6';
-                ctx.lineWidth = isDragging ? 6 : 4;
-                ctx.fillStyle = 'rgba(139, 92, 246, 0.15)';
-            } else if (isIdentified) {
-                ctx.strokeStyle = 'rgba(16, 185, 129, 0.8)';
-                ctx.lineWidth = 2;
-                ctx.fillStyle = 'rgba(16, 185, 129, 0.08)';
-            } else {
-                ctx.strokeStyle = 'rgba(148, 163, 184, 0.6)';
-                ctx.lineWidth = 2;
-                ctx.fillStyle = 'transparent';
-            }
-
-            const radius = 4;
-            const x = box.x1;
-            const y = box.y1;
-            const w = box.x2 - box.x1;
-            const h = box.y2 - box.y1;
-
-            ctx.beginPath();
-            ctx.moveTo(x + radius, y);
-            ctx.lineTo(x + w - radius, y);
-            ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
-            ctx.lineTo(x + w, y + h - radius);
-            ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
-            ctx.lineTo(x + radius, y + h);
-            ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
-            ctx.lineTo(x, y + radius);
-            ctx.quadraticCurveTo(x, y, x + radius, y);
-            ctx.closePath();
-
-            ctx.stroke();
-            if (isSelected || isIdentified) ctx.fill();
-        });
-    }, [originalImage, recognizedCards, selectedCardIndex, isDragging, canvasRef, containerRef]);
+    }, [originalImage, canvasRef, containerRef]);
 
     useEffect(() => {
         drawCanvas();
@@ -489,7 +454,7 @@ export default function CardCanvas({
             {/* Canvas面板 */}
             <div
                 ref={panelRef}
-                className={`panel panel-elevated overflow-hidden ${isDragging ? 'scale-[1.005]' : ''} ${isPanDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+                className={`panel panel-elevated overflow-hidden relative ${isDragging ? 'scale-[1.005]' : ''} ${isPanDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
                 style={{
                     touchAction: 'none',
                     willChange: 'transform'
@@ -516,6 +481,64 @@ export default function CardCanvas({
                     className="block"
                     style={{ opacity: originalImage ? 1 : 0 }}
                 />
+                {/* SVG 边框覆盖层 */}
+                {originalImage && canvasSize.renderW > 0 && (
+                    <svg
+                        className="absolute top-0 left-0 pointer-events-none"
+                        width={canvasSize.renderW}
+                        height={canvasSize.renderH}
+                        style={{ overflow: 'visible' }}
+                    >
+                        {recognizedCards.map((card, i) => {
+                            const { box } = card;
+                            const isSelected = i === selectedCardIndex;
+                            const isIdentified = card.matches.length > 0;
+
+                            // 计算缩放比例
+                            const scaleX = canvasSize.renderW / originalImage.width;
+                            const scaleY = canvasSize.renderH / originalImage.height;
+
+                            // 计算边框位置和尺寸
+                            const x = box.x1 * scaleX;
+                            const y = box.y1 * scaleY;
+                            const width = (box.x2 - box.x1) * scaleX;
+                            const height = (box.y2 - box.y1) * scaleY;
+
+                            // 根据状态设置样式
+                            let strokeColor: string;
+                            let strokeWidth: number;
+                            let fillColor: string;
+
+                            if (isSelected) {
+                                strokeColor = '#8b5cf6';
+                                strokeWidth = isDragging ? 3 : 2;
+                                fillColor = 'rgba(139, 92, 246, 0.15)';
+                            } else if (isIdentified) {
+                                strokeColor = 'rgba(16, 185, 129, 0.8)';
+                                strokeWidth = 1.5;
+                                fillColor = 'rgba(16, 185, 129, 0.08)';
+                            } else {
+                                strokeColor = 'rgba(148, 163, 184, 0.6)';
+                                strokeWidth = 1.5;
+                                fillColor = 'transparent';
+                            }
+
+                            return (
+                                <rect
+                                    key={i}
+                                    x={x}
+                                    y={y}
+                                    width={width}
+                                    height={height}
+                                    fill={fillColor}
+                                    stroke={strokeColor}
+                                    strokeWidth={strokeWidth}
+                                    vectorEffect="non-scaling-stroke"
+                                />
+                            );
+                        })}
+                    </svg>
+                )}
             </div>
         </div>
     );
