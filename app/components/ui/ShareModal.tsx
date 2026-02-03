@@ -216,7 +216,7 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
             ctx.fillStyle = '#171717';
             ctx.font = 'bold 30px system-ui, -apple-system, sans-serif';
             ctx.textAlign = 'left';
-            ctx.fillText(`卡组码: ${deckCode}`, padding, currentY + 36);
+            ctx.fillText(`MasterDuel卡组码: ${deckCode}`, padding, currentY + 36);
 
             // 卡片数量
             ctx.fillStyle = '#737373';
@@ -412,7 +412,7 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
             if (navigator.share && navigator.canShare({ files: [file] })) {
                 await navigator.share({
                     files: [file],
-                    title: `卡组码: ${deckCode}`,
+                    title: `MasterDuel卡组码: ${deckCode}`,
                     text: `GetDeck 卡组分享 - ${deckCode}`
                 });
             } else {
