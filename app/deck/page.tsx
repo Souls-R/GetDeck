@@ -43,11 +43,20 @@ interface YgocdbResponse {
 
 // 加载本地卡片数据
 let cardDataCache: CardData[] | null = null;
+let cardDataPromise: Promise<CardData[]> | null = null;
+
 async function loadCardData(): Promise<CardData[]> {
     if (cardDataCache) return cardDataCache;
-    const res = await fetch('/card_data.json');
-    cardDataCache = await res.json();
-    return cardDataCache!;
+    if (cardDataPromise) return cardDataPromise;
+
+    cardDataPromise = fetch('/card_data.json')
+        .then(res => res.json())
+        .then(data => {
+            cardDataCache = data;
+            return data;
+        });
+
+    return cardDataPromise;
 }
 
 // 通过游戏ID获取卡片名称
@@ -57,15 +66,37 @@ async function getCardNameById(gameId: string): Promise<string | null> {
     return card?.name || null;
 }
 
+// ygocdb API 缓存
+const ygocdbCache: Record<string, YgocdbResult | null> = {};
+const ygocdbPendingRequests: Record<string, Promise<YgocdbResult | null>> = {};
+
+// 通过卡片名称获取 ygocdb 卡片信息（带缓存）
+async function getYgocdbCardInfo(name: string): Promise<YgocdbResult | null> {
+    if (name in ygocdbCache) return ygocdbCache[name];
+    if (name in ygocdbPendingRequests) return ygocdbPendingRequests[name];
+
+    ygocdbPendingRequests[name] = fetch(`https://ygocdb.com/api/v0/?search=${encodeURIComponent(name)}`)
+        .then(res => res.json())
+        .then((data: YgocdbResponse) => {
+            const result = data.result?.[0] || null;
+            ygocdbCache[name] = result;
+            return result;
+        })
+        .catch(() => {
+            ygocdbCache[name] = null;
+            return null;
+        })
+        .finally(() => {
+            delete ygocdbPendingRequests[name];
+        });
+
+    return ygocdbPendingRequests[name];
+}
+
 // 通过卡片名称获取百鸽CDN的ID
 async function getBaigeIdByName(name: string): Promise<number | null> {
-    try {
-        const res = await fetch(`https://ygocdb.com/api/v0/?search=${encodeURIComponent(name)}`);
-        const data: YgocdbResponse = await res.json();
-        return data.result?.[0]?.id || null;
-    } catch {
-        return null;
-    }
+    const cardInfo = await getYgocdbCardInfo(name);
+    return cardInfo?.id || null;
 }
 
 // 卡片图片 URL (百鸽CDN)
@@ -190,14 +221,9 @@ function CardDetailPanel({
             if (cancelled) return;
             if (name) {
                 setCardName(name);
-                try {
-                    const res = await fetch(`https://ygocdb.com/api/v0/?search=${encodeURIComponent(name)}`);
-                    const data: YgocdbResponse = await res.json();
-                    if (cancelled) return;
-                    setCardInfo(data.result?.[0] || null);
-                } catch {
-                    // ignore
-                }
+                const info = await getYgocdbCardInfo(name);
+                if (cancelled) return;
+                setCardInfo(info);
             }
             setLoading(false);
         })();
