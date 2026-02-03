@@ -451,7 +451,7 @@ function DeckContent() {
             }
         })
             .then(res => {
-                if (!res.ok) throw new Error('卡组不存在或者不是从GetDeck创建的');
+                if (!res.ok) throw new Error('卡组码不存在或者不是从GetDeck生成的');
                 return res.json();
             })
             .then((data: DeckResponse) => {

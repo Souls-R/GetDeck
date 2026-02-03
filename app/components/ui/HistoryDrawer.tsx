@@ -197,7 +197,7 @@ export default function HistoryDrawer({ isOpen, onClose, onLoadHistory, onHistor
                                             </span>
                                             {history.deckCode && (
                                                 <span className="text-[10px] px-1.5 py-0.5 rounded bg-(--primary)/20 text-(--primary)">
-                                                    已生成码
+                                                    已生成卡组码
                                                 </span>
                                             )}
                                         </div>

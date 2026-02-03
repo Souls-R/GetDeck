@@ -19,6 +19,7 @@ interface SidebarProps {
     onScrollPositionChange: (position: number) => void;
     onGenerateDeckCode: () => void;
     isGeneratingDeckCode: boolean;
+    onShare: () => void;
 }
 
 // 解析卡片类型字符串
@@ -93,7 +94,8 @@ export default function Sidebar({
     scrollPosition,
     onScrollPositionChange,
     onGenerateDeckCode,
-    isGeneratingDeckCode
+    isGeneratingDeckCode,
+    onShare
 }: SidebarProps) {
     const [isSourcePanelExpanded, setIsSourcePanelExpanded] = useState(false);
 
@@ -372,8 +374,19 @@ export default function Sidebar({
                                         <p className="text-xs text-[var(--foreground-muted)]">{cardGroups.length} 种卡片</p>
                                     </div>
                                 </div>
-                                {/* 生成卡组码按钮 */}
-                                <button
+                                <div className="flex items-center gap-2">
+                                    {/* 分享按钮 */}
+                                    <button
+                                        onClick={onShare}
+                                        className="p-1.5 rounded-lg bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)] hover:bg-[var(--card-border)] transition-colors"
+                                        title="分享卡组"
+                                    >
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                                        </svg>
+                                    </button>
+                                    {/* 生成卡组码按钮 */}
+                                    <button
                                     onClick={onGenerateDeckCode}
                                     disabled={isGeneratingDeckCode}
                                     className={`px-3 py-1.5 text-sm rounded-lg font-medium transition-colors flex items-center gap-1.5 ${isGeneratingDeckCode
@@ -394,6 +407,7 @@ export default function Sidebar({
                                     )}
                                     卡组码
                                 </button>
+                                </div>
                             </div>
                             {/* 识别数量较少时的提示 */}
                             {recognizedCards.length < 20 && (

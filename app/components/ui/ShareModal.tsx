@@ -1,0 +1,503 @@
+"use client";
+
+import React, { useRef, useState, useEffect } from 'react';
+import { RecognizedCard, CardInfo } from '../../types';
+import { globalCardInfoCache } from '../../hooks/useRecognition';
+import { useMobile } from '../../hooks/useMobile';
+import QRCode from 'qrcode';
+
+interface ShareModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    deckCode: string;
+    recognizedCards: RecognizedCard[];
+}
+
+// 获取卡片图片 URL (使用 wsrv.nl 代理解决 CORS 问题)
+// 请求 177x258 尺寸（约2倍绘制尺寸89x129），保证社交分享清晰度
+const getCardImageUrl = (baigeId: number) =>
+    `https://wsrv.nl/?url=https://cdn.233.momobako.com/ygoimg/sc/${baigeId}.webp&w=177&h=258&fit=cover`;
+
+// 分享链接域名配置
+const SHARE_DOMAIN = 'https://get-deck.tech';
+
+// 图片缓存
+const imageCache: Record<number, HTMLImageElement> = {};
+
+export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards }: ShareModalProps) {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const isMobile = useMobile();
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [progress, setProgress] = useState(0);
+    const [statusText, setStatusText] = useState('');
+    const [copied, setCopied] = useState(false);
+
+    // 获取卡片信息（从缓存或API）
+    const fetchCardInfo = async (name: string): Promise<CardInfo | null> => {
+        if (globalCardInfoCache[name]) {
+            return globalCardInfoCache[name];
+        }
+        try {
+            const response = await fetch(`https://ygocdb.com/api/v0/?search=${encodeURIComponent(name)}`);
+            const data = await response.json();
+            globalCardInfoCache[name] = data;
+            return data;
+        } catch {
+            return null;
+        }
+    };
+
+    // 加载图片的辅助函数（通过 wsrv.nl 代理，支持 CORS）
+    const loadImage = (baigeId: number): Promise<HTMLImageElement> => {
+        // 如果已缓存，直接返回
+        if (imageCache[baigeId]) {
+            return Promise.resolve(imageCache[baigeId]);
+        }
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => {
+                imageCache[baigeId] = img;
+                resolve(img);
+            };
+            img.onerror = reject;
+            img.src = getCardImageUrl(baigeId);
+        });
+    };
+
+    // 加载任意图片 URL
+    const loadImageUrl = (src: string): Promise<HTMLImageElement> => {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => resolve(img);
+            img.onerror = reject;
+            img.src = src;
+        });
+    };
+
+    // 生成分享图片
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const generateImage = async () => {
+            setIsGenerating(true);
+            setProgress(0);
+            setStatusText('正在加载卡片信息...');
+
+            // 额外卡组的怪兽类型关键词
+            const extraDeckTypes = ['融合', '超量', '连接', '同调', '链接', '同步'];
+
+            // 先收集所有需要的卡名
+            const cardNames = recognizedCards
+                .map(card => card.matches[card.selectedMatchIndex]?.name)
+                .filter(Boolean) as string[];
+
+            // 并发加载所有卡片信息
+            const INFO_CONCURRENCY = 10;
+            let loadedCount = 0;
+            const totalToLoad = cardNames.filter(name => !globalCardInfoCache[name]).length;
+
+            if (totalToLoad > 0) {
+                const queue = [...cardNames.filter(name => !globalCardInfoCache[name])];
+                const workers = Array(Math.min(INFO_CONCURRENCY, queue.length)).fill(null).map(async () => {
+                    while (queue.length > 0) {
+                        const name = queue.shift();
+                        if (name) {
+                            await fetchCardInfo(name);
+                            loadedCount++;
+                            setStatusText(`正在加载卡片信息... (${loadedCount}/${totalToLoad})`);
+                        }
+                    }
+                });
+                await Promise.all(workers);
+            }
+
+            // 分类卡片：主卡组和额外卡组
+            const mainDeckCards: { name: string; baigeId?: number }[] = [];
+            const extraDeckCards: { name: string; baigeId?: number }[] = [];
+
+            recognizedCards.forEach((card) => {
+                const match = card.matches[card.selectedMatchIndex];
+                if (!match) return;
+
+                const cardInfo = globalCardInfoCache[match.name];
+                const baigeId = cardInfo?.result?.[0]?.id;
+                const types = cardInfo?.result?.[0]?.text?.types || '';
+
+                const cardData = { name: match.name, baigeId };
+
+                if (extraDeckTypes.some(t => types.includes(t))) {
+                    extraDeckCards.push(cardData);
+                } else {
+                    mainDeckCards.push(cardData);
+                }
+            });
+
+            // 收集所有需要加载的图片 ID
+            const allCards = [...mainDeckCards, ...extraDeckCards];
+            const baigeIds = allCards.map(c => c.baigeId).filter((id): id is number => !!id && !imageCache[id]);
+            const uniqueBaigeIds = [...new Set(baigeIds)];
+
+            // 并行预加载所有卡片图片（20 并发）
+            if (uniqueBaigeIds.length > 0) {
+                setStatusText('正在加载卡片图片...');
+                const IMAGE_CONCURRENCY = 20;
+                let imageLoadedCount = 0;
+                const imageQueue = [...uniqueBaigeIds];
+
+                const imageWorkers = Array(Math.min(IMAGE_CONCURRENCY, imageQueue.length)).fill(null).map(async () => {
+                    while (imageQueue.length > 0) {
+                        const baigeId = imageQueue.shift();
+                        if (baigeId) {
+                            try {
+                                await loadImage(baigeId);
+                            } catch {
+                                // 忽略加载失败
+                            }
+                            imageLoadedCount++;
+                            setProgress(Math.round((imageLoadedCount / uniqueBaigeIds.length) * 50));
+                            setStatusText(`正在加载卡片图片... (${imageLoadedCount}/${uniqueBaigeIds.length})`);
+                        }
+                    }
+                });
+                await Promise.all(imageWorkers);
+            }
+
+            setStatusText('正在生成分享图片...');
+
+            console.log('ShareModal generating:', { main: mainDeckCards.length, extra: extraDeckCards.length });
+
+            const canvas = canvasRef.current;
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+
+            // 设置画布尺寸（约1.5倍大小，提高清晰度）
+            const padding = 48;
+            const cardWidth = 89;
+            const cardHeight = 129;
+            const mainCardsPerRow = mainDeckCards.length <= 50 ? 10 : mainDeckCards.length >= 60 ? 12 : 11;
+            const extraCardsPerRow = 10;
+            const gap = 6;
+            const headerHeight = 90;
+            const sectionHeaderHeight = 42;
+            const sectionGap = 24;
+            const footerHeight = 120;
+            const qrSize = 90;
+
+            const mainRows = Math.ceil(mainDeckCards.length / mainCardsPerRow);
+            const extraRows = Math.ceil(extraDeckCards.length / extraCardsPerRow);
+
+            const contentWidth = Math.max(
+                mainCardsPerRow * cardWidth + (mainCardsPerRow - 1) * gap,
+                extraCardsPerRow * cardWidth + (extraCardsPerRow - 1) * gap
+            );
+
+            const mainContentHeight = mainRows * cardHeight + (mainRows - 1) * gap;
+            const extraContentHeight = extraDeckCards.length > 0
+                ? sectionGap + sectionHeaderHeight + extraRows * cardHeight + (extraRows - 1) * gap
+                : 0;
+
+            canvas.width = contentWidth + padding * 2;
+            canvas.height = headerHeight + sectionHeaderHeight + mainContentHeight + extraContentHeight + footerHeight + padding * 2;
+
+            // 背景色 - 白色
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 标题区域
+            let currentY = padding;
+
+            // 卡组码标题
+            ctx.fillStyle = '#171717';
+            ctx.font = 'bold 30px system-ui, -apple-system, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText(`卡组码: ${deckCode}`, padding, currentY + 36);
+
+            // 卡片数量
+            ctx.fillStyle = '#737373';
+            ctx.font = '21px system-ui, -apple-system, sans-serif';
+            ctx.fillText(`主卡组 ${mainDeckCards.length} · 额外卡组 ${extraDeckCards.length}`, padding, currentY + 72);
+
+            currentY += headerHeight;
+
+            // 主卡组标题
+            ctx.fillStyle = '#a855f7'; // 紫色
+            ctx.fillRect(padding, currentY, 6, 24);
+            ctx.fillStyle = '#171717';
+            ctx.font = 'bold 21px system-ui, -apple-system, sans-serif';
+            ctx.fillText('主卡组', padding + 18, currentY + 20);
+
+            currentY += sectionHeaderHeight;
+
+            const totalCards = mainDeckCards.length + extraDeckCards.length;
+            let loadedCards = 0;
+
+            // 绘制主卡组卡片（图片已预加载到缓存）
+            for (let i = 0; i < mainDeckCards.length; i++) {
+                const card = mainDeckCards[i];
+                const row = Math.floor(i / mainCardsPerRow);
+                const col = i % mainCardsPerRow;
+                const x = padding + col * (cardWidth + gap);
+                const y = currentY + row * (cardHeight + gap);
+
+                // 绘制卡片背景
+                ctx.fillStyle = '#f5f5f5';
+                ctx.fillRect(x, y, cardWidth, cardHeight);
+
+                if (card.baigeId && imageCache[card.baigeId]) {
+                    ctx.drawImage(imageCache[card.baigeId], x, y, cardWidth, cardHeight);
+                }
+
+                loadedCards++;
+                setProgress(50 + Math.round((loadedCards / totalCards) * 50));
+            }
+
+            currentY += mainContentHeight;
+
+            // 额外卡组
+            if (extraDeckCards.length > 0) {
+                currentY += sectionGap;
+
+                // 额外卡组标题
+                ctx.fillStyle = '#3b82f6'; // 蓝色
+                ctx.fillRect(padding, currentY, 6, 24);
+                ctx.fillStyle = '#171717';
+                ctx.font = 'bold 21px system-ui, -apple-system, sans-serif';
+                ctx.fillText('额外卡组', padding + 18, currentY + 20);
+
+                currentY += sectionHeaderHeight;
+
+                // 绘制额外卡组卡片（图片已预加载到缓存）
+                for (let i = 0; i < extraDeckCards.length; i++) {
+                    const card = extraDeckCards[i];
+                    const row = Math.floor(i / extraCardsPerRow);
+                    const col = i % extraCardsPerRow;
+                    const x = padding + col * (cardWidth + gap);
+                    const y = currentY + row * (cardHeight + gap);
+
+                    // 绘制卡片背景
+                    ctx.fillStyle = '#f5f5f5';
+                    ctx.fillRect(x, y, cardWidth, cardHeight);
+
+                    if (card.baigeId && imageCache[card.baigeId]) {
+                        ctx.drawImage(imageCache[card.baigeId], x, y, cardWidth, cardHeight);
+                    }
+
+                    loadedCards++;
+                    setProgress(50 + Math.round((loadedCards / totalCards) * 50));
+                }
+
+                currentY += extraRows * cardHeight + (extraRows - 1) * gap;
+            }
+
+            // 底部区域：二维码和网站信息
+            currentY += 30;
+
+            // 生成二维码
+            const shareUrl = `${SHARE_DOMAIN}/deck/?code=${deckCode}`;
+            try {
+                const qrDataUrl = await QRCode.toDataURL(shareUrl, {
+                    width: qrSize,
+                    margin: 0,
+                    color: {
+                        dark: '#171717',
+                        light: '#ffffff'
+                    }
+                });
+                const qrImg = await loadImageUrl(qrDataUrl);
+                ctx.drawImage(qrImg, padding, currentY, qrSize, qrSize);
+            } catch {
+                // 二维码生成失败，跳过
+            }
+
+            // 网站信息
+            ctx.fillStyle = '#737373';
+            ctx.font = '18px system-ui, -apple-system, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText('扫码查看卡组详情', padding + qrSize + 18, currentY + 30);
+            ctx.fillStyle = '#3b82f6';
+            ctx.font = '21px system-ui, -apple-system, sans-serif';
+            ctx.fillText('get-deck.tech', padding + qrSize + 18, currentY + 60);
+
+            // 生成预览 URL
+            setPreviewUrl(canvas.toDataURL('image/png'));
+            setIsGenerating(false);
+        };
+
+        generateImage();
+    }, [isOpen, deckCode, recognizedCards]);
+
+    // 关闭时重置
+    useEffect(() => {
+        if (!isOpen) {
+            setPreviewUrl(null);
+            setProgress(0);
+        }
+    }, [isOpen]);
+
+    // 下载图片
+    const handleDownload = () => {
+        if (!previewUrl) return;
+        const link = document.createElement('a');
+        link.download = `getdeck-${deckCode}.png`;
+        link.href = previewUrl;
+        link.click();
+    };
+
+    // 复制图片到剪贴板
+    const handleCopy = async () => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        try {
+            const blob = await new Promise<Blob>((resolve, reject) => {
+                canvas.toBlob((blob) => {
+                    if (blob) resolve(blob);
+                    else reject(new Error('Failed to create blob'));
+                }, 'image/png');
+            });
+
+            await navigator.clipboard.write([
+                new ClipboardItem({ 'image/png': blob })
+            ]);
+
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch {
+            // 如果复制失败，尝试下载
+            handleDownload();
+        }
+    };
+
+    // 移动端系统分享
+    const handleShare = async () => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        try {
+            const blob = await new Promise<Blob>((resolve, reject) => {
+                canvas.toBlob((blob) => {
+                    if (blob) resolve(blob);
+                    else reject(new Error('Failed to create blob'));
+                }, 'image/png');
+            });
+
+            const file = new File([blob], `getdeck-${deckCode}.png`, { type: 'image/png' });
+
+            if (navigator.share && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    files: [file],
+                    title: `卡组码: ${deckCode}`,
+                    text: `GetDeck 卡组分享 - ${deckCode}`
+                });
+            } else {
+                // 不支持文件分享，降级到下载
+                handleDownload();
+            }
+        } catch (err: any) {
+            // 用户取消分享不算错误
+            if (err.name !== 'AbortError') {
+                handleDownload();
+            }
+        }
+    };
+
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in">
+            <div className="bg-[var(--card-bg)] rounded-2xl shadow-2xl border border-[var(--card-border)] p-6 mx-4 max-w-2xl w-full max-h-[90vh] overflow-auto animate-scale-in">
+                <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-bold text-[var(--foreground)]">分享卡组</h3>
+                    <button
+                        onClick={onClose}
+                        className="p-1.5 rounded-lg bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors"
+                    >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                {/* 预览区域 */}
+                <div className="bg-[var(--background-secondary)] rounded-xl p-4 mb-4 flex items-center justify-center min-h-[200px]">
+                    {isGenerating ? (
+                        <div className="flex flex-col items-center gap-3">
+                            <div className="w-8 h-8 rounded-full border-2 border-[var(--card-border)] border-t-[var(--primary)] animate-spin" />
+                            <p className="text-sm text-[var(--foreground-muted)]">{statusText || `正在生成分享图片... ${progress}%`}</p>
+                        </div>
+                    ) : previewUrl ? (
+                        <img
+                            src={previewUrl}
+                            alt="分享预览"
+                            className="max-w-full max-h-[400px] rounded-lg shadow-lg select-none"
+                            draggable={false}
+                            onDragStart={(e) => e.preventDefault()}
+                        />
+                    ) : null}
+                </div>
+
+                {/* 隐藏的 canvas */}
+                <canvas ref={canvasRef} className="hidden" />
+
+                {/* 操作按钮 */}
+                <div className="flex gap-3">
+                    {isMobile ? (
+                        // 移动端：分享按钮
+                        <button
+                            onClick={handleShare}
+                            disabled={isGenerating || !previewUrl}
+                            className="flex-1 py-2.5 rounded-lg bg-[var(--primary)] text-white font-medium hover:bg-[var(--primary-hover)] transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                            </svg>
+                            分享图片
+                        </button>
+                    ) : (
+                        // PC端：复制按钮
+                        <button
+                            onClick={handleCopy}
+                            disabled={isGenerating || !previewUrl}
+                            className={`flex-1 py-2.5 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 ${
+                                copied
+                                    ? 'bg-[var(--success)] text-white'
+                                    : 'bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)]'
+                            }`}
+                        >
+                            {copied ? (
+                                <>
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    已复制
+                                </>
+                            ) : (
+                                <>
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                    复制图片
+                                </>
+                            )}
+                        </button>
+                    )}
+                    <button
+                        onClick={handleDownload}
+                        disabled={isGenerating || !previewUrl}
+                        className="flex-1 py-2.5 rounded-lg bg-[var(--background-secondary)] text-[var(--foreground)] font-medium hover:bg-[var(--card-border)] transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        下载图片
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}

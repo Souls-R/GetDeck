@@ -16,6 +16,7 @@ import FloatingToolbar from './ui/FloatingToolbar';
 import MobileCardListDrawer from './ui/MobileCardListDrawer';
 import MobileCardDetailDrawer from './ui/MobileCardDetailDrawer';
 import HistoryDrawer from './ui/HistoryDrawer';
+import ShareModal from './ui/ShareModal';
 
 const loadImage = (file: File): Promise<HTMLImageElement> => {
     return new Promise((resolve, reject) => {
@@ -83,6 +84,8 @@ export default function DeckRecognizer() {
     // 卡组码相关状态
     const [isGeneratingDeckCode, setIsGeneratingDeckCode] = useState(false);
     const [deckCodeModal, setDeckCodeModal] = useState<{ show: boolean; code?: string; error?: string }>({ show: false });
+    const [deckCodeCopied, setDeckCodeCopied] = useState(false);
+    const [showShareModal, setShowShareModal] = useState(false);
 
     // 画布缩放状态
     const [isCanvasZoomed, setIsCanvasZoomed] = useState(false);
@@ -586,6 +589,82 @@ export default function DeckRecognizer() {
             });
     }, [recognizedCards, isGeneratingDeckCode, currentHistoryId]);
 
+    // 分享功能：如果已有卡组码直接分享，否则先生成再分享
+    const handleShare = useCallback(() => {
+        if (deckCodeModal.code) {
+            // 已有卡组码，直接打开分享
+            setShowShareModal(true);
+            return;
+        }
+
+        if (isGeneratingDeckCode) return;
+
+        // 额外卡组的怪兽类型关键词
+        const extraDeckTypes = ['融合', '超量', '连接', '同调', '链接', '同步'];
+
+        const deck: {
+            monsters: string[];
+            spells: string[];
+            traps: string[];
+            extra: string[];
+        } = {
+            monsters: [],
+            spells: [],
+            traps: [],
+            extra: []
+        };
+
+        recognizedCards.forEach(card => {
+            const match = card.matches[card.selectedMatchIndex];
+            if (!match) return;
+
+            const cid = String(match.id);
+            const cardInfo = globalCardInfoCache[match.name];
+            const types = cardInfo?.result?.[0]?.text?.types || '';
+
+            if (extraDeckTypes.some(t => types.includes(t))) {
+                deck.extra.push(cid);
+            } else if (types.includes('魔法') && !types.includes('魔法师')) {
+                deck.spells.push(cid);
+            } else if (types.includes('陷阱')) {
+                deck.traps.push(cid);
+            } else {
+                deck.monsters.push(cid);
+            }
+        });
+
+        setIsGeneratingDeckCode(true);
+
+        fetch('https://api.get-deck.tech/deck-code', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ deck })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    setDeckCodeModal({ show: true, error: data.error });
+                } else if (data.deck_code) {
+                    setDeckCodeModal({ show: false, code: data.deck_code });
+                    setShowShareModal(true);
+                    if (currentHistoryId) {
+                        updateHistory(currentHistoryId, { deckCode: data.deck_code }).catch(console.error);
+                    }
+                } else {
+                    setDeckCodeModal({ show: true, error: '未知错误' });
+                }
+            })
+            .catch(error => {
+                console.error('Failed to generate deck code:', error);
+                setDeckCodeModal({ show: true, error: '网络错误，请重试' });
+            })
+            .finally(() => {
+                setIsGeneratingDeckCode(false);
+            });
+    }, [recognizedCards, isGeneratingDeckCode, currentHistoryId, deckCodeModal.code]);
+
     const getCroppedImg = (imageSrc: string, pixelCrop: any): Promise<HTMLImageElement> => {
         return new Promise((resolve, reject) => {
             const image = new Image();
@@ -781,6 +860,7 @@ export default function DeckRecognizer() {
                             onScrollPositionChange={setSidebarScrollPosition}
                             onGenerateDeckCode={handleGenerateDeckCode}
                             isGeneratingDeckCode={isGeneratingDeckCode}
+                            onShare={handleShare}
                         />
                     </div>
                 )}
@@ -872,18 +952,47 @@ export default function DeckRecognizer() {
                                         onClick={() => {
                                             if (deckCodeModal.code) {
                                                 navigator.clipboard.writeText(deckCodeModal.code);
+                                                setDeckCodeCopied(true);
+                                                setTimeout(() => setDeckCodeCopied(false), 2000);
                                             }
                                         }}
-                                        className="flex-1 py-2.5 rounded-lg bg-(--primary) text-white font-medium hover:bg-(--primary)/90 transition-colors flex items-center justify-center gap-2"
+                                        className={`flex-1 py-2.5 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
+                                            deckCodeCopied
+                                                ? 'bg-[var(--success)] text-white'
+                                                : 'bg-(--primary) text-white hover:bg-(--primary)/90'
+                                        }`}
+                                    >
+                                        {deckCodeCopied ? (
+                                            <>
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                </svg>
+                                                已复制
+                                            </>
+                                        ) : (
+                                            <>
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                                </svg>
+                                                复制
+                                            </>
+                                        )}
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setDeckCodeModal({ show: false });
+                                            setShowShareModal(true);
+                                        }}
+                                        className="flex-1 py-2.5 rounded-lg bg-(--primary) text-white font-medium hover:bg-(--primary-hover) transition-colors flex items-center justify-center gap-2"
                                     >
                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                                         </svg>
-                                        复制
+                                        分享
                                     </button>
                                     <button
                                         onClick={() => setDeckCodeModal({ show: false })}
-                                        className="flex-1 py-2.5 rounded-lg bg-(--background-secondary) text-foreground font-medium hover:bg-(--card-border) transition-colors"
+                                        className="py-2.5 px-4 rounded-lg bg-(--background-secondary) text-foreground font-medium hover:bg-(--card-border) transition-colors"
                                     >
                                         关闭
                                     </button>
@@ -900,6 +1009,14 @@ export default function DeckRecognizer() {
                 onClose={() => setShowHistoryDrawer(false)}
                 onLoadHistory={handleLoadHistory}
                 onHistoryCountChange={setHistoryCount}
+            />
+
+            {/* 分享弹窗 */}
+            <ShareModal
+                isOpen={showShareModal}
+                onClose={() => setShowShareModal(false)}
+                deckCode={deckCodeModal.code || ''}
+                recognizedCards={recognizedCards}
             />
         </div>
     );
