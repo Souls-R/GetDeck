@@ -77,7 +77,7 @@ export default function FloatingToolbar({
     };
 
     return (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 animate-slide-up-toolbar">
             {/* About Tooltip */}
             {showAboutTip && (
                 <div

@@ -722,7 +722,7 @@ export default function DeckRecognizer() {
                 )}
 
                 {/* 主画布区域 */}
-                <div className="relative flex-1 flex flex-col overflow-hidden">
+                <div className={`relative flex-1 flex flex-col overflow-hidden ${originalImage ? 'animate-fade-in' : ''}`}>
                     <CardCanvas
                         originalImage={originalImage}
                         recognizedCards={recognizedCards}
@@ -763,24 +763,26 @@ export default function DeckRecognizer() {
                 </div>
 
                 {/* 电脑端侧边栏 */}
-                {!isMobile && (
-                    <Sidebar
-                        processingStage={processingStage}
-                        recognizedCards={recognizedCards}
-                        selectedCardIndex={selectedCardIndex}
-                        selectedCardInfo={selectedCardInfo}
-                        isDetailLoading={isDetailLoading}
-                        selectedCardArtwork={selectedCardArtwork}
-                        forcePendulumMode={forcePendulumMode}
-                        onToggleCardMode={toggleCardMode}
-                        onSelectAltMatch={handleAltMatchSelect}
-                        onSelectCard={handleCardSelect}
-                        onMoveCardBox={handleMoveCardBox}
-                        scrollPosition={sidebarScrollPosition}
-                        onScrollPositionChange={setSidebarScrollPosition}
-                        onGenerateDeckCode={handleGenerateDeckCode}
-                        isGeneratingDeckCode={isGeneratingDeckCode}
-                    />
+                {!isMobile && originalImage && (
+                    <div className="animate-fade-in">
+                        <Sidebar
+                            processingStage={processingStage}
+                            recognizedCards={recognizedCards}
+                            selectedCardIndex={selectedCardIndex}
+                            selectedCardInfo={selectedCardInfo}
+                            isDetailLoading={isDetailLoading}
+                            selectedCardArtwork={selectedCardArtwork}
+                            forcePendulumMode={forcePendulumMode}
+                            onToggleCardMode={toggleCardMode}
+                            onSelectAltMatch={handleAltMatchSelect}
+                            onSelectCard={handleCardSelect}
+                            onMoveCardBox={handleMoveCardBox}
+                            scrollPosition={sidebarScrollPosition}
+                            onScrollPositionChange={setSidebarScrollPosition}
+                            onGenerateDeckCode={handleGenerateDeckCode}
+                            isGeneratingDeckCode={isGeneratingDeckCode}
+                        />
+                    </div>
                 )}
 
                 {/* 移动端抽屉 */}
