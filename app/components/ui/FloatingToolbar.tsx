@@ -79,7 +79,7 @@ export default function FloatingToolbar({
     };
 
     return (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 animate-slide-up-toolbar">
+        <div className="fixed bottom-6 left-0 right-0 flex justify-center z-20 animate-slide-up-toolbar-v2 pointer-events-none">
             {/* About Tooltip */}
             {showAboutTip && (
                 <div
@@ -126,7 +126,7 @@ export default function FloatingToolbar({
             )}
 
             {/* Toolbar */}
-            <div className="flex items-center gap-1 px-2 py-2 rounded-2xl bg-[var(--card-bg)] border border-[var(--card-border)] shadow-xl">
+            <div className="flex items-center gap-1 px-2 py-2 rounded-2xl bg-[var(--card-bg)] border border-[var(--card-border)] shadow-xl pointer-events-auto">
                 {/* Crop */}
                 <button
                     onClick={onCropClick}
