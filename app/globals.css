@@ -96,6 +96,21 @@ body {
   width: 6px;
 }
 
+/* 图片抗锯齿优化 */
+img {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* 卡片图片特殊优化 */
+.card-image {
+  image-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+}
+
 .custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
@@ -107,6 +122,16 @@ body {
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: var(--foreground-muted);
+}
+
+/* 隐藏滚动条 */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
 
 /* 动画定义 */
