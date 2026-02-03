@@ -349,7 +349,7 @@ export default function AboutPage() {
                     <p>© 2026 GetDeck. 开源项目，使用 MIT 协议。</p>
                     <div className="flex gap-6">
                         <Link href="/" className="hover:text-(--primary) transition-colors">首页</Link>
-                        <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-(--primary) transition-colors">GitHub</a>
+                        <a href="https://github.com/Souls-R/getdeck" target="_blank" rel="noopener noreferrer" className="hover:text-(--primary) transition-colors">GitHub</a>
                     </div>
                 </div>
             </footer>

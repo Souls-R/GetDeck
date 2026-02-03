@@ -50,7 +50,7 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
                         <span className="font-semibold text-(--foreground)">GetDeck</span>
                     </div>
                     <a
-                        href="https://github.com"
+                        href="https://github.com/Souls-R/getdeck"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-1.5 text-sm text-(--foreground-muted) hover:text-(--foreground) transition-colors"
