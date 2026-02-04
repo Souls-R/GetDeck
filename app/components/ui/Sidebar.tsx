@@ -319,7 +319,7 @@ export default function Sidebar({
                                         <button
                                             key={idx}
                                             onClick={() => onSelectAltMatch(idx)}
-                                            className="w-full text-left p-4 rounded-xl bg-[var(--background-secondary)] hover:bg-[var(--card-border)] border border-transparent hover:border-[var(--primary)]/30 transition-all duration-200 group card-hover"
+                                            className="w-full text-left p-4 rounded-[8px] bg-[var(--background-secondary)] border border-transparent hover:border-[var(--primary)]/30 transition-all duration-200 group card-hover"
                                         >
                                             <div className="flex justify-between items-center">
                                                 <span className="text-sm text-[var(--foreground)] group-hover:text-[var(--primary)] truncate flex-1 font-medium">

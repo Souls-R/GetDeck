@@ -184,6 +184,11 @@ export default function DeckRecognizer() {
         setShowCardDetailDrawer(false);
         setCurrentHistoryId(null);
 
+        // 清除 URL 中的 hash
+        if (window.location.hash) {
+            history.replaceState(null, '', window.location.pathname);
+        }
+
         try {
             const img = await loadImage(file);
             setUploadedImage(img);

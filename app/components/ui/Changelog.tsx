@@ -126,6 +126,23 @@ export default function Changelog() {
             });
     }, []);
 
+    // 加载完成后检测 hash 并滚动到锚点
+    useEffect(() => {
+        if (!loading && changelog) {
+            const hash = window.location.hash;
+            if (hash === '#changelog') {
+                // 展开第一条
+                setExpandedIndex(0);
+                setTimeout(() => {
+                    const element = document.getElementById('changelog');
+                    if (element) {
+                        element.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }, 100);
+            }
+        }
+    }, [loading, changelog]);
+
     if (loading) {
         return (
             <div className="animate-pulse">
@@ -192,7 +209,7 @@ export default function Changelog() {
                                     版本号 {update.version}
                                 </span>
                                 <span className="text-xs text-(--foreground-muted) pl-2" title={formatDateTime(update.sync_date)}>
-                                    网站更新于 {formatDate(update.sync_date)}
+                                    网站自动更新于 {formatDate(update.sync_date)}
                                 </span>
                             </div>
                             <div className="flex items-center gap-2 shrink-0">

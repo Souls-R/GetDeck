@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 
+interface ChangelogUpdate {
+    version: string;
+    sync_date: string;
+    added_count: number;
+    updated_count: number;
+}
+
 interface FloatingToolbarProps {
     onCropClick: () => void;
     onUploadClick: () => void;
@@ -23,6 +30,7 @@ export default function FloatingToolbar({
     const [isPinned, setIsPinned] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [isLargeScreen, setIsLargeScreen] = useState(false);
+    const [latestUpdate, setLatestUpdate] = useState<ChangelogUpdate | null>(null);
     const tooltipRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
 
@@ -34,6 +42,18 @@ export default function FloatingToolbar({
         checkMobile();
         window.addEventListener('resize', checkMobile);
         return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
+    // 加载最新更新日志
+    useEffect(() => {
+        fetch('/changelog.json')
+            .then(res => res.json())
+            .then(data => {
+                if (data.updates && data.updates.length > 0) {
+                    setLatestUpdate(data.updates[0]);
+                }
+            })
+            .catch(() => {});
     }, []);
 
     // 点击外部关闭固定的悬浮窗
@@ -84,7 +104,7 @@ export default function FloatingToolbar({
             {showAboutTip && (
                 <div
                     ref={tooltipRef}
-                    className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-72 p-3 rounded-xl bg-[var(--card-bg)] border border-[var(--card-border)] shadow-xl animate-float-in"
+                    className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-72 p-3 rounded-xl bg-[var(--card-bg)] border border-[var(--card-border)] shadow-xl animate-float-in pointer-events-auto"
                 >
                     <div className="text-xs text-[var(--foreground)] space-y-2">
                         <p className="font-medium text-[var(--foreground)]">使用提示</p>
@@ -94,6 +114,22 @@ export default function FloatingToolbar({
                                 <li>• 左右滑动底部卡片可快速浏览</li>
                                 <li className="flex items-center gap-1">• 点击卡名右侧 <svg className="w-3.5 h-3.5 inline text-[var(--foreground)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg> 按钮微调识别区域</li>
                                 <li>• 在卡组列表界面查看所有卡片并生成卡组码</li>
+                                {latestUpdate && (
+                                    <li>
+                                        • <a
+                                            href="/#changelog"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                e.preventDefault();
+                                                // 强制刷新页面并跳转到锚点
+                                                window.location.href = window.location.origin + '/?_t=' + Date.now() + '#changelog';
+                                            }}
+                                            className="text-[var(--primary)] hover:underline cursor-pointer"
+                                        >
+                                            卡片数据更新：{latestUpdate.added_count} 新卡{latestUpdate.updated_count > 0 && `，${latestUpdate.updated_count} 更新`}
+                                        </a>
+                                    </li>
+                                )}
                             </ul>
                         ) : (
                             <ul className="text-[var(--foreground-muted)] space-y-1.5">
@@ -101,6 +137,22 @@ export default function FloatingToolbar({
                                 <li>• 直接点击卡片或使用 <kbd className="px-1 py-0.5 rounded bg-[var(--background-secondary)] text-[10px]">↑</kbd><kbd className="px-1 py-0.5 rounded bg-[var(--background-secondary)] text-[10px]">↓</kbd><kbd className="px-1 py-0.5 rounded bg-[var(--background-secondary)] text-[10px]">←</kbd><kbd className="px-1 py-0.5 rounded bg-[var(--background-secondary)] text-[10px]">→</kbd> 键浏览卡片</li>
                                 <li className="flex items-center gap-1">• 点击右上角的 <svg className="w-3.5 h-3.5 inline text-[var(--foreground)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg> 按钮微调识别区域</li>
                                 <li>• 点击空白处查看卡组列表并生成卡组码</li>
+                                {latestUpdate && (
+                                    <li>
+                                        • <a
+                                            href="/#changelog"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                e.preventDefault();
+                                                // 强制刷新页面并跳转到锚点
+                                                window.location.href = window.location.origin + '/?_t=' + Date.now() + '#changelog';
+                                            }}
+                                            className="text-[var(--primary)] hover:underline cursor-pointer"
+                                        >
+                                            卡片数据更新：{latestUpdate.added_count} 新卡{latestUpdate.updated_count > 0 && `，${latestUpdate.updated_count} 更新`}
+                                        </a>
+                                    </li>
+                                )}
                             </ul>
                         )}
                         <div className="pt-2 mt-2 border-t border-[var(--card-border)] flex items-center justify-between">
@@ -111,6 +163,7 @@ export default function FloatingToolbar({
                                 href="https://github.com/Souls-R/getdeck"
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
                                 className="text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors"
                                 title="GitHub"
                             >

@@ -136,7 +136,10 @@ export default function HistoryDrawer({ isOpen, onClose, onLoadHistory, onHistor
             <div className="relative w-full sm:w-[720px] lg:w-[900px] sm:max-w-[90vw] max-h-[85vh] sm:max-h-[85vh] bg-(--card-bg) sm:rounded-2xl rounded-t-2xl shadow-2xl border border-(--card-border) flex flex-col animate-slide-up sm:animate-scale-in">
                 {/* 头部 */}
                 <div className="flex items-center justify-between px-4 py-3 border-b border-(--card-border) shrink-0">
-                    <h2 className="text-base font-bold text-(--foreground)">历史记录</h2>
+                    <div className="flex items-baseline gap-2">
+                        <h2 className="text-base font-bold text-(--foreground)">历史记录</h2>
+                        <span className="text-[10px] text-(--foreground-muted)">仅保存在本地</span>
+                    </div>
                     <div className="flex items-center gap-2">
                         {histories.length > 0 && (
                             <button
