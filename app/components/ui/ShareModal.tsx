@@ -14,9 +14,9 @@ interface ShareModalProps {
 }
 
 // 获取卡片图片 URL (使用 wsrv.nl 代理解决 CORS 问题)
-// 请求 177x258 尺寸（约2倍绘制尺寸89x129），保证社交分享清晰度
+// 请求 214x310 尺寸（约2倍绘制尺寸107x155），保证社交分享清晰度
 const getCardImageUrl = (baigeId: number) =>
-    `https://wsrv.nl/?url=https://cdn.233.momobako.com/ygoimg/sc/${baigeId}.webp&w=177&h=258&fit=cover`;
+    `https://wsrv.nl/?url=https://cdn.233.momobako.com/ygoimg/sc/${baigeId}.webp&w=214&h=310&fit=cover`;
 
 // 分享链接域名配置
 const SHARE_DOMAIN = 'https://get-deck.tech';
@@ -178,8 +178,8 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
 
             // 设置画布尺寸（约1.5倍大小，提高清晰度）
             const padding = 48;
-            const cardWidth = 89;
-            const cardHeight = 129;
+            const cardWidth = 107;
+            const cardHeight = 155;
             const mainCardsPerRow = mainDeckCards.length <= 50 ? 10 : mainDeckCards.length >= 60 ? 12 : 11;
             const extraCardsPerRow = 10;
             const gap = 6;
@@ -477,7 +477,7 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                             </svg>
-                            分享图片
+                            分享
                         </button>
                     ) : (
                         // PC端：复制按钮
@@ -502,7 +502,7 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                     </svg>
-                                    复制图片
+                                    复制
                                 </>
                             )}
                         </button>
@@ -515,7 +515,7 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
-                        下载图片
+                        下载
                     </button>
                     <button
                         onClick={handleCopyLink}
@@ -537,7 +537,7 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                                 </svg>
-                                复制链接
+                                链接
                             </>
                         )}
                     </button>

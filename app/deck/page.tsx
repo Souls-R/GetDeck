@@ -856,7 +856,7 @@ function DeckContent() {
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
                             </svg>
-                            <span>卡组列表</span>
+                            <span>列表</span>
                             <span className="ml-1 px-1.5 py-0.5 rounded-md bg-white/20 text-xs font-bold">
                                 {deckData.card_count}
                             </span>

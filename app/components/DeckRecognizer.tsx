@@ -787,8 +787,8 @@ export default function DeckRecognizer() {
             />
 
             <div className={`flex flex-1 overflow-hidden relative ${isMobile ? 'flex-col' : ''}`}>
-                {/* 裁剪器 - 只在模型就绪后显示 */}
-                {showCropper && uploadedImage && !isInitializing && (
+                {/* 裁剪器 */}
+                {showCropper && uploadedImage && (
                     <CropperModal
                         imageSrc={uploadedImage.src}
                         onApply={applyCrop}
@@ -1018,7 +1018,7 @@ export default function DeckRecognizer() {
                                     </button>
                                     <button
                                         onClick={() => {
-                                            setDeckCodeModal({ show: false });
+                                            setDeckCodeModal(prev => ({ ...prev, show: false }));
                                             setShowShareModal(true);
                                         }}
                                         className="flex-1 py-2.5 rounded-lg bg-(--primary) text-white font-medium hover:bg-(--primary-hover) transition-colors flex items-center justify-center gap-2"

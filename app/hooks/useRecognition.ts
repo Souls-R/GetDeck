@@ -157,13 +157,13 @@ export function useRecognition(): UseRecognitionReturn {
                 })();
 
                 // 下载模型文件（带进度）
-                // 注意：layout.tsx 中已配置 <link rel="preload"> 来提前开始下载
-                // 这里的 fetch 会自动复用 preload 的请求/缓存，但仍保留进度显示逻辑
-                // 如果 preload 已完成，fetch 会直接从缓存读取；如果正在下载，会共享同一个请求
+                // 注意：layout.tsx 中已配置 <link rel="preload" crossOrigin="anonymous"> 来提前开始下载
+                // 这里的 fetch 必须使用相同的 credentials 模式才能复用 preload 的请求/缓存
                 const modelDownloadPromise = (async () => {
                     const response = await fetch(MODEL_PATH, {
-                        // 确保与 preload 使用相同的 credentials 模式
-                        credentials: 'same-origin'
+                        // 与 preload 的 crossOrigin="anonymous" 匹配
+                        credentials: 'omit',
+                        mode: 'cors'
                     });
                     if (!response.ok) throw new Error(`模型加载失败: ${response.statusText}`);
 
