@@ -149,7 +149,7 @@ export default function Sidebar({
                                         window.open(`https://ygocdb.com/card/${baigeId}`, '_blank');
                                     }
                                 }}
-                                className="text-xl font-bold text-[var(--foreground)] line-clamp-2 leading-tight flex-1 min-w-0 cursor-pointer"
+                                className="text-xl font-bold text-[var(--foreground)] hover:text-[var(--primary)] hover:underline line-clamp-2 leading-tight flex-1 min-w-0 cursor-pointer transition-colors"
                             >
                                 {currentMatch?.name}
                             </h2>

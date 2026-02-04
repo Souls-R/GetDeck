@@ -1,5 +1,4 @@
-
-import React, { useRef, useState, useCallback, useId } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 
 interface HoloCardProps {
     src: string;
@@ -10,8 +9,6 @@ interface HoloCardProps {
 const SQUIRCLE_PATH = "M 0.5 0 L 0.965 0 L 0.97632 0.00007 L 0.98096 0.00027 L 0.98446 0.00060 L 0.98732 0.00107 L 0.98975 0.00168 L 0.99183 0.00243 L 0.99363 0.00333 L 0.99517 0.00439 L 0.99648 0.00563 L 0.99757 0.00707 L 0.99845 0.00874 L 0.99913 0.01072 L 0.99962 0.01313 L 0.99990 0.01633 L 1.00000 0.02414 L 1 0.9758620689655172 L 0.99990 0.98367 L 0.99962 0.98687 L 0.99913 0.98928 L 0.99845 0.99126 L 0.99757 0.99293 L 0.99648 0.99437 L 0.99517 0.99561 L 0.99363 0.99667 L 0.99183 0.99757 L 0.98975 0.99832 L 0.98732 0.99893 L 0.98446 0.99940 L 0.98096 0.99973 L 0.97632 0.99993 L 0.96500 1.00000 L 0.035 1 L 0.02368 0.99993 L 0.01904 0.99973 L 0.01554 0.99940 L 0.01268 0.99893 L 0.01025 0.99832 L 0.00817 0.99757 L 0.00637 0.99667 L 0.00483 0.99561 L 0.00352 0.99437 L 0.00243 0.99293 L 0.00155 0.99126 L 0.00087 0.98928 L 0.00038 0.98687 L 0.00010 0.98367 L 0.00000 0.97586 L 0 0.024137931034482762 L 0.00010 0.01633 L 0.00038 0.01313 L 0.00087 0.01072 L 0.00155 0.00874 L 0.00243 0.00707 L 0.00352 0.00563 L 0.00483 0.00439 L 0.00637 0.00333 L 0.00817 0.00243 L 0.01025 0.00168 L 0.01268 0.00107 L 0.01554 0.00060 L 0.01904 0.00027 L 0.02368 0.00007 L 0.03500 0.00000 Z";
 
 export default function HoloCard({ src, alt, className = '' }: HoloCardProps) {
-    const uniqueId = useId();
-    const clipPathId = `holo-card-squircle-${uniqueId.replace(/:/g, '')}`;
     const cardRef = useRef<HTMLDivElement>(null);
     const [isInteracting, setIsInteracting] = useState(false);
 
@@ -60,8 +57,6 @@ export default function HoloCard({ src, alt, className = '' }: HoloCardProps) {
         }
     }, []);
 
-    const clipPathStyle = { clipPath: `url(#${clipPathId})` };
-
     return (
         <div
             className={`holo-card-container ${className}`}
@@ -70,7 +65,7 @@ export default function HoloCard({ src, alt, className = '' }: HoloCardProps) {
         >
             <svg width="0" height="0" className="absolute pointer-events-none" style={{ position: 'absolute', opacity: 0 }}>
                 <defs>
-                    <clipPath id={clipPathId} clipPathUnits="objectBoundingBox">
+                    <clipPath id="holo-card-squircle" clipPathUnits="objectBoundingBox">
                         <path d={SQUIRCLE_PATH} />
                     </clipPath>
                 </defs>
@@ -78,9 +73,8 @@ export default function HoloCard({ src, alt, className = '' }: HoloCardProps) {
             <div
                 ref={cardRef}
                 className={`holo-card ${isInteracting ? 'interacting' : ''}`}
-                style={clipPathStyle}
             >
-                <div className="holo-card-content" style={clipPathStyle}>
+                <div className="holo-card-content">
                     <div className="holo-card__holo"></div>
                     <div className="holo-card__glare"></div>
                     <img src={src} alt={alt} draggable={false} className="pointer-events-none" />
