@@ -75,6 +75,12 @@ export function useRecognition(): UseRecognitionReturn {
     const [statusText, setStatusText] = useState('正在初始化模型...');
     const [modelDownloadProgress, setModelDownloadProgress] = useState<number | null>(null);
 
+    // 使用 ref 存储最新值，解决闭包陷阱问题
+    // 在初始化完成时直接更新 ref（同步），确保 processImage 能立即访问到最新值
+    const sessionRef = useRef<ort.InferenceSession | null>(null);
+    const hashDatabaseRef = useRef<CardHashEntry[] | null>(null);
+    const wasmDbRef = useRef<Database | null>(null);
+
     // 等待初始化完成的方法
     const waitForInit = useCallback(() => initPromise, []);
 
@@ -162,7 +168,7 @@ export function useRecognition(): UseRecognitionReturn {
                 const modelDownloadPromise = (async () => {
                     const response = await fetch(MODEL_PATH, {
                         // 与 preload 的 crossOrigin="anonymous" 匹配
-                        credentials: 'omit',
+                        // credentials: 'omit',
                         mode: 'cors'
                     });
                     if (!response.ok) throw new Error(`模型加载失败: ${response.statusText}`);
@@ -232,6 +238,13 @@ export function useRecognition(): UseRecognitionReturn {
 
                 const db = new Database();
                 db.load_database(JSON.stringify(dbResult));
+
+                // 先更新 ref（同步），确保 processImage 能立即访问到最新值
+                sessionRef.current = sessionResult;
+                hashDatabaseRef.current = dbResult;
+                wasmDbRef.current = db;
+
+                // 再更新 state（异步）
                 setSession(sessionResult);
                 setHashDatabase(dbResult);
                 setWasmDb(db);
@@ -331,7 +344,12 @@ export function useRecognition(): UseRecognitionReturn {
 
     // 处理图像管道
     const processImage = useCallback(async (img: HTMLImageElement) => {
-        if (!session || !hashDatabase || !wasmDb) return;
+        // 使用 ref 获取最新值，避免闭包陷阱
+        const currentSession = sessionRef.current;
+        const currentHashDatabase = hashDatabaseRef.current;
+        const currentWasmDb = wasmDbRef.current;
+
+        if (!currentSession || !currentHashDatabase || !currentWasmDb) return;
 
         try {
             setProcessingStage('detecting');
@@ -340,7 +358,7 @@ export function useRecognition(): UseRecognitionReturn {
 
             const { tensor, scale, padX, padY } = preprocessImage(img);
             const feeds = { images: tensor };
-            const results = await session.run(feeds);
+            const results = await currentSession.run(feeds);
             const output = results[Object.keys(results)[0]];
             const boxes = postprocessYOLO(output, scale, padX, padY, img.width, img.height);
 
@@ -400,8 +418,8 @@ export function useRecognition(): UseRecognitionReturn {
                     const hashStandard = get_phash_raw(dataStandard, 128, 128);
                     const hashPendulum = get_phash_raw(dataPendulum, 128, 128);
 
-                    const matchesStandard = wasmDb.find_best_match(hashStandard, 'standard');
-                    const matchesPendulum = wasmDb.find_best_match(hashPendulum, 'pendulum');
+                    const matchesStandard = currentWasmDb.find_best_match(hashStandard, 'standard');
+                    const matchesPendulum = currentWasmDb.find_best_match(hashPendulum, 'pendulum');
                     const allMatches = [...matchesStandard, ...matchesPendulum].sort(
                         (a: any, b: any) => a.distance - b.distance
                     );
@@ -490,7 +508,7 @@ export function useRecognition(): UseRecognitionReturn {
             setStatusText(`处理出错: ${error.message}`);
             setProcessingStage('done');
         }
-    }, [session, hashDatabase, wasmDb, fetchCardInfo]);
+    }, [fetchCardInfo]);
 
     // 选择卡片
     const selectCard = useCallback(async (index: number) => {
@@ -509,7 +527,8 @@ export function useRecognition(): UseRecognitionReturn {
     // box 参数可选，如果传入则使用传入的 box，否则从 recognizedCards 读取
     // 这解决了状态更新时序问题：当调用者已经有新的 box 时，直接传入避免读取旧状态
     const reprocessCard = useCallback(async (index: number, forcePendulum: boolean = false, boxOverride?: Box) => {
-        if (!originalImage || !hashDatabase || !wasmDb) return;
+        const currentWasmDb = wasmDbRef.current;
+        if (!originalImage || !currentWasmDb) return;
         const card = recognizedCards[index];
         const box = boxOverride || card.box;
 
@@ -541,8 +560,8 @@ export function useRecognition(): UseRecognitionReturn {
             const hashStandard = get_phash_raw(dataStandard, 128, 128);
             const hashPendulum = get_phash_raw(dataPendulum, 128, 128);
 
-            const matchesStandard = wasmDb.find_best_match(hashStandard, 'standard');
-            const matchesPendulum = wasmDb.find_best_match(hashPendulum, 'pendulum');
+            const matchesStandard = currentWasmDb.find_best_match(hashStandard, 'standard');
+            const matchesPendulum = currentWasmDb.find_best_match(hashPendulum, 'pendulum');
             const allMatches = [...matchesStandard, ...matchesPendulum].sort(
                 (a: any, b: any) => a.distance - b.distance
             );
@@ -592,7 +611,7 @@ export function useRecognition(): UseRecognitionReturn {
             latestRequestedNameRef.current = matches[0].name;
             await fetchCardInfo(matches[0].name, true);
         }
-    }, [originalImage, hashDatabase, wasmDb, recognizedCards, fetchCardInfo]);
+    }, [originalImage, recognizedCards, fetchCardInfo]);
 
     // 选择备选匹配
     const handleSelectAltMatch = useCallback((matchIndex: number) => {

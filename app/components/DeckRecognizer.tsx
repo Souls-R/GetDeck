@@ -98,6 +98,10 @@ export default function DeckRecognizer() {
     // Artwork 缓存（避免重复绘制 canvas）
     const artworkCacheRef = useRef<Map<string, string>>(new Map());
 
+    // 使用 ref 存储 processImage 的最新引用，解决闭包陷阱
+    const processImageRef = useRef(processImage);
+    useEffect(() => { processImageRef.current = processImage; }, [processImage]);
+
     // 获取卡片 artwork 的函数（带缓存）
     const getCardArtwork = useCallback((index: number): string | null => {
         if (index === selectedCardIndex) {
@@ -192,12 +196,13 @@ export default function DeckRecognizer() {
                 setShowCropper(true);
             } else {
                 setOriginalImage(img);
-                processImage(img);
+                // 使用 ref 获取最新的 processImage，避免闭包陷阱
+                processImageRef.current(img);
             }
         } catch (error: any) {
             console.error('图片加载失败:', error);
         }
-    }, [resetState, setOriginalImage, processImage, isMobile, waitForInit]);
+    }, [resetState, setOriginalImage, isMobile, waitForInit]);
 
     useEffect(() => {
         const handlePaste = (e: ClipboardEvent) => {
@@ -746,7 +751,7 @@ export default function DeckRecognizer() {
             setForcePendulumMode(false);
             setSelectedCardArtwork(null);
             // 模型已在 handleFile 中等待完成，可直接处理
-            processImage(croppedImage);
+            processImageRef.current(croppedImage);
         } catch (error: any) {
             console.error('裁剪失败:', error);
         }
@@ -758,7 +763,7 @@ export default function DeckRecognizer() {
         if (uploadedImage && !originalImage) {
             setOriginalImage(uploadedImage);
             // 模型已在 handleFile 中等待完成，可直接处理
-            processImage(uploadedImage);
+            processImageRef.current(uploadedImage);
         }
     };
 
