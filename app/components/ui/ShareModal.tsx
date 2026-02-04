@@ -317,12 +317,12 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
 
             // 网站信息
             ctx.fillStyle = '#737373';
-            ctx.font = '18px system-ui, -apple-system, sans-serif';
+            ctx.font = '20px system-ui, -apple-system, sans-serif';
             ctx.textAlign = 'left';
             ctx.fillText('扫码查看卡组详情', padding + qrSize + 18, currentY + 30);
             ctx.fillStyle = '#3b82f6';
-            ctx.font = '21px system-ui, -apple-system, sans-serif';
-            ctx.fillText('get-deck.tech', padding + qrSize + 18, currentY + 60);
+            ctx.font = '22px system-ui, -apple-system, sans-serif';
+            ctx.fillText(`${SHARE_DOMAIN}/deck/?code=${deckCode}`, padding + qrSize + 18, currentY + 60);
 
             // 生成预览 URL
             setPreviewUrl(canvas.toDataURL('image/png'));

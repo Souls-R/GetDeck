@@ -179,7 +179,7 @@ export default function HistoryDrawer({ isOpen, onClose, onLoadHistory, onHistor
                                     onClick={() => handleLoad(history)}
                                 >
                                     {/* 缩略图 */}
-                                    <div className="aspect-[4/3] bg-(--background) overflow-hidden">
+                                    <div className="aspect-[5/6] bg-(--background) overflow-hidden">
                                         {thumbnailUrls.get(history.id) && (
                                             <img
                                                 src={thumbnailUrls.get(history.id)}
