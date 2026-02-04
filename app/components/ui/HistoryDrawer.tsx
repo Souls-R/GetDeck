@@ -19,6 +19,11 @@ export default function HistoryDrawer({ isOpen, onClose, onLoadHistory, onHistor
 
     // 用 ref 保存 URL 以便正确清理
     const urlsRef = useRef<Map<string, string>>(new Map());
+    // 用 ref 保存弹窗状态供 ESC 键处理使用
+    const deleteConfirmRef = useRef(deleteConfirm);
+    const clearConfirmRef = useRef(clearConfirm);
+    deleteConfirmRef.current = deleteConfirm;
+    clearConfirmRef.current = clearConfirm;
 
     // 加载历史记录
     const loadHistories = useCallback(async () => {
@@ -49,6 +54,24 @@ export default function HistoryDrawer({ isOpen, onClose, onLoadHistory, onHistor
             loadHistories();
         }
     }, [isOpen, loadHistories]);
+
+    // ESC 键关闭
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                if (deleteConfirmRef.current) {
+                    setDeleteConfirm(null);
+                } else if (clearConfirmRef.current) {
+                    setClearConfirm(false);
+                } else {
+                    onClose();
+                }
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isOpen, onClose]);
 
     // 组件卸载时清理 URL
     useEffect(() => {

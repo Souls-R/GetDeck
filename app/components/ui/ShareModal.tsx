@@ -340,6 +340,16 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
         }
     }, [isOpen]);
 
+    // ESC 键关闭
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') onClose();
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isOpen, onClose]);
+
     // 下载图片
     const handleDownload = () => {
         if (!previewUrl) return;
