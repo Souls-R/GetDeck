@@ -113,6 +113,7 @@ export default function Changelog() {
     const [changelog, setChangelog] = useState<ChangelogData | null>(null);
     const [loading, setLoading] = useState(true);
     const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+    const [showAllCards, setShowAllCards] = useState<Set<number>>(new Set());
 
     useEffect(() => {
         fetch('/changelog.json')
@@ -186,11 +187,16 @@ export default function Changelog() {
         <div>
             {/* 锚点，向上偏移以补偿导航栏高度 */}
             <div id="changelog" className="relative -top-20" />
-            <div className="flex items-center gap-2 mb-6">
-                <svg className="w-5 h-5 text-(--primary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <h3 className="text-lg font-semibold text-(--foreground)">卡片数据更新</h3>
+            <div className="mb-6">
+                <div className="flex items-center gap-2">
+                    <svg className="w-5 h-5 text-(--primary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h3 className="text-lg font-semibold text-(--foreground)">卡片数据更新</h3>
+                </div>
+                <p className="text-xs text-(--foreground-muted) mt-1 ml-7">
+                    卡图来自百鸽，新卡可能尚未更新导致显示错误，并且不会显示异画；识别基于游戏内资源，不受影响
+                </p>
             </div>
 
             <div className="space-y-3">
@@ -264,15 +270,18 @@ export default function Changelog() {
                                 {/* 卡图展示 */}
                                 {update.added_cards.length > 0 && (
                                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 overflow-visible mt-4">
-                                        {update.added_cards.slice(0, 10).map(card => (
+                                        {(showAllCards.has(index) ? update.added_cards : update.added_cards.slice(0, 10)).map(card => (
                                             <ChangelogCard key={card.id} card={card} />
                                         ))}
-                                        {update.added_cards.length > 10 && (
-                                            <div className="aspect-[59/86] rounded-lg bg-(--background-tertiary) border border-(--card-border) flex items-center justify-center">
+                                        {update.added_cards.length > 10 && !showAllCards.has(index) && (
+                                            <button
+                                                onClick={() => setShowAllCards(prev => new Set(prev).add(index))}
+                                                className="aspect-[59/86] rounded-lg bg-(--background-tertiary) border border-(--card-border) flex items-center justify-center hover:bg-(--background-secondary) hover:border-(--primary)/50 transition-colors cursor-pointer"
+                                            >
                                                 <span className="text-xs text-(--foreground-muted)">
                                                     +{update.added_cards.length - 10} 更多
                                                 </span>
-                                            </div>
+                                            </button>
                                         )}
                                     </div>
                                 )}
