@@ -13,10 +13,10 @@ export const config = {
   apiUrl: isDev ? 'http://localhost:8787' : 'https://api.get-deck.com',
 
   // CDN 域名
-  cdnUrl: 'https://cdn.get-deck.com',
+  cdnUrl: 'https://api.get-deck.com',
 
   // ONNX 模型路径
-  modelPath: 'https://cdn.get-deck.com/best.onnx',
+  modelPath: 'https://api.get-deck.com/best.onnx',
 } as const;
 
 // 便捷导出
