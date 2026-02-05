@@ -4,7 +4,7 @@ GetDeck 是一个浏览器端的 Master Duel 卡组识别工具，无需服务�
 
 上传卡组截图后GetDeck 会自动识别每张卡片以供查看，还可以一键生成卡组码，方便导入游戏使用。
 
-你可以在这里直接使用： [https://get-deck.tech](https://get-deck.tech)
+你可以在这里直接使用： [https://get-deck.com](https://get-deck.com)
 
 备用地址： [https://get-deck.vercel.app/](https://get-deck.vercel.app/)
 
