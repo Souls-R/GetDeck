@@ -12,8 +12,9 @@ import {
     SAMPLE_OFFSETS,
     EARLY_EXIT_DISTANCE
 } from '../utils/recognition';
+import { modelPath } from '../config';
 
-const MODEL_PATH = 'https://cdn.get-deck.tech/best.onnx';
+const MODEL_PATH = modelPath;
 const HASH_DB_PATH = '/card_data.json';
 
 // 全局缓存（模块作用域）

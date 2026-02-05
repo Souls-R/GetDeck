@@ -6,6 +6,7 @@ import { useCanvasInteraction } from '../hooks/useCanvasInteraction';
 import { useMobile } from '../hooks/useMobile';
 import { extractArtwork, STANDARD_CARD, PENDULUM_CARD } from '../utils/recognition';
 import { saveHistory, updateHistory, getHistoryCount, DeckHistory } from '../utils/historyDb';
+import { apiUrl } from '../config';
 import Header from './ui/Header';
 import UploadArea from './ui/UploadArea';
 import CardCanvas from './ui/CardCanvas';
@@ -589,7 +590,7 @@ export default function DeckRecognizer() {
             // 调用API生成卡组码
             const payload = { deck };
             console.log('Deck data:', payload);
-            const response = await fetch('https://api.get-deck.tech/deck-code', {
+            const response = await fetch(`${apiUrl}/deck-code`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -684,7 +685,7 @@ export default function DeckRecognizer() {
                 }
             });
 
-            const response = await fetch('https://api.get-deck.tech/deck-code', {
+            const response = await fetch(`${apiUrl}/deck-code`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

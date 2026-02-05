@@ -42,3 +42,4 @@ next-env.d.ts
 
 VERT/
 core-wasm/target/
+plan.md

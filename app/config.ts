@@ -1,0 +1,23 @@
+/**
+ * 统一配置文件
+ * 所有域名和外部服务地址都在这里管理
+ */
+
+const isDev = process.env.NODE_ENV === 'development';
+
+export const config = {
+  // 主站域名
+  siteUrl: isDev ? 'http://localhost:3000' : 'https://get-deck.com',
+
+  // API 域名
+  apiUrl: isDev ? 'http://localhost:8787' : 'https://api.get-deck.com',
+
+  // CDN 域名
+  cdnUrl: 'https://cdn.get-deck.com',
+
+  // ONNX 模型路径
+  modelPath: 'https://cdn.get-deck.com/best.onnx',
+} as const;
+
+// 便捷导出
+export const { siteUrl, apiUrl, cdnUrl, modelPath } = config;

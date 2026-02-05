@@ -25,6 +25,8 @@ export const viewport: Viewport = {
   userScalable: false,
 };
 
+import { modelPath } from './config';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -36,7 +38,7 @@ export default function RootLayout({
         {/* 预加载 ONNX 模型，加速首次加载 */}
         <link
           rel="preload"
-          href="https://cdn.get-deck.tech/best.onnx"
+          href={modelPath}
           as="fetch"
           crossOrigin="anonymous"
         />

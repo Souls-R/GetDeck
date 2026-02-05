@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import BottomDrawer from '../components/ui/BottomDrawer';
 import HoloCard from '../components/ui/HoloCard';
+import { apiUrl, siteUrl } from '../config';
 
 interface DeckData {
     monsters: string[];
@@ -486,10 +487,10 @@ function DeckContent() {
         setLoading(true);
         setError(null);
 
-        fetch(`https://api.get-deck.tech/deck/${deckCode}`, {
+        fetch(`${apiUrl}/deck/${deckCode}`, {
             headers: {
-                'Origin': 'https://get-deck.tech',
-                'Referer': 'https://get-deck.tech/',
+                'Origin': siteUrl,
+                'Referer': `${siteUrl}/`,
             }
         })
             .then(res => {
