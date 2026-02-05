@@ -185,6 +185,7 @@ export default function DeckRecognizer() {
         setMobileDrawerViewMode('list');
         setMobileDrawerEntryPoint('list');
         setCurrentHistoryId(null);
+        setDeckCodeModal({ show: false }); // 重置卡组码状态，避免新图片使用旧卡组码
 
         // 清除 URL 中的 hash
         if (window.location.hash) {

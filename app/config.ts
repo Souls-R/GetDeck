@@ -10,7 +10,7 @@ export const config = {
   siteUrl: isDev ? 'http://localhost:3000' : 'https://get-deck.com',
 
   // API 域名
-  apiUrl: isDev ? 'http://localhost:8787' : 'https://api.get-deck.com',
+  apiUrl: isDev ? 'https://api.get-deck.com' : 'https://api.get-deck.com',
 
   // CDN 域名
   cdnUrl: 'https://api.get-deck.com',

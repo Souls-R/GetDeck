@@ -808,6 +808,27 @@ function DeckContent() {
                                         </div>
                                     </div>
 
+                                    {/* 引导到主页 - 识别自己的卡组 */}
+                                    <div className="p-3 border-t border-[var(--card-border)]">
+                                        <a
+                                            href="/"
+                                            className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-[var(--primary)]/10 to-[var(--accent)]/10 border border-[var(--primary)]/20 hover:border-[var(--primary)]/40 transition-all group"
+                                        >
+                                            <div className="w-10 h-10 rounded-lg bg-[var(--primary)] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                                                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                </svg>
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm font-semibold text-[var(--foreground)] group-hover:text-[var(--primary)] transition-colors">识别我的卡组</p>
+                                                <p className="text-xs text-[var(--foreground-muted)]">截图识别，一键生成卡组码</p>
+                                            </div>
+                                            <svg className="w-5 h-5 text-[var(--foreground-muted)] group-hover:text-[var(--primary)] group-hover:translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        </a>
+                                    </div>
                                     {/* 卡片列表 */}
                                     <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
                                         <div className="space-y-1">
@@ -919,6 +940,27 @@ function DeckContent() {
                         </div>
                     </div>
 
+                    {/* 引导到主页 - 识别自己的卡组 */}
+                    <div className="p-3 border-t border-[var(--card-border)]">
+                        <a
+                            href="/"
+                            className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-[var(--primary)]/10 to-[var(--accent)]/10 border border-[var(--primary)]/20 hover:border-[var(--primary)]/40 transition-all group"
+                        >
+                            <div className="w-10 h-10 rounded-lg bg-[var(--primary)] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-sm font-semibold text-[var(--foreground)] group-hover:text-[var(--primary)] transition-colors">识别我的卡组</p>
+                                <p className="text-xs text-[var(--foreground-muted)]">截图识别，一键生成卡组码</p>
+                            </div>
+                            <svg className="w-5 h-5 text-[var(--foreground-muted)] group-hover:text-[var(--primary)] group-hover:translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                        </a>
+                    </div>
                     {/* 卡片列表 */}
                     <div className="p-2 space-y-1 overflow-y-auto">
                         {cardGroups.map((group, groupIndex) => (
