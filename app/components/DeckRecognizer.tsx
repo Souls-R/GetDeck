@@ -14,8 +14,7 @@ import Sidebar from './ui/Sidebar';
 import Magnifier from './ui/Magnifier';
 import CropperModal from './ui/CropperModal';
 import FloatingToolbar from './ui/FloatingToolbar';
-import MobileCardListDrawer from './ui/MobileCardListDrawer';
-import MobileCardDetailDrawer from './ui/MobileCardDetailDrawer';
+import MobileCardDrawer from './ui/MobileCardDrawer';
 import HistoryDrawer from './ui/HistoryDrawer';
 import ShareModal from './ui/ShareModal';
 
@@ -75,8 +74,9 @@ export default function DeckRecognizer() {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // 移动端抽屉状态
-    const [showCardListDrawer, setShowCardListDrawer] = useState(false);
-    const [showCardDetailDrawer, setShowCardDetailDrawer] = useState(false);
+    const [showMobileDrawer, setShowMobileDrawer] = useState(false);
+    const [mobileDrawerViewMode, setMobileDrawerViewMode] = useState<'list' | 'detail'>('list');
+    const [mobileDrawerEntryPoint, setMobileDrawerEntryPoint] = useState<'canvas' | 'list'>('list');
 
     // 卡片列表滚动位置（提升到父组件以防止子组件卸载时丢失）
     const [sidebarScrollPosition, setSidebarScrollPosition] = useState(0);
@@ -156,10 +156,10 @@ export default function DeckRecognizer() {
             if (index === -1) {
                 setSelectedCardIndex(-1);
                 if (isMobile) {
-                    setShowCardDetailDrawer(false);
+                    setShowMobileDrawer(false);
                 }
             } else {
-                handleCardSelect(index);
+                handleCardSelectFromCanvas(index);
             }
         },
         onUpdateCardBox: updateCardBox,
@@ -181,8 +181,9 @@ export default function DeckRecognizer() {
         resetState();
         setForcePendulumMode(false);
         setSelectedCardArtwork(null);
-        setShowCardListDrawer(false);
-        setShowCardDetailDrawer(false);
+        setShowMobileDrawer(false);
+        setMobileDrawerViewMode('list');
+        setMobileDrawerEntryPoint('list');
         setCurrentHistoryId(null);
 
         // 清除 URL 中的 hash
@@ -248,8 +249,9 @@ export default function DeckRecognizer() {
         resetState();
         setForcePendulumMode(false);
         setSelectedCardArtwork(null);
-        setShowCardListDrawer(false);
-        setShowCardDetailDrawer(false);
+        setShowMobileDrawer(false);
+        setMobileDrawerViewMode('list');
+        setMobileDrawerEntryPoint('list');
         setCurrentHistoryId(history.id);
 
         // 设置图片和识别结果
@@ -327,7 +329,7 @@ export default function DeckRecognizer() {
         setSelectedCardArtwork(artworkCanvas.toDataURL());
     }, [originalImage, recognizedCards]);
 
-    const handleCardSelect = useCallback(async (index: number) => {
+    const handleCardSelect = useCallback(async (index: number, fromList?: boolean) => {
         if (index === -1) return;
         const card = recognizedCards[index];
         const currentMatch = card.matches[card.selectedMatchIndex];
@@ -337,11 +339,33 @@ export default function DeckRecognizer() {
         updateArtworkPreview(index, isPendulumMatch);
         selectCard(index);
 
-        // 移动端：打开卡片详情抽屉
+        // 移动端：如果是从列表选择，不需要在这里打开抽屉（由drawer内部处理视图切换）
+        // 如果不是从列表选择，不做额外操作
+    }, [recognizedCards, selectCard, updateArtworkPreview]);
+
+    // 从画布点击卡片时调用
+    const handleCardSelectFromCanvas = useCallback(async (index: number) => {
+        if (index === -1) return;
+        const card = recognizedCards[index];
+        const currentMatch = card.matches[card.selectedMatchIndex];
+        const isPendulumMatch = currentMatch?.cardType === 'pendulum';
+
+        setForcePendulumMode(isPendulumMatch);
+        updateArtworkPreview(index, isPendulumMatch);
+        selectCard(index);
+
+        // 移动端：从画布点击
         if (isMobile) {
-            setShowCardDetailDrawer(true);
+            // 如果抽屉已经打开且是从画布进入的，不需要重新设置状态，只需更新选中的卡片
+            // 新状态会自动通过 selectedCardIndex 传递给 MobileCardDrawer
+            if (!showMobileDrawer) {
+                setMobileDrawerViewMode('detail');
+                setMobileDrawerEntryPoint('canvas');
+                setShowMobileDrawer(true);
+            }
+            // 如果抽屉已打开，selectedCardIndex 的变化会让 MobileCardCarousel 自动切换到对应卡片
         }
-    }, [recognizedCards, selectCard, updateArtworkPreview, isMobile]);
+    }, [recognizedCards, selectCard, updateArtworkPreview, isMobile, showMobileDrawer]);
 
     // PC端方向键切换卡片
     useEffect(() => {
@@ -877,7 +901,9 @@ export default function DeckRecognizer() {
                         onHistoryClick={() => setShowHistoryDrawer(true)}
                         onCardListClick={() => {
                             if (isMobile) {
-                                setShowCardListDrawer(true);
+                                setMobileDrawerViewMode('list');
+                                setMobileDrawerEntryPoint('list');
+                                setShowMobileDrawer(true);
                             } else {
                                 // PC端：取消选中卡片，回到列表视图
                                 setSelectedCardIndex(-1);
@@ -915,38 +941,31 @@ export default function DeckRecognizer() {
 
                 {/* 移动端抽屉 */}
                 {isMobile && (
-                    <>
-                        <MobileCardListDrawer
-                            isOpen={showCardListDrawer}
-                            onClose={() => setShowCardListDrawer(false)}
-                            processingStage={processingStage}
-                            recognizedCards={recognizedCards}
-                            onSelectCard={handleCardSelect}
-                            scrollPosition={mobileDrawerScrollPosition}
-                            onScrollPositionChange={setMobileDrawerScrollPosition}
-                            onGenerateDeckCode={handleGenerateDeckCode}
-                            isGeneratingDeckCode={isGeneratingDeckCode}
-                            onShare={handleShare}
-                        />
-
-                        <MobileCardDetailDrawer
-                            isOpen={showCardDetailDrawer}
-                            onClose={() => {
-                                setShowCardDetailDrawer(false);
-                                setSelectedCardIndex(-1);
-                            }}
-                            recognizedCards={recognizedCards}
-                            selectedCardIndex={selectedCardIndex}
-                            onSelectCard={handleCardSelect}
-                            getCardInfo={(cardName) => globalCardInfoCache[cardName] || null}
-                            isDetailLoading={isDetailLoading}
-                            getCardArtwork={getCardArtwork}
-                            forcePendulumMode={forcePendulumMode}
-                            onToggleCardMode={toggleCardMode}
-                            onSelectAltMatch={handleAltMatchSelect}
-                            onMoveCardBox={handleMoveCardBox}
-                        />
-                    </>
+                    <MobileCardDrawer
+                        isOpen={showMobileDrawer}
+                        onClose={() => {
+                            setShowMobileDrawer(false);
+                            setSelectedCardIndex(-1);
+                        }}
+                        processingStage={processingStage}
+                        recognizedCards={recognizedCards}
+                        selectedCardIndex={selectedCardIndex}
+                        onSelectCard={handleCardSelect}
+                        scrollPosition={mobileDrawerScrollPosition}
+                        onScrollPositionChange={setMobileDrawerScrollPosition}
+                        onGenerateDeckCode={handleGenerateDeckCode}
+                        isGeneratingDeckCode={isGeneratingDeckCode}
+                        onShare={handleShare}
+                        getCardInfo={(cardName) => globalCardInfoCache[cardName] || null}
+                        isDetailLoading={isDetailLoading}
+                        getCardArtwork={getCardArtwork}
+                        forcePendulumMode={forcePendulumMode}
+                        onToggleCardMode={toggleCardMode}
+                        onSelectAltMatch={handleAltMatchSelect}
+                        onMoveCardBox={handleMoveCardBox}
+                        initialViewMode={mobileDrawerViewMode}
+                        entryPoint={mobileDrawerEntryPoint}
+                    />
                 )}
             </div>
 
