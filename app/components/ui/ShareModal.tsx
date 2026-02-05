@@ -13,12 +13,11 @@ interface ShareModalProps {
     recognizedCards: RecognizedCard[];
 }
 
-import { siteUrl } from '../../config';
+import { siteUrl, apiUrl } from '../../config';
 
-// 获取卡片图片 URL (使用 wsrv.nl 代理解决 CORS 问题)
-// 请求 214x310 尺寸（约2倍绘制尺寸107x155），保证社交分享清晰度
+// 获取卡片图片 URL (解决 CORS 脏画布无法生成图片的问题)
 const getCardImageUrl = (baigeId: number) =>
-    `https://wsrv.nl/?url=https://cdn.233.momobako.com/ygoimg/sc/${baigeId}.webp&w=214&h=310&fit=cover`;
+    `${apiUrl}/img/${baigeId}`;
 
 // 分享链接域名配置
 const SHARE_DOMAIN = siteUrl;
