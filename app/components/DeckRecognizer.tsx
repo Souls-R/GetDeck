@@ -887,7 +887,7 @@ export default function DeckRecognizer() {
                         onMouseUp={handleMouseUp}
                         onMouseLeave={handleMouseLeave}
                         onCardTap={isMobile ? (index) => {
-                            handleCardSelect(index);
+                            handleCardSelectFromCanvas(index);
                         } : undefined}
                         onZoomChange={setIsCanvasZoomed}
                         onBackgroundClick={!isMobile ? () => setSelectedCardIndex(-1) : undefined}

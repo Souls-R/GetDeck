@@ -140,16 +140,16 @@ export default function CardCanvas({
         };
     };
 
-    const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    const handleNativeTouchStart = useCallback((e: TouchEvent) => {
         const touches = e.touches;
         touchStateRef.current.touchCount = touches.length;
         touchStateRef.current.hasMoved = false;
 
         if (touches.length === 2) {
             // 双指缩放开始
-            e.preventDefault();
-            const distance = getDistance(touches[0], touches[1]);
-            const center = getCenter(touches[0], touches[1]);
+            if (e.cancelable) e.preventDefault();
+            const distance = getDistance(touches[0] as unknown as React.Touch, touches[1] as unknown as React.Touch);
+            const center = getCenter(touches[0] as unknown as React.Touch, touches[1] as unknown as React.Touch);
             touchStateRef.current.lastDistance = distance;
             touchStateRef.current.lastCenter = center;
             touchStateRef.current.isPinching = true;
@@ -165,8 +165,9 @@ export default function CardCanvas({
                 x: touches[0].clientX,
                 y: touches[0].clientY
             };
-            // 只有不是从双指操作过来的，才重置 wasPinching
-            if (touchStateRef.current.touchCount === 1 && !touchStateRef.current.isPinching) {
+            // 新的单指触摸开始时，如果不是正在双指操作，重置 wasPinching
+            // 这确保双指缩放后完全松开再触摸时可以正常触发点击
+            if (!touchStateRef.current.isPinching) {
                 touchStateRef.current.wasPinching = false;
             }
             if (transformRef.current.scale > 1) {
@@ -177,14 +178,14 @@ export default function CardCanvas({
         }
     }, []);
 
-    const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    const handleNativeTouchMove = useCallback((e: TouchEvent) => {
         const touches = e.touches;
 
         if (touches.length === 2 && touchStateRef.current.isPinching) {
             // 双指缩放
-            e.preventDefault();
-            const distance = getDistance(touches[0], touches[1]);
-            const center = getCenter(touches[0], touches[1]);
+            if (e.cancelable) e.preventDefault();
+            const distance = getDistance(touches[0] as unknown as React.Touch, touches[1] as unknown as React.Touch);
+            const center = getCenter(touches[0] as unknown as React.Touch, touches[1] as unknown as React.Touch);
 
             // 计算缩放比例变化
             const scaleChange = distance / touchStateRef.current.lastDistance;
@@ -225,7 +226,7 @@ export default function CardCanvas({
             updateTransform();
         } else if (touches.length === 1 && touchStateRef.current.isDragging && transformRef.current.scale > 1) {
             // 单指拖动
-            e.preventDefault();
+            if (e.cancelable) e.preventDefault();
             const dx = touches[0].clientX - touchStateRef.current.lastSingleTouch.x;
             const dy = touches[0].clientY - touchStateRef.current.lastSingleTouch.y;
 
@@ -248,7 +249,7 @@ export default function CardCanvas({
         }
     }, [updateTransform]);
 
-    const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    const handleNativeTouchEnd = useCallback((e: TouchEvent) => {
         const remainingTouches = e.touches.length;
 
         if (remainingTouches === 0) {
@@ -388,6 +389,22 @@ export default function CardCanvas({
         };
     }, [updateTransform]);
 
+    // 移动端触摸事件 - 使用非被动事件监听器以支持 preventDefault
+    useEffect(() => {
+        const panel = panelRef.current;
+        if (!panel) return;
+
+        panel.addEventListener('touchstart', handleNativeTouchStart, { passive: false });
+        panel.addEventListener('touchmove', handleNativeTouchMove, { passive: false });
+        panel.addEventListener('touchend', handleNativeTouchEnd, { passive: true });
+
+        return () => {
+            panel.removeEventListener('touchstart', handleNativeTouchStart);
+            panel.removeEventListener('touchmove', handleNativeTouchMove);
+            panel.removeEventListener('touchend', handleNativeTouchEnd);
+        };
+    }, [handleNativeTouchStart, handleNativeTouchMove, handleNativeTouchEnd]);
+
     // PC端鼠标拖动开始
     const handlePanelMouseDown = useCallback((e: React.MouseEvent) => {
         // 左键点击时启用拖动（无论是否缩放）
@@ -463,12 +480,7 @@ export default function CardCanvas({
                     touchAction: 'none',
                     willChange: 'transform'
                 }}
-                onTouchStart={(e) => {
-                    handleTouchStart(e);
-                    handleDoubleTap(e);
-                }}
-                onTouchMove={handleTouchMove}
-                onTouchEnd={handleTouchEnd}
+                onTouchStart={handleDoubleTap}
 
                 onMouseDown={handlePanelMouseDown}
                 onMouseMove={handlePanelMouseMove}

@@ -181,6 +181,7 @@ export default function MobileCardDrawer({
     // 徽章渐变动画
     const [displayBadges, setDisplayBadges] = useState<string[]>([]);
     const [isBadgesFading, setIsBadgesFading] = useState(false);
+    const prevTypesRef = useRef<string | undefined>(undefined);
 
     // 同步initialViewMode和entryPoint（当从外部触发变化时）
     useEffect(() => {
@@ -195,6 +196,8 @@ export default function MobileCardDrawer({
             }
         }
     }, [isOpen, initialViewMode, entryPoint]);
+
+
 
     // 抽屉开关动画
     useEffect(() => {
@@ -241,11 +244,10 @@ export default function MobileCardDrawer({
     // 徽章淡入淡出
     useEffect(() => {
         const types = cardInfo?.result?.[0]?.text?.types;
-        const newBadges = types ? parseCardTypes(types) : [];
-        const badgesKey = newBadges.join('|');
-        const displayKey = displayBadges.join('|');
-
-        if (badgesKey !== displayKey) {
+        // 只在 types 实际改变时才更新
+        if (types !== prevTypesRef.current) {
+            prevTypesRef.current = types;
+            const newBadges = types ? parseCardTypes(types) : [];
             setIsBadgesFading(true);
             const timer = setTimeout(() => {
                 setDisplayBadges(newBadges);
@@ -253,7 +255,7 @@ export default function MobileCardDrawer({
             }, 150);
             return () => clearTimeout(timer);
         }
-    }, [cardInfo?.result?.[0]?.text?.types, displayBadges]);
+    }, [cardInfo?.result?.[0]?.text?.types]);
 
     // 滚动保存
     const handleScroll = () => {
@@ -521,12 +523,10 @@ export default function MobileCardDrawer({
 
     return (
         <div className={`fixed inset-0 z-50 ${isPeeking ? 'pointer-events-none' : ''}`}>
-            {/* 遮罩 - peek状态下半透明且允许点击穿透 */}
+            {/* 遮罩 - peek状态下透明且允许点击穿透 */}
             <div
-                className={`absolute inset-0 transition-opacity duration-200 ${
-                    overlayVisible 
-                        ? isPeeking ? 'opacity-0' : 'opacity-100 bg-black/50' 
-                        : 'opacity-0'
+                className={`absolute inset-0 bg-black/50 transition-opacity duration-200 ${
+                    overlayVisible && !isPeeking ? 'opacity-100' : 'opacity-0'
                 } ${isPeeking ? 'pointer-events-none' : ''}`}
                 onClick={handleOverlayClick}
             />
@@ -535,9 +535,14 @@ export default function MobileCardDrawer({
             <div
                 ref={drawerRef}
                 className={`absolute bottom-0 left-0 right-0 bg-[var(--card-bg)] rounded-t-2xl shadow-2xl pointer-events-auto ${
-                    isClosingByDragRef.current ? '' : 'transition-all duration-250 ease-out'
+                    isClosingByDragRef.current ? '' : 'transition-[transform,height] duration-250 ease-out'
                 } ${isAnimating ? 'translate-y-0' : 'translate-y-full'}`}
-                style={{ height: drawerHeight }}
+                style={{ 
+                    height: drawerHeight, 
+                    willChange: 'transform, height',
+                    backfaceVisibility: 'hidden',
+                    WebkitBackfaceVisibility: 'hidden'
+                }}
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
@@ -550,7 +555,7 @@ export default function MobileCardDrawer({
                 {/* 内容区域 */}
                 <div
                     ref={contentRef}
-                    className="overflow-hidden"
+                    className="overflow-hidden transition-[height] duration-250 ease-out"
                     style={{ height: `calc(${drawerHeight} - 44px)` }}
                 >
                     {/* 视图容器 - 用于切换动画 */}

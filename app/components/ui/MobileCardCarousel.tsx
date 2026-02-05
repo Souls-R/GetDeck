@@ -34,6 +34,7 @@ export default function MobileCardCarousel<T>({
 
     // 当前索引的 ref（用于事件处理器中访问最新值）
     const currentIndexRef = useRef(currentIndex);
+    const prevIndexRef = useRef(currentIndex);
     currentIndexRef.current = currentIndex;
 
     // 直接操作 DOM 更新 transform，避免 React 重渲染
@@ -54,8 +55,8 @@ export default function MobileCardCarousel<T>({
         trackRef.current.style.transform = `translateX(calc(${baseTranslate}% + ${offsetPercent}%))`;
     }, []);
 
-    // 处理触摸开始 - 允许打断动画
-    const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    // 处理触摸开始 - 允许打断动画（原生事件）
+    const handleNativeTouchStart = useCallback((e: TouchEvent) => {
         const touch = e.touches[0];
 
         // 立即停止当前动画
@@ -77,8 +78,8 @@ export default function MobileCardCarousel<T>({
         };
     }, []);
 
-    // 处理触摸移动 - 直接操作 DOM
-    const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    // 处理触摸移动 - 直接操作 DOM（原生事件）
+    const handleNativeTouchMove = useCallback((e: TouchEvent) => {
         if (!touchState.current.isDragging) return;
 
         const touch = e.touches[0];
@@ -105,7 +106,7 @@ export default function MobileCardCarousel<T>({
 
         // 只处理水平滑动
         if (touchState.current.direction === 'horizontal') {
-            e.preventDefault();
+            if (e.cancelable) e.preventDefault();
             e.stopPropagation();
 
             touchState.current.currentX = touch.clientX;
@@ -123,8 +124,8 @@ export default function MobileCardCarousel<T>({
         }
     }, [items.length, updateTrackPosition]);
 
-    // 处理触摸结束
-    const handleTouchEnd = useCallback(() => {
+    // 处理触摸结束（原生事件）
+    const handleNativeTouchEnd = useCallback(() => {
         if (!touchState.current.isDragging && touchState.current.direction !== 'horizontal') {
             // 垂直滑动或未开始拖拽，重置状态
             touchState.current = {
@@ -183,8 +184,8 @@ export default function MobileCardCarousel<T>({
         }
     }, [items.length, onIndexChange, updateTrackPosition]);
 
-    // 处理触摸取消
-    const handleTouchCancel = useCallback(() => {
+    // 处理触摸取消（原生事件）
+    const handleNativeTouchCancel = useCallback(() => {
         touchState.current = {
             startX: 0,
             startY: 0,
@@ -197,9 +198,30 @@ export default function MobileCardCarousel<T>({
         updateTrackPosition(0, true, 150);
     }, [updateTrackPosition]);
 
+    // 绑定原生触摸事件监听器（passive: false 以支持 preventDefault）
+    useEffect(() => {
+        const container = containerRef.current;
+        if (!container) return;
+
+        container.addEventListener('touchstart', handleNativeTouchStart, { passive: true });
+        container.addEventListener('touchmove', handleNativeTouchMove, { passive: false });
+        container.addEventListener('touchend', handleNativeTouchEnd, { passive: true });
+        container.addEventListener('touchcancel', handleNativeTouchCancel, { passive: true });
+
+        return () => {
+            container.removeEventListener('touchstart', handleNativeTouchStart);
+            container.removeEventListener('touchmove', handleNativeTouchMove);
+            container.removeEventListener('touchend', handleNativeTouchEnd);
+            container.removeEventListener('touchcancel', handleNativeTouchCancel);
+        };
+    }, [handleNativeTouchStart, handleNativeTouchMove, handleNativeTouchEnd, handleNativeTouchCancel]);
+
     // 当 currentIndex 从外部改变时，更新位置
     useEffect(() => {
-        updateTrackPosition(0, true, 250);
+        // 如果跳跃距离超过 1（不是相邻切换），直接切换不用动画
+        const shouldAnimate = Math.abs(currentIndex - prevIndexRef.current) <= 1;
+        updateTrackPosition(0, shouldAnimate, shouldAnimate ? 250 : 0);
+        prevIndexRef.current = currentIndex;
     }, [currentIndex, updateTrackPosition]);
 
     // 计算可见卡片索引 - 使用 useMemo 避免重复计算
@@ -220,7 +242,7 @@ export default function MobileCardCarousel<T>({
             return (
                 <div
                     key={keyExtractor(item, index)}
-                    className="w-full h-full flex-shrink-0 overflow-y-auto"
+                    className="w-full h-full flex-shrink-0 overflow-y-auto scrollbar-hide"
                     style={{
                         visibility: isVisible ? 'visible' : 'hidden'
                     }}
@@ -235,10 +257,6 @@ export default function MobileCardCarousel<T>({
         <div
             ref={containerRef}
             className="relative w-full h-full overflow-hidden"
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-            onTouchCancel={handleTouchCancel}
             style={{ touchAction: 'pan-y pinch-zoom' }}
         >
             <div

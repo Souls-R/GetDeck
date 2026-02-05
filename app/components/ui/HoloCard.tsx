@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 
 interface HoloCardProps {
     src: string;
@@ -10,7 +10,27 @@ const SQUIRCLE_PATH = "M 0.5 0 L 0.965 0 L 0.97632 0.00007 L 0.98096 0.00027 L 0
 
 export default function HoloCard({ src, alt, className = '' }: HoloCardProps) {
     const cardRef = useRef<HTMLDivElement>(null);
+    const imgRef = useRef<HTMLImageElement>(null);
     const [isInteracting, setIsInteracting] = useState(false);
+    const [isImageLoaded, setIsImageLoaded] = useState(false);
+
+    // 当 src 改变时，重置加载状态
+    useEffect(() => {
+        setIsImageLoaded(false);
+    }, [src]);
+
+    // 预加载图片
+    useEffect(() => {
+        const img = new Image();
+        img.onload = () => {
+            setIsImageLoaded(true);
+        };
+        img.onerror = () => {
+            // 即使加载失败也要隐藏加载状态，避免永久加载圈
+            setIsImageLoaded(true);
+        };
+        img.src = src;
+    }, [src]);
 
     const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
         if (!cardRef.current) return;
@@ -70,6 +90,12 @@ export default function HoloCard({ src, alt, className = '' }: HoloCardProps) {
                     </clipPath>
                 </defs>
             </svg>
+
+            {/* 骨架屏 */}
+            {!isImageLoaded && (
+                <div className="absolute inset-0 bg-gradient-to-r from-[var(--card-border)] via-[var(--background-secondary)] to-[var(--card-border)] rounded-[22px] animate-pulse" />
+            )}
+
             <div
                 ref={cardRef}
                 className={`holo-card ${isInteracting ? 'interacting' : ''}`}
@@ -77,7 +103,13 @@ export default function HoloCard({ src, alt, className = '' }: HoloCardProps) {
                 <div className="holo-card-content">
                     <div className="holo-card__holo"></div>
                     <div className="holo-card__glare"></div>
-                    <img src={src} alt={alt} draggable={false} className="pointer-events-none" />
+                    <img
+                        ref={imgRef}
+                        src={src}
+                        alt={alt}
+                        draggable={false}
+                        className={`pointer-events-none transition-opacity duration-200 ${isImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                    />
                 </div>
             </div>
         </div>
