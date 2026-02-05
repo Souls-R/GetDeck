@@ -120,6 +120,12 @@
     "card_type": "standard"
   },
   {
+    "id": 3880,
+    "name": "黑魔导",
+    "phash": "952a9d852f56331e0b8e957b17db071b17430d532552b736b339b211b772b9c8",
+    "card_type": "standard"
+  },
+  {
     "id": 3881,
     "name": "元素－英雄 新宇侠",
     "phash": "fd21ff106304d1029486d189b3913f957555f5c27e82ae26f70c731bef9ae719",
@@ -26247,6 +26253,12 @@
     "id": 8764,
     "name": "水晶女孩",
     "phash": "33b011db19c69d659d951f5a6f3a6db3252ae06272cc4ec9a63117754b5c8ff5",
+    "card_type": "standard"
+  },
+  {
+    "id": 8770,
+    "name": "废品装甲",
+    "phash": "c66c1cc308cec94ea312a32c4b3c435853ef136dd30ed68677251c94b9849245",
     "card_type": "standard"
   },
   {
@@ -80862,6 +80874,12 @@
     "card_type": "standard"
   },
   {
+    "id": 21189,
+    "name": "邪恶★双子 姬丝吉尔・成交",
+    "phash": "170d773333cb734ae72667997703753b62372e560c580fcb2fcd0fc92f599f71",
+    "card_type": "standard"
+  },
+  {
     "id": 21190,
     "name": "机动石器 土偶罗多",
     "phash": "cc650c471ed7da92a9a291e6c9bc28538c1c883c8e32124b141b9b3a9b18e704",
@@ -81066,6 +81084,12 @@
     "card_type": "standard"
   },
   {
+    "id": 21233,
+    "name": "墓穴指名者",
+    "phash": "396c3c199d132d9de5498719939c888c8cc4e5593ad3b2d2f2b0d9383a2d66d3",
+    "card_type": "standard"
+  },
+  {
     "id": 21234,
     "name": "强欲且金满之壶",
     "phash": "33242ba4aa26b3f63387269726d574c764c3a4c46714ad65a7754e4b9f199cc4",
@@ -81099,6 +81123,24 @@
     "id": 21340,
     "name": "梵格尔夫的祝福",
     "phash": "1c43cccc76125d443f131e85ab0ab716933159634b27792ced4c2d4d032f233c",
+    "card_type": "standard"
+  },
+  {
+    "id": 21341,
+    "name": "\t阿斯比库尔",
+    "phash": "4f1b8b3f5c1a1c278de38d6918ccb9dc1bf55fccd529e563e40cf2b876f206cb",
+    "card_type": "standard"
+  },
+  {
+    "id": 21342,
+    "name": "剧毒箱鲀",
+    "phash": "cc185a135a82984660c6738af318675a0b4e0b1326330a2b0f1bd718de61ea21",
+    "card_type": "standard"
+  },
+  {
+    "id": 21343,
+    "name": "鲜鱼竞标",
+    "phash": "9cc09cc77ec696863666334e5b5e1c269e26f374d343531297a7859318c998c8",
     "card_type": "standard"
   },
   {
@@ -81294,15 +81336,69 @@
     "card_type": "standard"
   },
   {
+    "id": 21376,
+    "name": "K9－17号 饭纲",
+    "phash": "d2290ebab9856146510e111b8b5bb39f9b17cd0e6d4ced1acdd393b77ae4e798",
+    "card_type": "standard"
+  },
+  {
     "id": 21377,
     "name": "K9－66a号 冰精",
     "phash": "873d2799c592c5714f49472b8d76cb0c591aeb32d164dd28cd49134b329fe6be",
     "card_type": "standard"
   },
   {
+    "id": 21378,
+    "name": "K9－66b号 灯笼",
+    "phash": "4639a4a18635d29c312b151a311e49164517434635431d875906d98e16bc8674",
+    "card_type": "standard"
+  },
+  {
+    "id": 21379,
+    "name": "K9－ØØ号 天狼",
+    "phash": "f224da1c710ef10e131d1e045c5d2a19bb18b91c9924d96e4d8d44bda67da736",
+    "card_type": "standard"
+  },
+  {
+    "id": 21380,
+    "name": "K9－17号 “割裂者”",
+    "phash": "f190b095d4e8e156a3548dadf434398d2b9e12352ce30ed343d3903d5cca34c9",
+    "card_type": "standard"
+  },
+  {
+    "id": 21381,
+    "name": "K9－ØØ号 “猎手”",
+    "phash": "8f07af1b9f330f13634fe306ef09cd25cf22a161b4605a4c7f18ff319f235f2c",
+    "card_type": "standard"
+  },
+  {
     "id": 21382,
     "name": "K9－EX “狼人”",
     "phash": "fa61fe1071d334e77ee6661e463d0b1d321637361f3ecf2687662367a8668ece",
+    "card_type": "standard"
+  },
+  {
+    "id": 21383,
+    "name": "K9－LC 拘束解除",
+    "phash": "fc049c4c0c1f9c9d908b50e5e138e339e73567e64d2f5d1e39361f370c1dc99e",
+    "card_type": "standard"
+  },
+  {
+    "id": 21384,
+    "name": "K9－EX 强制解除",
+    "phash": "5349274915c98b611e664b663e861acc19651cbe76bdf7187c32e82184a70e1b",
+    "card_type": "standard"
+  },
+  {
+    "id": 21385,
+    "name": "“K9刑侦案件”",
+    "phash": "d22cb3b97983f14ab367270b7913bb037b13b90b994f7947e98339647024c3c1",
+    "card_type": "standard"
+  },
+  {
+    "id": 21386,
+    "name": "K9－EW 特殊解除实验",
+    "phash": "2f460b4e036371c3f946f96de760e3c8e0dcddd4cde8eac9e6dae6596d8d1383",
     "card_type": "standard"
   },
   {
@@ -81594,6 +81690,18 @@
     "card_type": "standard"
   },
   {
+    "id": 21457,
+    "name": "对击斗魂 项",
+    "phash": "f68e6e8ea626770799059d090c931f8f1d8ca18652c369b63ae59565c8655b34",
+    "card_type": "standard"
+  },
+  {
+    "id": 21459,
+    "name": "超念铳士瓦隆",
+    "phash": "c4e18c815243706961c9880c664432350c25d961dc2247360637ebc9acc9762b",
+    "card_type": "standard"
+  },
+  {
     "id": 21460,
     "name": "闪刀姬＝零萝",
     "phash": "f312cf0ba566a62cca39437196b9c29bc238509b5112d33699449b69931a56b3",
@@ -81696,6 +81804,12 @@
     "card_type": "standard"
   },
   {
+    "id": 21477,
+    "name": "对击斗魂开战！",
+    "phash": "7e84df02fd02cf00cf06f324e7045f037f039f028708be01af01b7133b39e71b",
+    "card_type": "standard"
+  },
+  {
     "id": 21478,
     "name": "Recettes de Nouvellez～饿魔新飨的食谱～",
     "phash": "d7280722f3437d465d46fd86589838de381c7138711cb5d4e5e6a4b1961fd862",
@@ -81792,6 +81906,24 @@
     "card_type": "standard"
   },
   {
+    "id": 21610,
+    "name": "毁灭的黑魔术师",
+    "phash": "170b8e99e30cf18cc79886958a675372d7e496910b9fcdba8d78cf591f732b67",
+    "card_type": "standard"
+  },
+  {
+    "id": 21611,
+    "name": "合体魔龙 提玛欧斯",
+    "phash": "8b1c2334663ee574ebece3996935c9a691795953d114f9f86974697a331ad48e",
+    "card_type": "standard"
+  },
+  {
+    "id": 21612,
+    "name": "提玛欧斯之眼光",
+    "phash": "7d46746a34264c3618351c382d2ebd2591939b459a295c15141c8f39cc11dc50",
+    "card_type": "standard"
+  },
+  {
     "id": 21615,
     "name": "御巫奉 纱鸣",
     "phash": "c7d665cdb3c4891c76dbb496385d2032d464b26770277036e01c18ce0f4ee77e",
@@ -81864,6 +81996,18 @@
     "card_type": "standard"
   },
   {
+    "id": 21728,
+    "name": "黑魔术之秘仪",
+    "phash": "d262662d938a918ee74c631a050d134d231267322b371f27253f8f315d347636",
+    "card_type": "standard"
+  },
+  {
+    "id": 21729,
+    "name": "黑之魔导阵",
+    "phash": "e7399367914e08dbceb4cbd4e4ecc1b6c59fc5060b86369feeb9786cf021d68b",
+    "card_type": "standard"
+  },
+  {
     "id": 21732,
     "name": "珠之御巫 狐里",
     "phash": "3301b7033f056b037f15371c6f0ecf161f1f4f19b6091636cd126432e706b607",
@@ -81873,6 +82017,12 @@
     "id": 21733,
     "name": "大日女之御巫",
     "phash": "2e32941785776466716691619372ff58f770df225f496d49f932bbb59eb99f31",
+    "card_type": "standard"
+  },
+  {
+    "id": 21749,
+    "name": "黑魔术之护符",
+    "phash": "7d07cd1ef339fb699966e84864d9a4d4a49224dbe8c995667b3b53304f1c9f25",
     "card_type": "standard"
   },
   {
@@ -81924,6 +82074,12 @@
     "card_type": "standard"
   },
   {
+    "id": 21791,
+    "name": "K9－04号 咒",
+    "phash": "f326b3b7794b6167437367e315c2db84912cb15995c4e18411cb9b710b0365c7",
+    "card_type": "standard"
+  },
+  {
     "id": 21799,
     "name": "巨石异物・普赫奥尔",
     "phash": "bb6451050f216f6667264b32d352c364e132d1329970d930633a860c8f079f03",
@@ -81966,9 +82122,21 @@
     "card_type": "standard"
   },
   {
+    "id": 21813,
+    "name": "K9－666号 “结克”",
+    "phash": "6ec98f61cd34ed34cb1acf0c9f2ccd668d29c831d5d34d534c130ead9b2f839d",
+    "card_type": "standard"
+  },
+  {
     "id": 21815,
     "name": "DDD 天空王宙斯诸神黄昏",
     "phash": "dd89770b2d2bcbac55992b95bace994ed98ccc1c6719ab0cbb2a8fd8cf065796",
+    "card_type": "standard"
+  },
+  {
+    "id": 21818,
+    "name": "瘴烟的死灵术师",
+    "phash": "96c517dac338b0691ce2cea64ca9aa83a6411a4f19c787c7c461706503a63b93",
     "card_type": "standard"
   },
   {
@@ -82020,9 +82188,51 @@
     "card_type": "standard"
   },
   {
+    "id": 21901,
+    "name": "极驰高速战士",
+    "phash": "b724cf079f115f399752c3026b0d578d7786598e5e1d4a1dab345b440b338ba7",
+    "card_type": "standard"
+  },
+  {
+    "id": 21902,
+    "name": "锚栓螺丝刺猬",
+    "phash": "318a2681462d446c18360d4e497c1b8d05399b721a7264375c6a3ab168ab934b",
+    "card_type": "standard"
+  },
+  {
+    "id": 21903,
+    "name": "叉路小走鹃",
+    "phash": "6df7356c634c973a1be70b19339fc6b61e9937b97276716f71eec6da8cfeadfc",
+    "card_type": "standard"
+  },
+  {
+    "id": 21904,
+    "name": "废铁同步士",
+    "phash": "9d6863e165d529f199a072c32e118c2ce4a86cb26fb4bcc4daf47cf638fd80f9",
+    "card_type": "standard"
+  },
+  {
+    "id": 21905,
+    "name": "同步同伴",
+    "phash": "d51ce356e68e9cd286d0e430a28d915994a2dcc0ecc24c4c54ca669b6cda4cc9",
+    "card_type": "standard"
+  },
+  {
+    "id": 21906,
+    "name": "同步独径",
+    "phash": "f1f0e8d0ced864d978db38db32cb6ccb246b65694b6d51bad1ae932d318b33c6",
+    "card_type": "standard"
+  },
+  {
     "id": 21907,
     "name": "废品战士・极致",
     "phash": "8c25ab73d3c391c6c12fa6cdac5a0dda17782e30a663344ef13871b44acec053",
+    "card_type": "standard"
+  },
+  {
+    "id": 21908,
+    "name": "废铁战士",
+    "phash": "b267ba664d324f3b0799e78dc328d36cc32b230d263b6c1e79b6db2c9b219d33",
     "card_type": "standard"
   },
   {
@@ -82062,15 +82272,99 @@
     "card_type": "standard"
   },
   {
+    "id": 22107,
+    "name": "枪弹装填者",
+    "phash": "e3e8f3e08f084e9a65c923944b164d1c964f1bc799d69b9e9993e330cb707bda",
+    "card_type": "standard"
+  },
+  {
+    "id": 22108,
+    "name": "空尖枪弹龙",
+    "phash": "7b9173b1f5b21fe2def99fe90ccda59ca5ec46e632d13be4334d9955ef866fe3",
+    "card_type": "standard"
+  },
+  {
+    "id": 22109,
+    "name": "枪弹导爆者",
+    "phash": "f6d0e350ca39868da4cdda73632be3680afb48b34cf29cd233b73334b6388d1f",
+    "card_type": "standard"
+  },
+  {
+    "id": 22135,
+    "name": "枪管上膛绝焰龙",
+    "phash": "4ec79fb18d9425678563849225730d620fe3c5aca399433d260f24178d8ecf87",
+    "card_type": "standard"
+  },
+  {
     "id": 22136,
     "name": "DDD 圣贤王阿尔弗雷德",
     "phash": "97427686cd31cc66ce461bd3939c9634b346b9c26db34ca6460ccbcccf49a395",
     "card_type": "standard"
   },
   {
+    "id": 22149,
+    "name": "拓扑逻辑冲击龙",
+    "phash": "04070c879903635a67956721254b32fb8fc44bdc0b5a47ca61ed7232f1d8624e",
+    "card_type": "standard"
+  },
+  {
     "id": 22150,
     "name": "枪管战幕龙",
     "phash": "57b010989c9ccc94ac9cccb0ac904a8f658bf11a609ce09632d5b187c1f14d38",
+    "card_type": "standard"
+  },
+  {
+    "id": 22151,
+    "name": "三叶枪管龙",
+    "phash": "d3324e33989acc3ed4de625b2413963d8f25840fd4cd42cea568b121bb8cb75c",
+    "card_type": "standard"
+  },
+  {
+    "id": 22155,
+    "name": "双重扳机",
+    "phash": "6f78a3618c61c552a7b13d97fc46fe5276736d722735720ed86683259f39bf19",
+    "card_type": "standard"
+  },
+  {
+    "id": 22172,
+    "name": "枪管重启",
+    "phash": "cf8106e304639c6198719ab992f9d1e9acc98fd3cf32941308654169c55d6c91",
+    "card_type": "standard"
+  },
+  {
+    "id": 22310,
+    "name": "废品大师",
+    "phash": "c924dd64fcd27a9269362d66e46cb4cdb6ddb299333993da1a036d02de02ce12",
+    "card_type": "standard"
+  },
+  {
+    "id": 22558,
+    "name": "违犯枪管龙",
+    "phash": "0bc276c82dc41d738d31769a30ebedf131d21cdb9e8cdb4e63d071221b2b3b40",
+    "card_type": "standard"
+  },
+  {
+    "id": 22562,
+    "name": "废品信号",
+    "phash": "69696b296621ac326db9ce589f1a933bc07ac0b6e12e615e391e944394659a63",
+    "card_type": "standard"
+  },
+  {
+    "id": 22715,
+    "name": "W：P变幻舞夜",
+    "phash": "0b3003a10b2941fb69650dd9745b5576c8b0a6e43cc83e912cc58db60717073e",
+    "card_type": "standard"
+  },
+  {
+    "id": 22746,
+    "name": "I：P百变莱娜",
+    "phash": "564dd11889d99049994239633339f524e4c6c24c836a869b349be55199753195",
+    "card_type": "standard"
+  },
+  {
+    "id": 22747,
+    "name": "S：P小夜骑士",
+    "phash": "6404d64882720332272c9638cb3395212427c126922c82240ca7993626ef0e1b",
     "card_type": "standard"
   }
 ]
