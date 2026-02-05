@@ -99,7 +99,7 @@ export default function FloatingToolbar({
     };
 
     return (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-20 animate-slide-up-toolbar-v2 pointer-events-none lg:left-[calc(200px+50vw)] 2xl:left-1/2 transition-all duration-300 ease-out">
+        <div className="fixed bottom-6 left-0 right-0 flex justify-center lg:pr-[400px] z-50 animate-slide-up-toolbar-v2 pointer-events-none transition-all duration-300 ease-out">
             {/* About Tooltip */}
             {showAboutTip && (
                 <div

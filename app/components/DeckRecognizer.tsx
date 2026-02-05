@@ -867,31 +867,31 @@ export default function DeckRecognizer() {
                         onZoomChange={setIsCanvasZoomed}
                         onBackgroundClick={!isMobile ? () => setSelectedCardIndex(-1) : undefined}
                     />
-
-                    {/* 底部浮动工具栏 */}
-                    {originalImage && (
-                        <FloatingToolbar
-                            onCropClick={() => setShowCropper(true)}
-                            onUploadClick={() => fileInputRef.current?.click()}
-                            onHistoryClick={() => setShowHistoryDrawer(true)}
-                            onCardListClick={() => {
-                                if (isMobile) {
-                                    setShowCardListDrawer(true);
-                                } else {
-                                    // PC端：取消选中卡片，回到列表视图
-                                    setSelectedCardIndex(-1);
-                                }
-                            }}
-                            showCardListButton={isMobile}
-                            cardCount={recognizedCards.length}
-                            disabled={isInitializing || isProcessing}
-                        />
-                    )}
                 </div>
+
+                {/* 底部浮动工具栏 - 放在主画布外面避免被 overflow-hidden 限制 */}
+                {originalImage && (
+                    <FloatingToolbar
+                        onCropClick={() => setShowCropper(true)}
+                        onUploadClick={() => fileInputRef.current?.click()}
+                        onHistoryClick={() => setShowHistoryDrawer(true)}
+                        onCardListClick={() => {
+                            if (isMobile) {
+                                setShowCardListDrawer(true);
+                            } else {
+                                // PC端：取消选中卡片，回到列表视图
+                                setSelectedCardIndex(-1);
+                            }
+                        }}
+                        showCardListButton={isMobile}
+                        cardCount={recognizedCards.length}
+                        disabled={isInitializing || isProcessing}
+                    />
+                )}
 
                 {/* 电脑端侧边栏 */}
                 {!isMobile && originalImage && (
-                    <div className="animate-fade-in h-full">
+                    <div className="animate-fade-in h-full relative z-10">
                         <Sidebar
                             processingStage={processingStage}
                             recognizedCards={recognizedCards}
