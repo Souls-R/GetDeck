@@ -1,17 +1,15 @@
 # GetDeck
 
-GetDeck 是一个浏览器端的 Master Duel 卡组识别工具，无需服务器即可识别卡组。
+GetDeck 是一个 Master Duel 卡组截图识别，卡组码生成以及分享的工具。
 
-上传卡组截图后GetDeck 会自动识别每张卡片以供查看，还可以一键生成卡组码，方便导入游戏使用。
+上传卡组截图后GetDeck 会自动识别每张卡片以供查看，还可以一键生成卡组码，方便导入游戏使用，也能生成带二维码与卡组码的分享截图。
 
 你可以在这里直接使用： [https://get-deck.com](https://get-deck.com)
-
-备用地址： [https://get-deck.vercel.app/](https://get-deck.vercel.app/)
 
 ## 主要功能
 - 所有识别和处理均在本地浏览器完成，不上传图片
 - 识别准确率高，速度快，支持桌面和移动端
-- 支持 Master Duel 卡组码导出
+- 支持 Master Duel 卡组码导出与分享
 
 技术栈包括 Next.js、React、Tailwind CSS、ONNX Runtime Web、Rust WebAssembly、pHash 等。
 
