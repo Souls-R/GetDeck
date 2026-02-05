@@ -37,7 +37,7 @@ export default function FloatingToolbar({
     useEffect(() => {
         const checkMobile = () => {
             setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window);
-            setIsLargeScreen(window.innerWidth >= 1024); // lg breakpoint, sidebar visible
+            setIsLargeScreen(window.innerWidth >= 1024);
         };
         checkMobile();
         window.addEventListener('resize', checkMobile);
@@ -99,7 +99,7 @@ export default function FloatingToolbar({
     };
 
     return (
-        <div className="fixed bottom-6 left-0 right-0 flex justify-center z-20 animate-slide-up-toolbar-v2 pointer-events-none">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-20 animate-slide-up-toolbar-v2 pointer-events-none lg:left-[calc(200px+50vw)] lg:translate-x-0 xl:left-1/2 xl:-translate-x-1/2 transition-all duration-300 ease-out">
             {/* About Tooltip */}
             {showAboutTip && (
                 <div
