@@ -318,19 +318,19 @@ export default function CardCanvas({
         touchStateRef.current.touchCount = remainingTouches;
     }, [updateTransform, onCardTap, recognizedCards, canvasRef]);
 
-    // 双击重置缩放
-    const lastTapRef = useRef(0);
-    const handleDoubleTap = useCallback((e: React.TouchEvent) => {
-        if (e.touches.length === 1) {
-            const now = Date.now();
-            if (now - lastTapRef.current < 300) {
-                // 双击检测 - 重置
-                transformRef.current = { scale: 1, x: 0, y: 0 };
-                updateTransform();
-            }
-            lastTapRef.current = now;
-        }
-    }, [updateTransform]);
+    // 双击重置缩放 - 移动端禁用，避免快速点击相邻卡片时误触发
+    // const lastTapRef = useRef(0);
+    // const handleDoubleTap = useCallback((e: React.TouchEvent) => {
+    //     if (e.touches.length === 1) {
+    //         const now = Date.now();
+    //         if (now - lastTapRef.current < 300) {
+    //             // 双击检测 - 重置
+    //             transformRef.current = { scale: 1, x: 0, y: 0 };
+    //             updateTransform();
+    //         }
+    //         lastTapRef.current = now;
+    //     }
+    // }, [updateTransform]);
 
     // PC端滚轮缩放
     // PC端滚轮缩放 - 使用非被动事件监听器以支持 preventDefault
@@ -480,7 +480,6 @@ export default function CardCanvas({
                     touchAction: 'none',
                     willChange: 'transform'
                 }}
-                onTouchStart={handleDoubleTap}
 
                 onMouseDown={handlePanelMouseDown}
                 onMouseMove={handlePanelMouseMove}

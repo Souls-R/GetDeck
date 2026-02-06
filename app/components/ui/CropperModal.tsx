@@ -215,7 +215,7 @@ export default function CropperModal({ imageSrc, onApply, onCancel }: CropperMod
 
     return (
         <div
-            className="fixed inset-0 z-30 flex flex-col animate-scale-in bg-black/90"
+            className="fixed inset-0 z-[60] flex flex-col animate-scale-in bg-black/90"
             onKeyDown={handleKeyDown}
             tabIndex={-1}
         >
