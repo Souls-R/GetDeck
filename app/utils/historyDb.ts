@@ -95,12 +95,12 @@ async function imageToBlob(image: HTMLImageElement): Promise<Blob> {
 }
 
 // 将 Blob 转为 HTMLImageElement
+// 注意：不要在 onload 中撤销 URL，因为后续裁剪功能需要使用 img.src
 export function blobToImage(blob: Blob): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(blob);
     const img = new Image();
     img.onload = () => {
-      URL.revokeObjectURL(url);
       resolve(img);
     };
     img.onerror = reject;
