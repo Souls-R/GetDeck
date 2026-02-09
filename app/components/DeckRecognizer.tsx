@@ -116,6 +116,7 @@ export default function DeckRecognizer() {
     const [deckCodeModal, setDeckCodeModal] = useState<{ show: boolean; code?: string; error?: string }>({ show: false });
     const [deckCodeCopied, setDeckCodeCopied] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
+    const [showLowCountWarning, setShowLowCountWarning] = useState(false);
 
     // 画布缩放状态
     const [isCanvasZoomed, setIsCanvasZoomed] = useState(false);
@@ -127,6 +128,13 @@ export default function DeckRecognizer() {
     const [showHistoryDrawer, setShowHistoryDrawer] = useState(false);
     const [historyCount, setHistoryCount] = useState(0);
     const [currentHistoryId, setCurrentHistoryId] = useState<string | null>(null);
+
+    // 识别数量较少时的提示 (仅移动端)
+    useEffect(() => {
+        if (isMobile && processingStage === 'done' && sourceType === 'image' && recognizedCards.length < 20) {
+            setShowLowCountWarning(true);
+        }
+    }, [isMobile, processingStage, sourceType, recognizedCards.length]);
 
     // Artwork 缓存（避免重复绘制 canvas）
     const artworkCacheRef = useRef<Map<string, string>>(new Map());
@@ -215,6 +223,7 @@ export default function DeckRecognizer() {
         setForcePendulumMode(false);
         setSelectedCardArtwork(null);
         setShowMobileDrawer(false);
+        setShowLowCountWarning(false);
         setMobileDrawerViewMode('list');
         setMobileDrawerEntryPoint('list');
         setCurrentHistoryId(null);
@@ -1350,6 +1359,45 @@ export default function DeckRecognizer() {
                                 </div>
                             </>
                         )}
+                    </div>
+                </div>
+            )}
+
+            {/* 识别数量过少提示 (移动端) */}
+            {showLowCountWarning && (
+                <div className="fixed inset-0 z-60 flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+                    <div className="bg-(--card-bg) rounded-2xl shadow-2xl border border-(--warning)/30 p-6 max-w-sm w-full animate-scale-in relative overflow-hidden">
+                        {/* 背景装饰 */}
+                        <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-(--warning)/5 rounded-full blur-2xl" />
+                        
+                        <div className="relative">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="w-10 h-10 rounded-xl bg-(--warning)/10 flex items-center justify-center shrink-0">
+                                    <svg className="w-6 h-6 text-(--warning)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-lg font-bold text-foreground">识别太少？</h3>
+                            </div>
+                            
+                            <div className="space-y-3 mb-6">
+                                <p className="text-sm text-foreground leading-relaxed">
+                                    仅支持 <span className="font-bold">Master Duel 电脑端</span>卡组截图，移动端或其他来源的效果较差。
+                                </p>
+                                <div className="p-3 rounded-xl bg-(--background-secondary) border border-(--card-border)">
+                                    <p className="text-xs text-(--foreground-muted) leading-relaxed">
+                                        或者请尝试点击屏幕下方的 <svg className="w-3.5 h-3.5 inline-block align-text-bottom text-(--primary)" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="6" r="3" /><circle cx="6" cy="18" r="3" /><line x1="20" y1="4" x2="8.12" y2="15.88" /><line x1="14.47" y1="14.48" x2="20" y2="20" /><line x1="8.12" y1="8.12" x2="12" y2="12" /></svg> 按钮进行手动裁剪，仅保留卡片区域可提高识别成功率。
+                                    </p>
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={() => setShowLowCountWarning(false)}
+                                className="w-full py-3 rounded-xl bg-(--primary) text-white font-bold hover:bg-(--primary-hover) transition-all active:scale-[0.98] shadow-lg shadow-(--primary)/20"
+                            >
+                                我知道了
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
