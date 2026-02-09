@@ -397,7 +397,7 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
                         <textarea
                             autoFocus
                             className="w-full h-48 p-4 rounded-xl bg-(--background-secondary) border border-(--card-border) text-sm font-mono focus:border-(--primary) focus:ring-1 focus:ring-(--primary) outline-none transition-all resize-none mb-6 custom-scrollbar"
-                            placeholder="#main\n46986414\n46986414\n..."
+                            placeholder="#main..."
                             value={ydkText}
                             onChange={(e) => setYdkText(e.target.value)}
                         />
