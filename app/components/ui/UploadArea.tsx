@@ -1,5 +1,6 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import Changelog from './Changelog';
+import { apiUrl } from '@/app/config';
 
 interface UploadAreaProps {
     isInitializing: boolean;
@@ -12,6 +13,18 @@ interface UploadAreaProps {
 export default function UploadArea({ isInitializing, modelDownloadProgress, onFileSelect, onHistoryClick, historyCount = 0 }: UploadAreaProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isDragOver, setIsDragOver] = useState(false);
+    const [deckCount, setDeckCount] = useState<number | null>(null);
+
+    useEffect(() => {
+        fetch(`${apiUrl}/stats`)
+            .then(res => res.json())
+            .then(data => {
+                if (typeof data.deckCount === 'number') {
+                    setDeckCount(data.deckCount);
+                }
+            })
+            .catch(() => {});
+    }, []);
 
     const handleDragOver = (e: React.DragEvent) => {
         e.preventDefault();
@@ -83,7 +96,9 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
                     {/* 标签 */}
                     <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-(--background-secondary) border border-(--card-border) mb-6 sm:mb-8">
                         <span className="w-2 h-2 rounded-full bg-(--accent) animate-pulse"></span>
-                        <span className="text-xs sm:text-sm text-(--foreground-muted)">开源免费 · 离线识别</span>
+                        <span className="text-xs sm:text-sm text-(--foreground-muted)">
+                            {deckCount !== null ? `已生成 ${deckCount.toLocaleString()} 个卡组码` : '开源免费 · 离线识别'}
+                        </span>
                     </div>
 
                     {/* 主标题 */}
