@@ -90,6 +90,8 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
 
             // 额外卡组的怪兽类型关键词
             const extraDeckTypes = ['融合', '超量', '连接', '同调', '链接', '同步'];
+            // 临时：百鸽未更新的额外卡组卡片 ID
+            const extraDeckIds = new Set([22715]);
 
             // 先收集所有需要的卡名
             const cardNames = recognizedCards
@@ -130,7 +132,7 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
 
                 const cardData = { name: match.name, baigeId };
 
-                if (extraDeckTypes.some(t => types.includes(t))) {
+                if (extraDeckIds.has(match.id) || extraDeckTypes.some(t => types.includes(t))) {
                     extraDeckCards.push(cardData);
                 } else {
                     mainDeckCards.push(cardData);

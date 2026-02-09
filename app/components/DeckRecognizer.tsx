@@ -577,6 +577,8 @@ export default function DeckRecognizer() {
 
             // 额外卡组的怪兽类型关键词
             const extraDeckTypes = ['融合', '超量', '连接', '同调', '链接', '同步'];
+            // 临时：百鸽未更新的额外卡组卡片 ID
+            const extraDeckIds = new Set(['22715']);
 
             const deck: {
                 monsters: string[];
@@ -598,7 +600,7 @@ export default function DeckRecognizer() {
                 const cardInfo = globalCardInfoCache[match.name];
                 const types = cardInfo?.result?.[0]?.text?.types || '';
 
-                if (extraDeckTypes.some(t => types.includes(t))) {
+                if (extraDeckIds.has(cid) || extraDeckTypes.some(t => types.includes(t))) {
                     // 融合/同步/超量/链接怪兽放入额外卡组
                     deck.extra.push(cid);
                     console.log(`Adding to deck: ${match.name} (Types: ${types}) added to Extra Deck`);
@@ -678,6 +680,8 @@ export default function DeckRecognizer() {
 
             // 额外卡组的怪兽类型关键词
             const extraDeckTypes = ['融合', '超量', '连接', '同调', '链接', '同步'];
+            // 临时：百鸽未更新的额外卡组卡片 ID
+            const extraDeckIds = new Set(['22715']);
 
             const deck: {
                 monsters: string[];
@@ -699,7 +703,7 @@ export default function DeckRecognizer() {
                 const cardInfo = globalCardInfoCache[match.name];
                 const types = cardInfo?.result?.[0]?.text?.types || '';
 
-                if (extraDeckTypes.some(t => types.includes(t))) {
+                if (extraDeckIds.has(cid) || extraDeckTypes.some(t => types.includes(t))) {
                     deck.extra.push(cid);
                 } else if (types.includes('魔法') && !types.includes('魔法师')) {
                     deck.spells.push(cid);
