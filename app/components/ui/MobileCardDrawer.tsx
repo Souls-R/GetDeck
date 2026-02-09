@@ -21,6 +21,9 @@ interface MobileCardDrawerProps {
     onGenerateDeckCode: () => void;
     isGeneratingDeckCode: boolean;
     onShare: () => void;
+    onExportYdk: () => void;
+    isExportingYdk: boolean;
+    ydkExported: boolean;
     getCardInfo: (cardName: string) => CardInfo | null;
     isDetailLoading: boolean;
     getCardArtwork: (index: number) => string | null;
@@ -119,6 +122,9 @@ export default function MobileCardDrawer({
     onGenerateDeckCode,
     isGeneratingDeckCode,
     onShare,
+    onExportYdk,
+    isExportingYdk,
+    ydkExported,
     getCardInfo,
     isDetailLoading,
     getCardArtwork,
@@ -133,6 +139,7 @@ export default function MobileCardDrawer({
     const [isAnimating, setIsAnimating] = useState(false);
     const [shouldRender, setShouldRender] = useState(false);
     const [overlayVisible, setOverlayVisible] = useState(false);
+    const [showExportMenu, setShowExportMenu] = useState(false);
 
     // 视图状态
     const [viewMode, setViewMode] = useState<ViewMode>(initialViewMode);
@@ -167,6 +174,13 @@ export default function MobileCardDrawer({
 
     // 识别源面板状态
     const [showSourcePanel, setShowSourcePanel] = useState(false);
+
+    // ydkExported 变为 false 时关闭菜单
+    useEffect(() => {
+        if (!ydkExported && !isExportingYdk) {
+            setShowExportMenu(false);
+        }
+    }, [ydkExported, isExportingYdk]);
 
     // 详情视图的当前卡片信息
     const currentCard = recognizedCards[selectedCardIndex];
@@ -639,29 +653,72 @@ export default function MobileCardDrawer({
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                                         </svg>
                                     </button>
-                                    {/* 生成卡组码按钮 */}
-                                    <button
-                                        onClick={onGenerateDeckCode}
-                                        disabled={isGeneratingDeckCode}
-                                        className={`px-3 py-1.5 text-sm rounded-lg font-medium transition-colors flex items-center gap-1.5 ${
-                                            isGeneratingDeckCode
-                                                ? 'bg-(--primary)/70 text-white cursor-not-allowed'
-                                                : 'bg-(--primary) text-white hover:bg-(--primary)/90 active:bg-(--primary)/80'
-                                        }`}
-                                        title="生成卡组码"
-                                    >
-                                        {isGeneratingDeckCode ? (
-                                            <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    {/* 生成卡组码按钮 - 分体式 */}
+                                    <div className="relative flex">
+                                        <button
+                                            onClick={onGenerateDeckCode}
+                                            disabled={isGeneratingDeckCode}
+                                            className={`px-3 py-1.5 text-sm rounded-l-lg font-medium transition-colors flex items-center gap-1.5 ${
+                                                isGeneratingDeckCode
+                                                    ? 'bg-(--primary)/70 text-white cursor-not-allowed'
+                                                    : 'bg-(--primary) text-white active:bg-(--primary)/80'
+                                            }`}
+                                            title="生成卡组码"
+                                        >
+                                            {isGeneratingDeckCode ? (
+                                                <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                            ) : (
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                                </svg>
+                                            )}
+                                            卡组码
+                                        </button>
+                                        <button
+                                            onClick={() => setShowExportMenu(!showExportMenu)}
+                                            className="px-1.5 rounded-r-lg bg-(--primary) text-white active:bg-(--primary)/80 border-l border-white/20 transition-colors flex items-center"
+                                            title="更多导出选项"
+                                        >
+                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                             </svg>
-                                        ) : (
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                            </svg>
+                                        </button>
+                                        {(showExportMenu || ydkExported) && (
+                                            <>
+                                                {!ydkExported && <div className="fixed inset-0 z-10" onClick={() => setShowExportMenu(false)} />}
+                                                <div className={`absolute right-0 top-full mt-1 z-20 rounded-lg shadow-lg overflow-hidden ${
+                                                    ydkExported
+                                                        ? 'bg-[var(--success)]'
+                                                        : 'bg-[var(--card-bg)] border border-[var(--card-border)]'
+                                                }`}>
+                                                    <button
+                                                        onClick={() => { onExportYdk(); }}
+                                                        disabled={isExportingYdk || ydkExported}
+                                                        className={`px-3 py-1.5 text-sm transition-colors whitespace-nowrap flex items-center gap-2 disabled:cursor-default ${
+                                                            ydkExported
+                                                                ? 'text-white'
+                                                                : 'text-[var(--foreground)] active:bg-[var(--background-secondary)]'
+                                                        }`}
+                                                    >
+                                                        {isExportingYdk ? (
+                                                            <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                            </svg>
+                                                        ) : ydkExported ? (
+                                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                            </svg>
+                                                        ) : null}
+                                                        {ydkExported ? '已复制' : '导出 YDK'}
+                                                    </button>
+                                                </div>
+                                            </>
                                         )}
-                                        卡组码
-                                    </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>

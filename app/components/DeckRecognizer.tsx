@@ -84,6 +84,8 @@ export default function DeckRecognizer() {
 
     // 卡组码相关状态
     const [isGeneratingDeckCode, setIsGeneratingDeckCode] = useState(false);
+    const [isExportingYdk, setIsExportingYdk] = useState(false);
+    const [ydkExported, setYdkExported] = useState(false);
     const [deckCodeModal, setDeckCodeModal] = useState<{ show: boolean; code?: string; error?: string }>({ show: false });
     const [deckCodeCopied, setDeckCodeCopied] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
@@ -742,6 +744,70 @@ export default function DeckRecognizer() {
         }
     }, [recognizedCards, isGeneratingDeckCode, currentHistoryId, deckCodeModal.code]);
 
+    // 导出 YDK 文件
+    const handleExportYdk = useCallback(async () => {
+        if (isExportingYdk) return;
+        setIsExportingYdk(true);
+
+        try {
+            // 先确保所有卡片信息都已加载
+            const uniqueNames = Array.from(
+                new Set(recognizedCards.map(c => c.matches[c.selectedMatchIndex]?.name).filter(Boolean))
+            );
+            const missingNames = uniqueNames.filter(name => !globalCardInfoCache[name]);
+            if (missingNames.length > 0) {
+                await Promise.all(
+                    missingNames.map(name =>
+                        fetch(`https://ygocdb.com/api/v0/?search=${encodeURIComponent(name)}`)
+                            .then(r => r.json())
+                            .then(data => { globalCardInfoCache[name] = data; })
+                            .catch(() => {})
+                    )
+                );
+            }
+
+            const extraDeckTypes = ['融合', '超量', '连接', '同调', '链接', '同步'];
+            const extraDeckIds = new Set([22715]);
+
+            const mainDeck: number[] = [];
+            const extraDeck: number[] = [];
+
+            recognizedCards.forEach(card => {
+                const match = card.matches[card.selectedMatchIndex];
+                if (!match) return;
+                const cardInfo = globalCardInfoCache[match.name];
+                const baigeId = cardInfo?.result?.[0]?.id;
+                if (!baigeId) return;
+                const types = cardInfo?.result?.[0]?.text?.types || '';
+
+                if (extraDeckIds.has(baigeId) || extraDeckTypes.some(t => types.includes(t))) {
+                    extraDeck.push(baigeId);
+                } else {
+                    mainDeck.push(baigeId);
+                }
+            });
+
+            const ydk = `#created by GetDeck\n#main\n${mainDeck.join('\n')}\n#extra\n${extraDeck.join('\n')}\n!side\n`;
+
+            // 复制到剪贴板
+            navigator.clipboard.writeText(ydk).catch(() => {});
+
+            // 下载文件
+            const blob = new Blob([ydk], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'deck.ydk';
+            a.click();
+            URL.revokeObjectURL(url);
+
+            setYdkExported(true);
+            setTimeout(() => setYdkExported(false), 2000);
+        } finally {
+            setIsExportingYdk(false);
+        }
+    }, [recognizedCards, isExportingYdk]);
+
     const getCroppedImg = (imageSrc: string, pixelCrop: any): Promise<HTMLImageElement> => {
         return new Promise((resolve, reject) => {
             const image = new Image();
@@ -940,6 +1006,9 @@ export default function DeckRecognizer() {
                             onGenerateDeckCode={handleGenerateDeckCode}
                             isGeneratingDeckCode={isGeneratingDeckCode}
                             onShare={handleShare}
+                            onExportYdk={handleExportYdk}
+                            isExportingYdk={isExportingYdk}
+                            ydkExported={ydkExported}
                         />
                     </div>
                 )}
@@ -961,6 +1030,9 @@ export default function DeckRecognizer() {
                         onGenerateDeckCode={handleGenerateDeckCode}
                         isGeneratingDeckCode={isGeneratingDeckCode}
                         onShare={handleShare}
+                        onExportYdk={handleExportYdk}
+                        isExportingYdk={isExportingYdk}
+                        ydkExported={ydkExported}
                         getCardInfo={(cardName) => globalCardInfoCache[cardName] || null}
                         isDetailLoading={isDetailLoading}
                         getCardArtwork={getCardArtwork}
