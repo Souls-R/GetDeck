@@ -15,6 +15,8 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isDragOver, setIsDragOver] = useState(false);
     const [deckCount, setDeckCount] = useState<number | null>(null);
+    const [showYdkModal, setShowYdkModal] = useState(false);
+    const [ydkText, setYdkText] = useState('');
 
     useEffect(() => {
         fetch(`${apiUrl}/stats`)
@@ -148,9 +150,32 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
                                     支持 PNG、JPG、YDK 格式
                                 </p>
                             </div>
-                            <button className="px-6 py-2.5 bg-(--primary) text-white rounded-lg font-medium hover:bg-(--primary-hover) transition-colors">
-                                选择文件
-                            </button>
+                            <div className="flex flex-col sm:flex-row justify-center gap-3 w-full sm:w-auto px-4 sm:px-0">
+                                <button 
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        fileInputRef.current?.click();
+                                    }}
+                                    className="flex-1 sm:flex-none px-8 py-2.5 bg-(--primary) text-white rounded-lg font-medium hover:bg-(--primary-hover) transition-colors flex items-center justify-center gap-2 shadow-lg shadow-(--primary)/20"
+                                >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                    </svg>
+                                    选择文件
+                                </button>
+                                <button 
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setShowYdkModal(true);
+                                    }}
+                                    className="sm:hidden flex-1 px-6 py-2.5 bg-(--background-secondary) text-(--foreground) border border-(--card-border) rounded-lg font-medium hover:bg-(--background-tertiary) transition-colors flex items-center justify-center gap-2"
+                                >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                    </svg>
+                                    粘贴 YDK
+                                </button>
+                            </div>
                             <p className="text-xs text-(--foreground-subtle) hidden sm:block">
                                 或按 <kbd className="px-1.5 py-0.5 rounded bg-(--background-tertiary) border border-(--card-border) font-mono">Ctrl+V</kbd> 粘贴截图或 YDK 文本
                             </p>
@@ -349,6 +374,61 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
                 accept="image/*"
                 onChange={handleFileChange}
             />
+
+            {/* YDK 粘贴弹窗 */}
+            {showYdkModal && (
+                <div className="fixed inset-0 z-60 flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+                    <div 
+                        className="bg-(--card-bg) rounded-2xl shadow-2xl border border-(--card-border) p-6 max-w-lg w-full animate-scale-in"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-10 h-10 rounded-xl bg-(--primary)/10 flex items-center justify-center shrink-0">
+                                <svg className="w-6 h-6 text-(--primary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-foreground">粘贴 YDK 文本</h3>
+                                <p className="text-xs text-(--foreground-muted)">请在下方框内粘贴 YDK 文件内容</p>
+                            </div>
+                        </div>
+
+                        <textarea
+                            autoFocus
+                            className="w-full h-48 p-4 rounded-xl bg-(--background-secondary) border border-(--card-border) text-sm font-mono focus:border-(--primary) focus:ring-1 focus:ring-(--primary) outline-none transition-all resize-none mb-6 custom-scrollbar"
+                            placeholder="#main\n46986414\n46986414\n..."
+                            value={ydkText}
+                            onChange={(e) => setYdkText(e.target.value)}
+                        />
+
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => {
+                                    setShowYdkModal(false);
+                                    setYdkText('');
+                                }}
+                                className="flex-1 py-3 rounded-xl bg-(--background-secondary) text-(--foreground) font-medium hover:bg-(--card-border) transition-all active:scale-[0.98]"
+                            >
+                                取消
+                            </button>
+                            <button
+                                onClick={() => {
+                                    if (ydkText.trim() && onYdkImport) {
+                                        onYdkImport(ydkText);
+                                        setShowYdkModal(false);
+                                        setYdkText('');
+                                    }
+                                }}
+                                disabled={!ydkText.trim()}
+                                className="flex-1 py-3 rounded-xl bg-(--primary) text-white font-bold hover:bg-(--primary-hover) transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none shadow-lg shadow-(--primary)/20"
+                            >
+                                导入卡组
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
