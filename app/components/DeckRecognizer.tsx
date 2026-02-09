@@ -1031,7 +1031,7 @@ export default function DeckRecognizer() {
                         <svg className="w-12 h-12 text-(--primary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                         </svg>
-                        <span className="text-lg font-medium text-foreground">松开以上传图片</span>
+                        <span className="text-lg font-medium text-foreground">松开以上传文件</span>
                     </div>
                 </div>
             )}
@@ -1058,6 +1058,7 @@ export default function DeckRecognizer() {
                         isInitializing={isInitializing}
                         modelDownloadProgress={modelDownloadProgress}
                         onFileSelect={handleFile}
+                        onYdkImport={handleYdkImport}
                         onHistoryClick={() => setShowHistoryDrawer(true)}
                         historyCount={historyCount}
                     />

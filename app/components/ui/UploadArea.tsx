@@ -6,11 +6,12 @@ interface UploadAreaProps {
     isInitializing: boolean;
     modelDownloadProgress: number | null;
     onFileSelect: (file: File) => void;
+    onYdkImport?: (ydkText: string) => void;
     onHistoryClick?: () => void;
     historyCount?: number;
 }
 
-export default function UploadArea({ isInitializing, modelDownloadProgress, onFileSelect, onHistoryClick, historyCount = 0 }: UploadAreaProps) {
+export default function UploadArea({ isInitializing, modelDownloadProgress, onFileSelect, onYdkImport, onHistoryClick, historyCount = 0 }: UploadAreaProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isDragOver, setIsDragOver] = useState(false);
     const [deckCount, setDeckCount] = useState<number | null>(null);
@@ -40,7 +41,15 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
         e.preventDefault();
         setIsDragOver(false);
         const file = e.dataTransfer.files[0];
-        if (file && file.type.startsWith('image/')) {
+        if (!file) return;
+
+        // 检查是否为 YDK 文件
+        if (file.name.endsWith('.ydk') && onYdkImport) {
+            file.text().then(text => onYdkImport(text));
+            return;
+        }
+
+        if (file.type.startsWith('image/')) {
             onFileSelect(file);
         }
     };
@@ -133,17 +142,17 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
                             </div>
                             <div className="text-center">
                                 <p className="text-lg font-medium text-(--foreground) mb-1">
-                                    {isDragOver ? '释放以上传图片' : '拖拽截图到这里'}
+                                    {isDragOver ? '释放以上传' : '拖拽截图或 YDK 文件到这里'}
                                 </p>
                                 <p className="text-sm text-(--foreground-muted)">
-                                    支持 PNG、JPG 格式
+                                    支持 PNG、JPG、YDK 格式
                                 </p>
                             </div>
                             <button className="px-6 py-2.5 bg-(--primary) text-white rounded-lg font-medium hover:bg-(--primary-hover) transition-colors">
                                 选择文件
                             </button>
                             <p className="text-xs text-(--foreground-subtle) hidden sm:block">
-                                或按 <kbd className="px-1.5 py-0.5 rounded bg-(--background-tertiary) border border-(--card-border) font-mono">Ctrl+V</kbd> 粘贴截图
+                                或按 <kbd className="px-1.5 py-0.5 rounded bg-(--background-tertiary) border border-(--card-border) font-mono">Ctrl+V</kbd> 粘贴截图或 YDK 文本
                             </p>
                         </div>
                     </div>
