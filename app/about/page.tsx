@@ -328,6 +328,36 @@ export default function AboutPage() {
                     </div>
                 </section>
 
+                {/* API 文档 */}
+                <section className="mb-12">
+                    <div className="p-5 rounded-xl border border-(--card-border) bg-(--card-bg)">
+                        <div className="flex items-start gap-4">
+                            <div className="shrink-0 w-10 h-10 rounded-xl bg-(--primary) flex items-center justify-center text-white">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 className="font-semibold text-(--foreground) mb-2">开放 API</h3>
+                                <p className="text-sm text-(--foreground-muted) leading-relaxed mb-3">
+                                    GetDeck 提供开放 API，支持卡组码生成功能，方便开发者集成到自己的项目中。
+                                </p>
+                                <a
+                                    href="https://github.com/Souls-R/GetDeck/wiki/GetDeck-API-%E6%96%87%E6%A1%A3"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1.5 text-sm text-(--primary) hover:underline"
+                                >
+                                    查看 API 文档
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
                 {/* 底部 CTA */}
                 <section className="text-center py-8 border-t border-(--card-border)">
                     <h3 className="text-lg font-semibold text-(--foreground) mb-3">尝试一下？</h3>
@@ -349,7 +379,10 @@ export default function AboutPage() {
                     <p>© 2026 GetDeck. 开源项目，使用 MIT 协议。</p>
                     <div className="flex gap-6">
                         <Link href="/" className="hover:text-(--primary) transition-colors">首页</Link>
-                        <a href="https://github.com/Souls-R/getdeck" target="_blank" rel="noopener noreferrer" className="hover:text-(--primary) transition-colors">GitHub</a>
+                        <a href="https://github.com/Souls-R/GetDeck" target="_blank" rel="noopener noreferrer" className="hover:text-(--primary) transition-colors">GitHub</a>
+                        <a href="https://github.com/Souls-R/GetDeck/issues" target="_blank" rel="noopener noreferrer" className="hover:text-(--primary) transition-colors">反馈</a>
+                        <a href="https://github.com/Souls-R/GetDeck/wiki/GetDeck-API-%E6%96%87%E6%A1%A3" target="_blank" rel="noopener noreferrer" className="hover:text-(--primary) transition-colors">API</a>
+                        <a href="https://qm.qq.com/q/BMOI04uaNG" target="_blank" rel="noopener noreferrer" className="hover:text-(--primary) transition-colors">加群</a>
                     </div>
                 </div>
             </footer>

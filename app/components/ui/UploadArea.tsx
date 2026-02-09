@@ -327,6 +327,7 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
                         <a href="/about" className="hover:text-(--primary) transition-colors">关于</a>
                         <a href="https://github.com/Souls-R/GetDeck" target="_blank" rel="noopener noreferrer" className="hover:text-(--primary) transition-colors">GitHub</a>
                         <a href="https://github.com/Souls-R/GetDeck/issues" target="_blank" rel="noopener noreferrer" className="hover:text-(--primary) transition-colors">反馈</a>
+                        <a href="https://github.com/Souls-R/GetDeck/wiki/GetDeck-API-%E6%96%87%E6%A1%A3" target="_blank" rel="noopener noreferrer" className="hover:text-(--primary) transition-colors">API</a>
                         <a href="https://qm.qq.com/q/BMOI04uaNG" target="_blank" rel="noopener noreferrer" className="hover:text-(--primary) transition-colors">加群</a>
                     </div>
                 </div>
