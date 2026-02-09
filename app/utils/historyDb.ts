@@ -130,7 +130,8 @@ export async function saveHistory(
     originalImage,
     recognizedCards,
     deckCode,
-    cardCount: recognizedCards.length
+    cardCount: recognizedCards.length,
+    sourceType: 'image'
   };
 
   return new Promise((resolve, reject) => {
@@ -143,29 +144,19 @@ export async function saveHistory(
   });
 }
 
-// 保存 YDK 历史记录（无图片，使用占位缩略图）
+// 保存 YDK 历史记录（无图片，使用极小占位图）
 export async function saveYdkHistory(
   ydkText: string,
   recognizedCards: RecognizedCard[]
 ): Promise<DeckHistory> {
   const db = await openDB();
 
-  // 创建占位缩略图（简单的灰色图片）
+  // 使用极小的透明图片作为占位，节省空间
   const canvas = document.createElement('canvas');
-  canvas.width = 200;
-  canvas.height = 150;
-  const ctx = canvas.getContext('2d')!;
-  ctx.fillStyle = '#1a1a2e';
-  ctx.fillRect(0, 0, 200, 150);
-  ctx.fillStyle = '#4a4a6a';
-  ctx.font = 'bold 24px sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('YDK', 100, 80);
-  ctx.font = '14px sans-serif';
-  ctx.fillText(`${recognizedCards.length} 张卡`, 100, 105);
-
+  canvas.width = 1;
+  canvas.height = 1;
   const placeholder = await new Promise<Blob>((resolve, reject) => {
-    canvas.toBlob((blob) => blob ? resolve(blob) : reject(), 'image/jpeg', 0.8);
+    canvas.toBlob((blob) => blob ? resolve(blob) : reject(), 'image/png');
   });
 
   const history: DeckHistory = {

@@ -38,7 +38,9 @@ export default function HistoryDrawer({ isOpen, onClose, onLoadHistory, onHistor
             // 生成缩略图 URL
             const urls = new Map<string, string>();
             data.forEach((h) => {
-                urls.set(h.id, URL.createObjectURL(h.thumbnail));
+                if (h.sourceType !== 'ydk') {
+                    urls.set(h.id, URL.createObjectURL(h.thumbnail));
+                }
             });
             urlsRef.current = urls;
             setThumbnailUrls(urls);
@@ -210,13 +212,22 @@ export default function HistoryDrawer({ isOpen, onClose, onLoadHistory, onHistor
                                     onClick={() => handleLoad(history)}
                                 >
                                     {/* 缩略图 */}
-                                    <div className="aspect-[5/6] bg-(--background) overflow-hidden">
-                                        {thumbnailUrls.get(history.id) && (
-                                            <img
-                                                src={thumbnailUrls.get(history.id)}
-                                                alt=""
-                                                className="w-full h-full object-cover"
-                                            />
+                                    <div className="aspect-[5/6] bg-(--background) overflow-hidden flex items-center justify-center">
+                                        {history.sourceType === 'ydk' ? (
+                                            <div className="w-full h-full flex flex-col items-center justify-center bg-(--background-secondary) text-(--foreground-muted) select-none border-b border-(--card-border)">
+                                                <div className="text-3xl font-black opacity-10 tracking-tighter">YDK</div>
+                                                <div className="mt-2 px-2 py-1 rounded bg-(--primary)/10 text-(--primary) text-[10px] font-bold">
+                                                    DECK FILE
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            thumbnailUrls.get(history.id) && (
+                                                <img
+                                                    src={thumbnailUrls.get(history.id)}
+                                                    alt=""
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            )
                                         )}
                                     </div>
 
