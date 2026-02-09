@@ -15,6 +15,7 @@ interface FloatingToolbarProps {
     showCardListButton?: boolean;
     cardCount?: number;
     disabled?: boolean;
+    hideCropButton?: boolean;
 }
 
 export default function FloatingToolbar({
@@ -24,7 +25,8 @@ export default function FloatingToolbar({
     onHistoryClick,
     showCardListButton = false,
     cardCount = 0,
-    disabled = false
+    disabled = false,
+    hideCropButton = false
 }: FloatingToolbarProps) {
     const [showAboutTip, setShowAboutTip] = useState(false);
     const [isPinned, setIsPinned] = useState(false);
@@ -192,23 +194,27 @@ export default function FloatingToolbar({
             {/* Toolbar */}
             <div className="flex items-center gap-1 px-2 py-2 rounded-2xl bg-[var(--card-bg)] border border-[var(--card-border)] shadow-xl pointer-events-auto">
                 {/* Crop */}
-                <button
-                    onClick={onCropClick}
-                    disabled={disabled}
-                    className="p-3 rounded-xl hover:bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-all disabled:opacity-40 disabled:pointer-events-none"
-                    title="裁剪图片"
-                >
-                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="6" cy="6" r="3" />
-                        <circle cx="6" cy="18" r="3" />
-                        <line x1="20" y1="4" x2="8.12" y2="15.88" />
-                        <line x1="14.47" y1="14.48" x2="20" y2="20" />
-                        <line x1="8.12" y1="8.12" x2="12" y2="12" />
-                    </svg>
-                </button>
+                {!hideCropButton && (
+                    <>
+                        <button
+                            onClick={onCropClick}
+                            disabled={disabled}
+                            className="p-3 rounded-xl hover:bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-all disabled:opacity-40 disabled:pointer-events-none"
+                            title="裁剪图片"
+                        >
+                            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="6" cy="6" r="3" />
+                                <circle cx="6" cy="18" r="3" />
+                                <line x1="20" y1="4" x2="8.12" y2="15.88" />
+                                <line x1="14.47" y1="14.48" x2="20" y2="20" />
+                                <line x1="8.12" y1="8.12" x2="12" y2="12" />
+                            </svg>
+                        </button>
 
-                {/* Divider */}
-                <div className="w-px h-6 bg-[var(--card-border)]" />
+                        {/* Divider */}
+                        <div className="w-px h-6 bg-[var(--card-border)]" />
+                    </>
+                )}
 
                 {/* Upload */}
                 <button

@@ -7,6 +7,7 @@ import { useMobile } from '../hooks/useMobile';
 import { extractArtwork, STANDARD_CARD, PENDULUM_CARD } from '../utils/recognition';
 import { saveHistory, updateHistory, getHistoryCount, DeckHistory } from '../utils/historyDb';
 import { apiUrl } from '../config';
+import { RecognizedCard } from '../types';
 import Header from './ui/Header';
 import UploadArea from './ui/UploadArea';
 import CardCanvas from './ui/CardCanvas';
@@ -17,6 +18,7 @@ import FloatingToolbar from './ui/FloatingToolbar';
 import MobileCardDrawer from './ui/MobileCardDrawer';
 import HistoryDrawer from './ui/HistoryDrawer';
 import ShareModal from './ui/ShareModal';
+import YdkCanvas from './ui/YdkCanvas';
 
 const loadImage = (file: File): Promise<HTMLImageElement> => {
     return new Promise((resolve, reject) => {
@@ -25,6 +27,31 @@ const loadImage = (file: File): Promise<HTMLImageElement> => {
         img.onerror = reject;
         img.src = URL.createObjectURL(file);
     });
+};
+
+// 解析 YDK 文本
+const parseYdk = (text: string): { main: string[]; extra: string[] } => {
+    const lines = text.split('\n').map(l => l.trim());
+    const main: string[] = [];
+    const extra: string[] = [];
+    let section: 'main' | 'extra' | 'side' | null = null;
+
+    for (const line of lines) {
+        if (line === '#main') { section = 'main'; continue; }
+        if (line === '#extra') { section = 'extra'; continue; }
+        if (line === '!side') { section = 'side'; continue; }
+        if (section === 'side') continue; // 忽略 side deck
+        if (/^\d+$/.test(line)) {
+            if (section === 'extra') extra.push(line);
+            else if (section === 'main') main.push(line);
+        }
+    }
+    return { main, extra };
+};
+
+// 检测文本是否为 YDK 格式
+const isYdkText = (text: string): boolean => {
+    return text.includes('#main') || text.includes('#extra');
 };
 
 // 检查图片是否需要裁剪
@@ -92,6 +119,9 @@ export default function DeckRecognizer() {
 
     // 画布缩放状态
     const [isCanvasZoomed, setIsCanvasZoomed] = useState(false);
+
+    // 数据来源类型
+    const [sourceType, setSourceType] = useState<'image' | 'ydk'>('image');
 
     // 历史记录相关状态
     const [showHistoryDrawer, setShowHistoryDrawer] = useState(false);
@@ -181,6 +211,7 @@ export default function DeckRecognizer() {
 
     const handleFile = useCallback(async (file: File) => {
         resetState();
+        setSourceType('image');
         setForcePendulumMode(false);
         setSelectedCardArtwork(null);
         setShowMobileDrawer(false);
@@ -214,21 +245,136 @@ export default function DeckRecognizer() {
         }
     }, [resetState, setOriginalImage, isMobile, waitForInit]);
 
+    // 加载 card_data.json 用于 YDK 导入
+    const cardDataRef = useRef<{ id: number; name: string }[] | null>(null);
+    const loadCardData = useCallback(async () => {
+        if (cardDataRef.current) return cardDataRef.current;
+        const res = await fetch('/card_data.json');
+        const data = await res.json();
+        cardDataRef.current = data;
+        return data;
+    }, []);
+
+    // 处理 YDK 导入
+    const handleYdkImport = useCallback(async (ydkText: string) => {
+        console.log('handleYdkImport called, text length:', ydkText.length);
+        resetState();
+        setSourceType('ydk');
+        setForcePendulumMode(false);
+        setSelectedCardArtwork(null);
+        setCurrentHistoryId(null);
+        setUploadedImage(null);
+        setProcessingStage('identifying');
+
+        try {
+            const { main, extra } = parseYdk(ydkText);
+            const allIds = [...main, ...extra];
+            console.log('Parsed YDK: main =', main.length, 'extra =', extra.length, 'total =', allIds.length);
+            if (allIds.length === 0) {
+                setProcessingStage('idle');
+                return;
+            }
+
+            // 批量查询 ygocdb 获取卡片信息
+            const uniqueIds = [...new Set(allIds)];
+            console.log('Unique IDs to fetch:', uniqueIds.length);
+            const cardInfoMap = new Map<string, { name: string; baigeId: number; cid: number; types: string }>();
+
+            await Promise.all(
+                uniqueIds.map(async (baigeId) => {
+                    try {
+                        const res = await fetch(`https://ygocdb.com/api/v0/?search=${baigeId}`);
+                        const data = await res.json();
+                        const result = data?.result?.[0];
+                        if (result) {
+                            cardInfoMap.set(baigeId, {
+                                name: result.cn_name,
+                                baigeId: result.id,
+                                cid: result.cid,
+                                types: result.text?.types || ''
+                            });
+                            // 缓存到 globalCardInfoCache
+                            globalCardInfoCache[result.cn_name] = data;
+                        }
+                    } catch (e) { console.error('Fetch error for', baigeId, e); }
+                })
+            );
+            console.log('cardInfoMap size after fetch:', cardInfoMap.size);
+
+            // 构造 recognizedCards
+            const cards: RecognizedCard[] = [];
+            const processIds = (ids: string[]) => {
+                ids.forEach((baigeId) => {
+                    const info = cardInfoMap.get(baigeId);
+                    if (!info) return;
+                    cards.push({
+                        box: { x1: 0, y1: 0, x2: 0, y2: 0, conf: 1 },
+                        index: cards.length,
+                        matches: [{
+                            id: info.cid,
+                            name: info.name,
+                            distance: 0,
+                            cardType: 'standard',
+                            dbHash: ''
+                        }],
+                        selectedMatchIndex: 0,
+                        hashStandard: '',
+                        hashPendulum: ''
+                    });
+                });
+            };
+
+            processIds(main);
+            processIds(extra);
+
+            console.log('YDK import: cards count =', cards.length, 'cardInfoMap size =', cardInfoMap.size);
+            console.log('First card:', cards[0]);
+
+            recognition.setRecognizedCards(cards);
+            console.log('setRecognizedCards called');
+            setProcessingStage('done');
+            console.log('setProcessingStage done called');
+
+            // 移动端自动打开抽屉
+            if (isMobile && cards.length > 0) {
+                setShowMobileDrawer(true);
+                setMobileDrawerViewMode('list');
+                setMobileDrawerEntryPoint('list');
+            }
+        } catch (error) {
+            console.error('YDK 导入失败:', error);
+            setProcessingStage('idle');
+        }
+    }, [resetState, setProcessingStage, loadCardData, recognition, isMobile]);
+
     useEffect(() => {
         const handlePaste = (e: ClipboardEvent) => {
+            // 先检查文本是否为 YDK
+            const text = e.clipboardData?.getData('text/plain');
+            console.log('Paste detected, text:', text?.substring(0, 50), 'isYdk:', text ? isYdkText(text) : false);
+            if (text && isYdkText(text)) {
+                e.preventDefault();
+                handleYdkImport(text);
+                return;
+            }
+
+            // 否则检查图片
             const items = e.clipboardData?.items;
             if (!items) return;
             for (const item of items) {
                 if (item.type.startsWith('image/')) {
                     const file = item.getAsFile();
-                    if (file) handleFile(file);
+                    if (file) {
+                        setSourceType('image');
+                        handleFile(file);
+                    }
                     break;
                 }
             }
         };
         window.addEventListener('paste', handlePaste);
         return () => window.removeEventListener('paste', handlePaste);
-    }, [handleFile]);
+    }, [handleFile, handleYdkImport]);
 
     // 加载历史记录数量
     useEffect(() => {
@@ -250,6 +396,7 @@ export default function DeckRecognizer() {
     // 加载历史记录
     const handleLoadHistory = useCallback((image: HTMLImageElement, history: DeckHistory) => {
         resetState();
+        setSourceType('image');
         setForcePendulumMode(false);
         setSelectedCardArtwork(null);
         setShowMobileDrawer(false);
@@ -333,7 +480,10 @@ export default function DeckRecognizer() {
     }, [originalImage, recognizedCards]);
 
     const handleCardSelect = useCallback(async (index: number, fromList?: boolean) => {
-        if (index === -1) return;
+        if (index === -1) {
+            setSelectedCardIndex(-1);
+            return;
+        }
         const card = recognizedCards[index];
         const currentMatch = card.matches[card.selectedMatchIndex];
         const isPendulumMatch = currentMatch?.cardType === 'pendulum';
@@ -889,7 +1039,7 @@ export default function DeckRecognizer() {
             <Magnifier {...magnifier} />
 
             <Header
-                show={uploadedImage !== null || originalImage !== null}
+                show={uploadedImage !== null || originalImage !== null || sourceType === 'ydk'}
             />
 
             <div className={`flex flex-1 overflow-hidden relative ${isMobile ? 'flex-col' : ''}`}>
@@ -903,7 +1053,7 @@ export default function DeckRecognizer() {
                 )}
 
                 {/* 上传区域 - 未上传图片时显示 */}
-                {!uploadedImage && !originalImage && (
+                {!uploadedImage && !originalImage && sourceType !== 'ydk' && (
                     <UploadArea
                         isInitializing={isInitializing}
                         modelDownloadProgress={modelDownloadProgress}
@@ -944,28 +1094,47 @@ export default function DeckRecognizer() {
                 )}
 
                 {/* 主画布区域 */}
-                <div className={`relative flex-1 flex flex-col overflow-hidden ${originalImage ? 'animate-fade-in' : ''}`}>
-                    <CardCanvas
-                        originalImage={originalImage}
-                        recognizedCards={recognizedCards}
-                        selectedCardIndex={selectedCardIndex}
-                        isDragging={dragState.isDragging}
-                        canvasRef={canvasRef}
-                        containerRef={containerRef}
-                        onMouseDown={handleMouseDown}
-                        onMouseMove={handleMouseMove}
-                        onMouseUp={handleMouseUp}
-                        onMouseLeave={handleMouseLeave}
-                        onCardTap={isMobile ? (index) => {
-                            handleCardSelectFromCanvas(index);
-                        } : undefined}
-                        onZoomChange={setIsCanvasZoomed}
-                        onBackgroundClick={!isMobile ? () => setSelectedCardIndex(-1) : undefined}
-                    />
+                <div className={`relative flex-1 flex flex-col overflow-hidden ${(originalImage || sourceType === 'ydk') ? 'animate-fade-in' : ''}`}>
+                    {sourceType === 'ydk' ? (
+                        <YdkCanvas
+                            recognizedCards={recognizedCards}
+                            selectedCardIndex={selectedCardIndex}
+                            onCardClick={(index) => {
+                                if (isMobile) {
+                                    handleCardSelectFromCanvas(index);
+                                } else {
+                                    if (index === -1) {
+                                        setSelectedCardIndex(-1);
+                                    } else {
+                                        selectCard(index);
+                                    }
+                                }
+                            }}
+                            isMobile={isMobile}
+                        />
+                    ) : (
+                        <CardCanvas
+                            originalImage={originalImage}
+                            recognizedCards={recognizedCards}
+                            selectedCardIndex={selectedCardIndex}
+                            isDragging={dragState.isDragging}
+                            canvasRef={canvasRef}
+                            containerRef={containerRef}
+                            onMouseDown={handleMouseDown}
+                            onMouseMove={handleMouseMove}
+                            onMouseUp={handleMouseUp}
+                            onMouseLeave={handleMouseLeave}
+                            onCardTap={isMobile ? (index) => {
+                                handleCardSelectFromCanvas(index);
+                            } : undefined}
+                            onZoomChange={setIsCanvasZoomed}
+                            onBackgroundClick={!isMobile ? () => setSelectedCardIndex(-1) : undefined}
+                        />
+                    )}
                 </div>
 
                 {/* 底部浮动工具栏 - 放在主画布外面避免被 overflow-hidden 限制 */}
-                {originalImage && (
+                {(originalImage || sourceType === 'ydk') && (
                     <FloatingToolbar
                         onCropClick={() => setShowCropper(true)}
                         onUploadClick={() => fileInputRef.current?.click()}
@@ -983,11 +1152,12 @@ export default function DeckRecognizer() {
                         showCardListButton={isMobile}
                         cardCount={recognizedCards.length}
                         disabled={isInitializing || isProcessing}
+                        hideCropButton={sourceType === 'ydk'}
                     />
                 )}
 
                 {/* 电脑端侧边栏 */}
-                {!isMobile && originalImage && (
+                {!isMobile && (originalImage || sourceType === 'ydk') && (
                     <div className="animate-fade-in h-full relative z-10">
                         <Sidebar
                             processingStage={processingStage}
@@ -1009,6 +1179,7 @@ export default function DeckRecognizer() {
                             onExportYdk={handleExportYdk}
                             isExportingYdk={isExportingYdk}
                             ydkExported={ydkExported}
+                            sourceType={sourceType}
                         />
                     </div>
                 )}
