@@ -5,7 +5,7 @@ import { useRecognition, globalCardInfoCache } from '../hooks/useRecognition';
 import { useCanvasInteraction } from '../hooks/useCanvasInteraction';
 import { useMobile } from '../hooks/useMobile';
 import { extractArtwork, STANDARD_CARD, PENDULUM_CARD } from '../utils/recognition';
-import { saveHistory, updateHistory, getHistoryCount, DeckHistory } from '../utils/historyDb';
+import { saveHistory, saveYdkHistory, updateHistory, getHistoryCount, DeckHistory } from '../utils/historyDb';
 import { apiUrl } from '../config';
 import { RecognizedCard } from '../types';
 import Header from './ui/Header';
@@ -331,9 +331,17 @@ export default function DeckRecognizer() {
             console.log('First card:', cards[0]);
 
             recognition.setRecognizedCards(cards);
-            console.log('setRecognizedCards called');
             setProcessingStage('done');
-            console.log('setProcessingStage done called');
+
+            // 保存历史记录
+            if (cards.length > 0) {
+                saveYdkHistory(ydkText, cards)
+                    .then((history) => {
+                        setCurrentHistoryId(history.id);
+                        setHistoryCount((prev) => prev + 1);
+                    })
+                    .catch(console.error);
+            }
 
             // 移动端自动打开抽屉
             if (isMobile && cards.length > 0) {
@@ -394,9 +402,8 @@ export default function DeckRecognizer() {
     }, [processingStage, originalImage, recognizedCards, currentHistoryId]);
 
     // 加载历史记录
-    const handleLoadHistory = useCallback((image: HTMLImageElement, history: DeckHistory) => {
+    const handleLoadHistory = useCallback((image: HTMLImageElement | null, history: DeckHistory) => {
         resetState();
-        setSourceType('image');
         setForcePendulumMode(false);
         setSelectedCardArtwork(null);
         setShowMobileDrawer(false);
@@ -404,9 +411,36 @@ export default function DeckRecognizer() {
         setMobileDrawerEntryPoint('list');
         setCurrentHistoryId(history.id);
 
-        // 设置图片和识别结果
-        setUploadedImage(image);
-        setOriginalImage(image);
+        if (history.sourceType === 'ydk') {
+            // YDK 模式
+            setSourceType('ydk');
+            setUploadedImage(null);
+            setOriginalImage(null);
+
+            // 加载缺失的卡片信息到缓存
+            const missingNames = history.recognizedCards
+                .map(c => c.matches[c.selectedMatchIndex]?.name)
+                .filter((name): name is string => !!name && !globalCardInfoCache[name]);
+            const uniqueNames = [...new Set(missingNames)];
+            if (uniqueNames.length > 0) {
+                Promise.all(
+                    uniqueNames.map(name =>
+                        fetch(`https://ygocdb.com/api/v0/?search=${encodeURIComponent(name)}`)
+                            .then(r => r.json())
+                            .then(data => { globalCardInfoCache[name] = data; })
+                            .catch(() => {})
+                    )
+                ).then(() => {
+                    // 强制重新渲染
+                    recognition.setRecognizedCards([...history.recognizedCards]);
+                });
+            }
+        } else {
+            // 图片模式
+            setSourceType('image');
+            setUploadedImage(image);
+            setOriginalImage(image);
+        }
 
         // 恢复识别结果
         recognition.setRecognizedCards(history.recognizedCards);

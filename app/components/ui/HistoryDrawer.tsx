@@ -6,7 +6,7 @@ import { DeckHistory, getAllHistory, deleteHistory, clearAllHistory, blobToImage
 interface HistoryDrawerProps {
     isOpen: boolean;
     onClose: () => void;
-    onLoadHistory: (image: HTMLImageElement, history: DeckHistory) => void;
+    onLoadHistory: (image: HTMLImageElement | null, history: DeckHistory) => void;
     onHistoryCountChange?: (count: number) => void;
 }
 
@@ -83,11 +83,16 @@ export default function HistoryDrawer({ isOpen, onClose, onLoadHistory, onHistor
     // 点击加载历史
     const handleLoad = async (history: DeckHistory) => {
         try {
-            const image = await blobToImage(history.originalImage);
-            onLoadHistory(image, history);
+            if (history.sourceType === 'ydk') {
+                // YDK 模式不需要加载图片
+                onLoadHistory(null, history);
+            } else {
+                const image = await blobToImage(history.originalImage);
+                onLoadHistory(image, history);
+            }
             onClose();
         } catch (error) {
-            console.error('Failed to load history image:', error);
+            console.error('Failed to load history:', error);
         }
     };
 

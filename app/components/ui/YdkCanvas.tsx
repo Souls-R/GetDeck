@@ -122,7 +122,7 @@ export default function YdkCanvas({ recognizedCards, selectedCardIndex, onCardCl
                     <img
                         src={`https://cdn.233.momobako.com/ygoimg/sc/${item.baigeId}.webp`}
                         alt={match.name}
-                        className="w-full h-full object-cover rounded-sm"
+                        className="w-full h-full object-cover"
                         draggable={false}
                     />
                 ) : (

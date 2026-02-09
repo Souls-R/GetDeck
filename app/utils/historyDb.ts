@@ -8,6 +8,8 @@ export interface DeckHistory {
   recognizedCards: RecognizedCard[];
   deckCode?: string;
   cardCount: number;
+  sourceType?: 'image' | 'ydk';
+  ydkText?: string;
 }
 
 const DB_NAME = 'getdeck-history';
@@ -129,6 +131,52 @@ export async function saveHistory(
     recognizedCards,
     deckCode,
     cardCount: recognizedCards.length
+  };
+
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STORE_NAME, 'readwrite');
+    const store = transaction.objectStore(STORE_NAME);
+    const request = store.add(history);
+
+    request.onsuccess = () => resolve(history);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+// 保存 YDK 历史记录（无图片，使用占位缩略图）
+export async function saveYdkHistory(
+  ydkText: string,
+  recognizedCards: RecognizedCard[]
+): Promise<DeckHistory> {
+  const db = await openDB();
+
+  // 创建占位缩略图（简单的灰色图片）
+  const canvas = document.createElement('canvas');
+  canvas.width = 200;
+  canvas.height = 150;
+  const ctx = canvas.getContext('2d')!;
+  ctx.fillStyle = '#1a1a2e';
+  ctx.fillRect(0, 0, 200, 150);
+  ctx.fillStyle = '#4a4a6a';
+  ctx.font = 'bold 24px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('YDK', 100, 80);
+  ctx.font = '14px sans-serif';
+  ctx.fillText(`${recognizedCards.length} 张卡`, 100, 105);
+
+  const placeholder = await new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob((blob) => blob ? resolve(blob) : reject(), 'image/jpeg', 0.8);
+  });
+
+  const history: DeckHistory = {
+    id: Date.now().toString(),
+    createdAt: Date.now(),
+    thumbnail: placeholder,
+    originalImage: placeholder,
+    recognizedCards,
+    cardCount: recognizedCards.length,
+    sourceType: 'ydk',
+    ydkText
   };
 
   return new Promise((resolve, reject) => {
