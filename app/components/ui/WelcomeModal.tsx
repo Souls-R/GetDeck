@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 
-const STORAGE_KEY = 'getdeck-welcome-shown';
+const STORAGE_KEY = 'getdeck-welcome-shown-v2';
 
 interface WelcomeModalProps {
     isOpen?: boolean;
@@ -55,6 +55,7 @@ export default function WelcomeModal({ isOpen, onClose }: WelcomeModalProps) {
                             上传卡组截图后自动识别卡片，支持手动微调识别区域。识别完成后可生成卡组码，方便导入游戏。屏幕底部工具栏中：
                             <svg className="w-3.5 h-3.5 inline-block align-text-bottom mx-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="6" r="3" /><circle cx="6" cy="18" r="3" /><line x1="20" y1="4" x2="8.12" y2="15.88" /><line x1="14.47" y1="14.48" x2="20" y2="20" /><line x1="8.12" y1="8.12" x2="12" y2="12" /></svg> 裁剪图片、
                             <svg className="w-3.5 h-3.5 inline-block align-text-bottom mx-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg> 上传新截图、
+                            <svg className="w-3.5 h-3.5 inline-block align-text-bottom mx-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg> 查看卡组列表、
                             <svg className="w-3.5 h-3.5 inline-block align-text-bottom mx-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> 查看更多帮助。
                         </p>
                     </div>
