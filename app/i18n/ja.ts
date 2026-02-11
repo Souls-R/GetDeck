@@ -20,7 +20,7 @@ const ja: Translations = {
     home: 'ホーム',
   },
   header: {
-    quickStart: 'クイックスタート',
+    quickStart: '使い方',
     changelog: '更新履歴',
   },
   upload: {
