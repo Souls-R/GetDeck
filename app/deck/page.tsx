@@ -8,7 +8,7 @@ import HoloCard from '../components/ui/HoloCard';
 import { apiUrl, siteUrl } from '../config';
 import { useTranslation } from '@/app/i18n';
 import { CardInfo } from '../types';
-import { globalCardInfoCache, fetchCardInfoBatch, fetchCardInfo, isExtraDeck, getCardBadges } from '../utils/cardApi';
+import { globalCardInfoCache, fetchCardInfoBatch, isExtraDeck, getCardBadges } from '../utils/cardApi';
 import { getLocalizedCardName, getLocalizedCardText } from '../i18n/cardName';
 
 interface DeckData {
@@ -75,33 +75,15 @@ function formatCardDesc(desc: string): string {
 // 卡片信息组件
 function CardItem({
     gameId,
+    baigeId,
     onClick,
     isSelected
 }: {
     gameId: string;
+    baigeId: number | null;
     onClick: () => void;
     isSelected: boolean;
 }) {
-    const [baigeId, setBaigeId] = useState<number | null>(null);
-    const [cardName, setCardName] = useState<string>('');
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        let cancelled = false;
-        (async () => {
-            const cdEntry = await getCardDataById(gameId);
-            if (cancelled) return;
-            if (cdEntry) {
-                setCardName(cdEntry.name);
-                const info = await fetchCardInfo(cdEntry.name, cdEntry.id);
-                if (cancelled) return;
-                if (info?.password) setBaigeId(info.password);
-            }
-            setLoading(false);
-        })();
-        return () => { cancelled = true; };
-    }, [gameId]);
-
     return (
         <div
             onClick={(e) => {
@@ -112,12 +94,10 @@ function CardItem({
                 isSelected ? 'ring-2 ring-[var(--primary)] scale-105 z-10' : 'hover:brightness-110'
             }`}
         >
-            {loading ? (
-                <div className="w-full h-full bg-[var(--background-secondary)] animate-pulse" />
-            ) : baigeId ? (
+            {baigeId ? (
                 <img
                     src={getCardImageUrl(baigeId)}
-                    alt={cardName}
+                    alt={gameId}
                     className="w-full h-full object-contain card-image"
                     loading="lazy"
                     draggable={false}
@@ -152,9 +132,7 @@ function CardDetailPanel({
             if (cancelled) return;
             if (cdEntry) {
                 setCardName(cdEntry.name);
-                const info = await fetchCardInfo(cdEntry.name, cdEntry.id);
-                if (cancelled) return;
-                setCardInfo(info);
+                setCardInfo(globalCardInfoCache[cdEntry.name] || null);
             }
             setLoading(false);
         })();
@@ -247,6 +225,7 @@ function DeckContent() {
     const [showCardListDrawer, setShowCardListDrawer] = useState(false);
     const [showCardDetailDrawer, setShowCardDetailDrawer] = useState(false);
     const [cardNameMap, setCardNameMap] = useState<Map<string, string>>(new Map());
+    const [baigeIdMap, setBaigeIdMap] = useState<Map<string, number>>(new Map());
 
     // 检测是否为移动端
     const [isMobile, setIsMobile] = useState(false);
@@ -526,14 +505,17 @@ function DeckContent() {
             }
             setCardNameMap(newMap);
             await fetchCardInfoBatch(entries);
-            // Update names with localized versions after cache populated
+            // Update names and baigeIds after cache populated
+            const idMap = new Map<string, number>();
             for (const [gameId, zhName] of newMap) {
                 const info = globalCardInfoCache[zhName];
                 if (info) {
                     newMap.set(gameId, getLocalizedCardName(info, zhName, locale));
+                    if (info.password) idMap.set(gameId, info.password);
                 }
             }
             setCardNameMap(new Map(newMap));
+            setBaigeIdMap(idMap);
         })();
     }, [deckData]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -700,6 +682,7 @@ function DeckContent() {
                                                     <CardItem
                                                         key={`main-${cid}-${i}`}
                                                         gameId={cid}
+                                                        baigeId={baigeIdMap.get(cid) || null}
                                                         onClick={() => {
                                                             setSelectedCardIndex(i);
                                                             if (isMobile) setShowCardDetailDrawer(true);
@@ -733,6 +716,7 @@ function DeckContent() {
                                                     <CardItem
                                                         key={`extra-${cid}-${i}`}
                                                         gameId={cid}
+                                                        baigeId={baigeIdMap.get(cid) || null}
                                                         onClick={() => {
                                                             setSelectedCardIndex(extraStart + i);
                                                             if (isMobile) setShowCardDetailDrawer(true);
