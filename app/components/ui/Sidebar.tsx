@@ -3,7 +3,7 @@ import { RecognizedCard, CardInfo } from '../../types';
 import { ProcessingStage } from '../../hooks/useRecognition';
 import HoloCard from './HoloCard';
 import { useTranslation } from '@/app/i18n';
-import { getCardBadges } from '../../utils/cardApi';
+import { getCardBadges, globalCardInfoCache } from '../../utils/cardApi';
 import { getLocalizedCardName, getLocalizedCardText } from '../../i18n/cardName';
 
 interface SidebarProps {
@@ -250,29 +250,6 @@ export default function Sidebar({
                                     />
                                 </div>
 
-                                {/* ATK/DEF */}
-                                {(selectedCardInfo.atk !== undefined ||
-                                    selectedCardInfo.def !== undefined) && (
-                                        <div className="flex gap-3">
-                                            {selectedCardInfo.atk !== undefined && (
-                                                <div className="flex-1 panel p-3 text-center">
-                                                    <div className="text-xs text-[var(--foreground-muted)] mb-1">ATK</div>
-                                                    <div className="text-lg font-bold text-[var(--warning)]">
-                                                        {selectedCardInfo.atk}
-                                                    </div>
-                                                </div>
-                                            )}
-                                            {selectedCardInfo.def !== undefined && (
-                                                <div className="flex-1 panel p-3 text-center">
-                                                    <div className="text-xs text-[var(--foreground-muted)] mb-1">DEF</div>
-                                                    <div className="text-lg font-bold text-[var(--primary)]">
-                                                        {selectedCardInfo.def}
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-
                                 {/* 卡片描述 */}
                                 <div className="panel p-4">
                                     <p className="text-sm text-[var(--foreground)] leading-relaxed whitespace-pre-line">
@@ -304,7 +281,7 @@ export default function Sidebar({
                                         >
                                             <div className="flex justify-between items-center">
                                                 <span className="text-sm text-[var(--foreground)] group-hover:text-[var(--primary)] truncate flex-1 font-medium">
-                                                    {m.name}
+                                                    {getLocalizedCardName(globalCardInfoCache[m.name], m.name, locale)}
                                                 </span>
                                                 <span className="text-xs text-[var(--foreground-muted)] ml-3 font-mono bg-[var(--card-bg)] px-2 py-1 rounded">
                                                     {m.distance}
@@ -326,14 +303,15 @@ export default function Sidebar({
                 recognizedCards.forEach((card, index) => {
                     const match = card.matches[card.selectedMatchIndex];
                     if (!match) return;
+                    const displayName = getLocalizedCardName(globalCardInfoCache[match.name], match.name, locale);
 
-                    const existing = cardGroups.find(g => g.name === match.name);
+                    const existing = cardGroups.find(g => g.name === displayName);
                     if (existing) {
                         existing.count++;
                         existing.indices.push(index);
                     } else {
                         cardGroups.push({
-                            name: match.name,
+                            name: displayName,
                             count: 1,
                             indices: [index],
                             cardType: match.cardType

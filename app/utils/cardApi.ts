@@ -181,6 +181,12 @@ export async function fetchCardInfoBatch(entries: { id: number; name: string }[]
       const apiCard = cards[String(entry.id)];
       if (apiCard) {
         globalCardInfoCache[entry.name] = buildCardInfo(apiCard, entry.name);
+      } else {
+        // Card not in API — store a minimal fallback so code doesn't re-fetch
+        globalCardInfoCache[entry.name] = {
+          password: 0, card_type: 'Monster',
+          name: { zh: entry.name }, text: {},
+        } as CardInfo;
       }
     }
   } catch (e) {
@@ -207,6 +213,11 @@ export async function fetchCardInfo(name: string, id: number): Promise<CardInfo 
       const apiCard = data.cards?.[String(id)];
       if (apiCard) {
         globalCardInfoCache[name] = buildCardInfo(apiCard, name);
+      } else {
+        globalCardInfoCache[name] = {
+          password: 0, card_type: 'Monster',
+          name: { zh: name }, text: {},
+        } as CardInfo;
       }
     } catch (e) {
       console.error('fetchCardInfo failed:', e);

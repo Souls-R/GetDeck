@@ -59,6 +59,7 @@ export interface UseRecognitionReturn {
     setProcessingStage: React.Dispatch<React.SetStateAction<ProcessingStage>>;
     resetState: () => void;
     waitForInit: () => Promise<void>;
+    cardInfoVersion: number;
 }
 
 // 初始化 Promise 的 resolve 函数引用
@@ -97,6 +98,7 @@ export function useRecognition(): UseRecognitionReturn {
     const [selectedCardIndex, setSelectedCardIndex] = useState(-1);
     const [selectedCardInfo, setSelectedCardInfo] = useState<CardInfo | null>(null);
     const [isDetailLoading, setIsDetailLoading] = useState(false);
+    const [cardInfoVersion, setCardInfoVersion] = useState(0);
 
     const latestRequestedNameRef = useRef<string | null>(null);
 
@@ -457,16 +459,19 @@ export function useRecognition(): UseRecognitionReturn {
             setStatusText(t('recognition.recognitionDone'));
             setProcessingVisual(null);
 
-            // 预加载卡片信息 — batch fetch
+            // 预加载卡片信息 — batch fetch (all matches including alternates)
             const uniqueEntries = new Map<string, { id: number; name: string }>();
             for (const c of finalResults) {
-                const m = c.matches[0];
-                if (m && !uniqueEntries.has(m.name)) {
-                    uniqueEntries.set(m.name, { id: m.id, name: m.name });
+                for (const m of c.matches) {
+                    if (m && !uniqueEntries.has(m.name)) {
+                        uniqueEntries.set(m.name, { id: m.id, name: m.name });
+                    }
                 }
             }
             const { fetchCardInfoBatch } = await import('../utils/cardApi');
             await fetchCardInfoBatch(Array.from(uniqueEntries.values()));
+            // Bump version so consumers re-render with localized names
+            setCardInfoVersion(v => v + 1);
         } catch (error: any) {
             console.error(error);
             setStatusText(t('recognition.processingError', { message: error.message }));
@@ -627,6 +632,7 @@ export function useRecognition(): UseRecognitionReturn {
         setRecognizedCards,
         setProcessingStage,
         resetState,
-        waitForInit
+        waitForInit,
+        cardInfoVersion
     };
 }

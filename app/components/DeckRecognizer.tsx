@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useRecognition } from '../hooks/useRecognition';
 import { globalCardInfoCache, fetchCardInfoBatch, fetchCardInfoByPasswords, isExtraDeck } from '../utils/cardApi';
 import { useCanvasInteraction } from '../hooks/useCanvasInteraction';
@@ -95,8 +95,12 @@ export default function DeckRecognizer() {
         setSelectedCardIndex,
         setProcessingStage,
         resetState,
-        waitForInit
+        waitForInit,
+        cardInfoVersion
     } = recognition;
+
+    // New reference when cardInfoVersion bumps, so Sidebar/MobileCardDrawer re-render with localized names
+    const recognizedCardsWithInfo = useMemo(() => [...recognizedCards], [recognizedCards, cardInfoVersion]);
 
     const [showCropper, setShowCropper] = useState(false);
     const [forcePendulumMode, setForcePendulumMode] = useState(false);
@@ -1137,7 +1141,7 @@ export default function DeckRecognizer() {
                     <div className="animate-fade-in h-full relative z-10">
                         <Sidebar
                             processingStage={processingStage}
-                            recognizedCards={recognizedCards}
+                            recognizedCards={recognizedCardsWithInfo}
                             selectedCardIndex={selectedCardIndex}
                             selectedCardInfo={selectedCardInfo}
                             isDetailLoading={isDetailLoading}
@@ -1169,7 +1173,7 @@ export default function DeckRecognizer() {
                             setSelectedCardIndex(-1);
                         }}
                         processingStage={processingStage}
-                        recognizedCards={recognizedCards}
+                        recognizedCards={recognizedCardsWithInfo}
                         selectedCardIndex={selectedCardIndex}
                         onSelectCard={handleCardSelect}
                         scrollPosition={mobileDrawerScrollPosition}

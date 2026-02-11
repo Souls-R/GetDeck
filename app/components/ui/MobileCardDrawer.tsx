@@ -4,7 +4,7 @@ import { ProcessingStage } from '../../hooks/useRecognition';
 import MobileCardCarousel from './MobileCardCarousel';
 import HoloCard from './HoloCard';
 import { useTranslation } from '@/app/i18n';
-import { getCardBadges } from '../../utils/cardApi';
+import { getCardBadges, globalCardInfoCache } from '../../utils/cardApi';
 import { getLocalizedCardName, getLocalizedCardText } from '../../i18n/cardName';
 
 // 视图模式：列表或详情
@@ -255,14 +255,15 @@ export default function MobileCardDrawer({
     recognizedCards.forEach((card, index) => {
         const match = card.matches[card.selectedMatchIndex];
         if (!match) return;
+        const displayName = getLocalizedCardName(globalCardInfoCache[match.name], match.name, locale);
 
-        const existing = cardGroups.find(g => g.name === match.name);
+        const existing = cardGroups.find(g => g.name === displayName);
         if (existing) {
             existing.count++;
             existing.indices.push(index);
         } else {
             cardGroups.push({
-                name: match.name,
+                name: displayName,
                 count: 1,
                 indices: [index],
                 cardType: match.cardType
@@ -427,27 +428,6 @@ export default function MobileCardDrawer({
                             />
                         </div>
 
-                        {(info.atk !== undefined || info.def !== undefined) && (
-                            <div className="flex gap-3">
-                                {info.atk !== undefined && (
-                                    <div className="flex-1 panel p-3 text-center">
-                                        <div className="text-xs text-[var(--foreground-muted)]">ATK</div>
-                                        <div className="text-xl font-bold text-[var(--warning)]">
-                                            {info.atk}
-                                        </div>
-                                    </div>
-                                )}
-                                {info.def !== undefined && (
-                                    <div className="flex-1 panel p-3 text-center">
-                                        <div className="text-xs text-[var(--foreground-muted)]">DEF</div>
-                                        <div className="text-xl font-bold text-[var(--primary)]">
-                                            {info.def}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
                         {getLocalizedCardText(info, locale) && (
                             <div className="panel p-3">
                                 <p className="text-sm text-[var(--foreground)] leading-relaxed whitespace-pre-line">
@@ -478,7 +458,7 @@ export default function MobileCardDrawer({
                                 >
                                     <div className="flex justify-between items-center">
                                         <span className="text-sm text-[var(--foreground)] truncate flex-1 font-medium">
-                                            {m.name}
+                                            {getLocalizedCardName(globalCardInfoCache[m.name], m.name, locale)}
                                         </span>
                                         <span className="text-xs text-[var(--foreground-muted)] ml-3 font-mono bg-[var(--card-bg)] px-2 py-1 rounded">
                                             {m.distance}
