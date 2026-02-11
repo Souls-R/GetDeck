@@ -215,28 +215,6 @@ function CardDetailPanel({
                     />
                 </div>
 
-                {/* ATK/DEF */}
-                {(cardInfo.atk !== undefined || cardInfo.def !== undefined) && (
-                    <div className="flex gap-3">
-                        {cardInfo.atk !== undefined && (
-                            <div className="flex-1 panel p-3 text-center">
-                                <div className="text-xs text-[var(--foreground-muted)] mb-1">ATK</div>
-                                <div className="text-lg font-bold text-[var(--warning)]">
-                                    {cardInfo.atk}
-                                </div>
-                            </div>
-                        )}
-                        {cardInfo.def !== undefined && (
-                            <div className="flex-1 panel p-3 text-center">
-                                <div className="text-xs text-[var(--foreground-muted)] mb-1">DEF</div>
-                                <div className="text-lg font-bold text-[var(--primary)]">
-                                    {cardInfo.def}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                )}
-
                 {/* 卡片描述 */}
                 {getLocalizedCardText(cardInfo, locale) && (
                     <div className="panel p-4">
@@ -251,7 +229,7 @@ function CardDetailPanel({
 }
 
 function DeckContent() {
-    const { t } = useTranslation();
+    const { t, locale } = useTranslation();
     const searchParams = useSearchParams();
     const deckCode = searchParams.get('code');
 
@@ -548,7 +526,13 @@ function DeckContent() {
             }
             setCardNameMap(newMap);
             await fetchCardInfoBatch(entries);
-            // Force re-render after batch fetch
+            // Update names with localized versions after cache populated
+            for (const [gameId, zhName] of newMap) {
+                const info = globalCardInfoCache[zhName];
+                if (info) {
+                    newMap.set(gameId, getLocalizedCardName(info, zhName, locale));
+                }
+            }
             setCardNameMap(new Map(newMap));
         })();
     }, [deckData]); // eslint-disable-line react-hooks/exhaustive-deps
