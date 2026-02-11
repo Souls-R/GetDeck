@@ -8,7 +8,7 @@ import HoloCard from '../components/ui/HoloCard';
 import { apiUrl, siteUrl } from '../config';
 import { useTranslation } from '@/app/i18n';
 import { CardInfo } from '../types';
-import { globalCardInfoCache, fetchCardInfoBatch, isExtraDeck, getCardBadges } from '../utils/cardApi';
+import { globalCardInfoCache, fetchCardInfoBatch, fetchCardInfo, isExtraDeck, getCardBadges } from '../utils/cardApi';
 import { getLocalizedCardName, getLocalizedCardText } from '../i18n/cardName';
 
 interface DeckData {
@@ -93,9 +93,9 @@ function CardItem({
             if (cancelled) return;
             if (cdEntry) {
                 setCardName(cdEntry.name);
-                if (globalCardInfoCache[cdEntry.name]) {
-                    setBaigeId(globalCardInfoCache[cdEntry.name].password);
-                }
+                const info = await fetchCardInfo(cdEntry.name, cdEntry.id);
+                if (cancelled) return;
+                if (info?.password) setBaigeId(info.password);
             }
             setLoading(false);
         })();
@@ -152,7 +152,8 @@ function CardDetailPanel({
             if (cancelled) return;
             if (cdEntry) {
                 setCardName(cdEntry.name);
-                const info = globalCardInfoCache[cdEntry.name] || null;
+                const info = await fetchCardInfo(cdEntry.name, cdEntry.id);
+                if (cancelled) return;
                 setCardInfo(info);
             }
             setLoading(false);
