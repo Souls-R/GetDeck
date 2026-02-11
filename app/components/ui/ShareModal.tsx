@@ -183,7 +183,7 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
             const padding = 48;
             const cardWidth = 107;
             const cardHeight = 155;
-            const mainCardsPerRow = mainDeckCards.length <= 50 ? 10 : mainDeckCards.length >= 60 ? 12 : 11;
+            const mainCardsPerRow = 10;
             const extraCardsPerRow = 10;
             const gap = 6;
             const headerHeight = 90;
