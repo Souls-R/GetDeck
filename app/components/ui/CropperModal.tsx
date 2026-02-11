@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import ReactCrop, { type Crop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
+import { useTranslation } from '@/app/i18n';
 
 interface CropperModalProps {
     imageSrc: string;
@@ -9,6 +10,7 @@ interface CropperModalProps {
 }
 
 export default function CropperModal({ imageSrc, onApply, onCancel }: CropperModalProps) {
+    const { t } = useTranslation();
     const [crop, setCrop] = useState<Crop>();
     const [naturalSize, setNaturalSize] = useState({ width: 0, height: 0 });
     const [displaySize, setDisplaySize] = useState({ width: 0, height: 0 });
@@ -228,10 +230,10 @@ export default function CropperModal({ imageSrc, onApply, onCancel }: CropperMod
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
-                    <span className="text-sm">取消</span>
+                    <span className="text-sm">{t('cropper.cancel')}</span>
                 </button>
                 <div className="flex items-center gap-4 text-xs">
-                    <span className="text-yellow-400 font-medium">裁剪出完整的卡组部分</span>
+                    <span className="text-yellow-400 font-medium">{t('cropper.cropHint')}</span>
                     <div className="flex items-center text-white/50">
                         {cropPixels && <span>{cropPixels.width} × {cropPixels.height}</span>}
                         <span className="mx-2">·</span>
@@ -272,7 +274,7 @@ export default function CropperModal({ imageSrc, onApply, onCancel }: CropperMod
                     disabled={!crop}
                     className="w-full py-4 rounded-2xl bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:scale-[0.98] text-white text-base font-semibold transition-all disabled:opacity-50 shadow-lg"
                 >
-                    确认裁剪
+                    {t('cropper.confirmCrop')}
                 </button>
             </div>
         </div>

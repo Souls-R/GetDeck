@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { useTranslation } from '@/app/i18n';
 import { DeckHistory, getAllHistory, deleteHistory, clearAllHistory, blobToImage } from '../../utils/historyDb';
 
 interface HistoryDrawerProps {
@@ -11,6 +12,7 @@ interface HistoryDrawerProps {
 }
 
 export default function HistoryDrawer({ isOpen, onClose, onLoadHistory, onHistoryCountChange }: HistoryDrawerProps) {
+    const { t, locale } = useTranslation();
     const [histories, setHistories] = useState<DeckHistory[]>([]);
     const [thumbnailUrls, setThumbnailUrls] = useState<Map<string, string>>(new Map());
     const [loading, setLoading] = useState(true);
@@ -145,11 +147,11 @@ export default function HistoryDrawer({ isOpen, onClose, onLoadHistory, onHistor
         yesterday.setDate(yesterday.getDate() - 1);
         const isYesterday = date.toDateString() === yesterday.toDateString();
 
-        const time = date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+        const time = date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
 
-        if (isToday) return `今天 ${time}`;
-        if (isYesterday) return `昨天 ${time}`;
-        return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' }) + ' ' + time;
+        if (isToday) return `${t('history.today')} ${time}`;
+        if (isYesterday) return `${t('history.yesterday')} ${time}`;
+        return date.toLocaleDateString(locale, { month: 'short', day: 'numeric' }) + ' ' + time;
     };
 
     if (!isOpen) return null;
@@ -167,8 +169,8 @@ export default function HistoryDrawer({ isOpen, onClose, onLoadHistory, onHistor
                 {/* 头部 */}
                 <div className="flex items-center justify-between px-4 py-3 border-b border-(--card-border) shrink-0">
                     <div className="flex items-baseline gap-2">
-                        <h2 className="text-base font-bold text-(--foreground)">历史记录</h2>
-                        <span className="text-[10px] text-(--foreground-muted)">仅保存在本地</span>
+                        <h2 className="text-base font-bold text-(--foreground)">{t('history.title')}</h2>
+                        <span className="text-[10px] text-(--foreground-muted)">{t('history.localOnly')}</span>
                     </div>
                     <div className="flex items-center gap-2">
                         {histories.length > 0 && (
@@ -176,7 +178,7 @@ export default function HistoryDrawer({ isOpen, onClose, onLoadHistory, onHistor
                                 onClick={() => setClearConfirm(true)}
                                 className="text-xs text-(--foreground-muted) hover:text-red-500 transition-colors px-2 py-1"
                             >
-                                清空
+                                {t('common.clear')}
                             </button>
                         )}
                         <button
@@ -201,7 +203,7 @@ export default function HistoryDrawer({ isOpen, onClose, onLoadHistory, onHistor
                             <svg className="w-12 h-12 mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <p className="text-sm">暂无历史记录</p>
+                            <p className="text-sm">{t('history.noHistory')}</p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -235,11 +237,11 @@ export default function HistoryDrawer({ isOpen, onClose, onLoadHistory, onHistor
                                     <div className="p-2">
                                         <div className="flex items-center justify-between mb-1">
                                             <span className="text-xs font-medium text-(--foreground)">
-                                                {history.cardCount} 张卡片
+                                                {t('history.cardCount', { count: history.cardCount })}
                                             </span>
                                             {history.deckCode && (
                                                 <span className="text-[10px] px-1.5 py-0.5 rounded bg-(--primary)/20 text-(--primary)">
-                                                    已生成卡组码
+                                                    {t('history.deckCodeGenerated')}
                                                 </span>
                                             )}
                                         </div>
@@ -272,19 +274,19 @@ export default function HistoryDrawer({ isOpen, onClose, onLoadHistory, onHistor
                 <div className="fixed inset-0 z-60 flex items-center justify-center">
                     <div className="absolute inset-0 bg-black/30" onClick={() => setDeleteConfirm(null)} />
                     <div className="relative bg-(--card-bg) rounded-xl p-4 mx-4 max-w-xs w-full shadow-2xl border border-(--card-border)">
-                        <p className="text-sm text-(--foreground) mb-4">确定删除这条记录吗？</p>
+                        <p className="text-sm text-(--foreground) mb-4">{t('history.deleteConfirm')}</p>
                         <div className="flex gap-2">
                             <button
                                 onClick={() => setDeleteConfirm(null)}
                                 className="flex-1 py-2 rounded-lg bg-(--background-secondary) text-sm text-(--foreground) hover:bg-(--card-border) transition-colors"
                             >
-                                取消
+                                {t('common.cancel')}
                             </button>
                             <button
                                 onClick={() => handleDelete(deleteConfirm)}
                                 className="flex-1 py-2 rounded-lg bg-red-500 text-sm text-white hover:bg-red-600 transition-colors"
                             >
-                                删除
+                                {t('common.delete')}
                             </button>
                         </div>
                     </div>
@@ -296,19 +298,19 @@ export default function HistoryDrawer({ isOpen, onClose, onLoadHistory, onHistor
                 <div className="fixed inset-0 z-60 flex items-center justify-center">
                     <div className="absolute inset-0 bg-black/30" onClick={() => setClearConfirm(false)} />
                     <div className="relative bg-(--card-bg) rounded-xl p-4 mx-4 max-w-xs w-full shadow-2xl border border-(--card-border)">
-                        <p className="text-sm text-(--foreground) mb-4">确定清空所有历史记录吗？此操作不可恢复。</p>
+                        <p className="text-sm text-(--foreground) mb-4">{t('history.clearConfirm')}</p>
                         <div className="flex gap-2">
                             <button
                                 onClick={() => setClearConfirm(false)}
                                 className="flex-1 py-2 rounded-lg bg-(--background-secondary) text-sm text-(--foreground) hover:bg-(--card-border) transition-colors"
                             >
-                                取消
+                                {t('common.cancel')}
                             </button>
                             <button
                                 onClick={handleClearAll}
                                 className="flex-1 py-2 rounded-lg bg-red-500 text-sm text-white hover:bg-red-600 transition-colors"
                             >
-                                清空
+                                {t('common.clear')}
                             </button>
                         </div>
                     </div>

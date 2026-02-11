@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { RecognizedCard } from '../../types';
 import { globalCardInfoCache } from '../../hooks/useRecognition';
+import { useTranslation } from '@/app/i18n';
 
 interface YdkCanvasProps {
     recognizedCards: RecognizedCard[];
@@ -13,6 +14,7 @@ interface YdkCanvasProps {
 const extraDeckTypes = ['融合', '超量', '连接', '同调', '链接', '同步'];
 
 export default function YdkCanvas({ recognizedCards, selectedCardIndex, onCardClick, isMobile = false }: YdkCanvasProps) {
+    const { t } = useTranslation();
     // 分离主卡组和额外卡组
     const mainDeck: { card: RecognizedCard; index: number; baigeId?: number }[] = [];
     const extraDeck: { card: RecognizedCard; index: number; baigeId?: number }[] = [];
@@ -150,7 +152,7 @@ export default function YdkCanvas({ recognizedCards, selectedCardIndex, onCardCl
                     <div className="space-y-2">
                         <div className="flex items-center gap-2">
                             <div className="w-1 h-4 rounded-full bg-purple-500" />
-                            <span className="text-xs font-medium text-[var(--foreground-muted)]">主卡组</span>
+                            <span className="text-xs font-medium text-[var(--foreground-muted)]">{t('deck.mainDeck')}</span>
                             <span className="text-xs text-[var(--foreground-muted)]">{mainDeck.length}</span>
                         </div>
                         <div
@@ -173,7 +175,7 @@ export default function YdkCanvas({ recognizedCards, selectedCardIndex, onCardCl
                     <div className="space-y-2">
                         <div className="flex items-center gap-2">
                             <div className="w-1 h-4 rounded-full bg-[var(--primary)]" />
-                            <span className="text-xs font-medium text-[var(--foreground-muted)]">额外卡组</span>
+                            <span className="text-xs font-medium text-[var(--foreground-muted)]">{t('deck.extraDeck')}</span>
                             <span className="text-xs text-[var(--foreground-muted)]">{extraDeck.length}</span>
                         </div>
                         <div

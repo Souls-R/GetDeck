@@ -3,6 +3,7 @@ import { RecognizedCard, CardInfo } from '../../types';
 import { ProcessingStage } from '../../hooks/useRecognition';
 import MobileCardCarousel from './MobileCardCarousel';
 import HoloCard from './HoloCard';
+import { useTranslation } from '@/app/i18n';
 
 // 视图模式：列表或详情
 type ViewMode = 'list' | 'detail';
@@ -135,6 +136,7 @@ export default function MobileCardDrawer({
     initialViewMode = 'list',
     entryPoint = 'list'
 }: MobileCardDrawerProps) {
+    const { t } = useTranslation();
     // 抽屉动画状态
     const [isAnimating, setIsAnimating] = useState(false);
     const [shouldRender, setShouldRender] = useState(false);
@@ -507,7 +509,7 @@ export default function MobileCardDrawer({
                 {card.matches.length > 1 && (
                     <div className="space-y-2">
                         <h3 className="text-xs font-semibold text-[var(--foreground-muted)] uppercase tracking-wider">
-                            备选匹配
+                            {t('sidebar.altMatches')}
                         </h3>
                         {card.matches.map((m, idx) => (
                             idx !== card.selectedMatchIndex && (
@@ -623,7 +625,7 @@ export default function MobileCardDrawer({
                 {processingStage === 'identifying' && (
                     <div className="flex flex-col items-center justify-center p-8 text-center">
                         <div className="w-10 h-10 rounded-full border-2 border-(--card-border) border-t-(--primary) animate-spin mb-4" />
-                        <p className="text-foreground font-medium">正在识别...</p>
+                        <p className="text-foreground font-medium">{t('sidebar.recognizing')}</p>
                     </div>
                 )}
 
@@ -638,8 +640,8 @@ export default function MobileCardDrawer({
                                         <span className="text-lg font-bold text-white">{recognizedCards.length}</span>
                                     </div>
                                     <div>
-                                        <h2 className="text-base font-bold text-foreground">识别完成</h2>
-                                        <p className="text-xs text-(--foreground-muted)">{cardGroups.length} 种卡片</p>
+                                        <h2 className="text-base font-bold text-foreground">{t('sidebar.recognitionDone')}</h2>
+                                        <p className="text-xs text-(--foreground-muted)">{t('sidebar.cardTypes', { count: cardGroups.length })}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -647,7 +649,7 @@ export default function MobileCardDrawer({
                                     <button
                                         onClick={onShare}
                                         className="p-1.5 rounded-lg bg-(--background-secondary) text-(--foreground-muted) hover:text-(--foreground) active:bg-(--card-border) transition-colors"
-                                        title="分享卡组"
+                                        title={t('sidebar.shareDeck')}
                                     >
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
@@ -663,7 +665,7 @@ export default function MobileCardDrawer({
                                                     ? 'bg-(--primary)/70 text-white cursor-not-allowed'
                                                     : 'bg-(--primary) text-white active:bg-(--primary)/80'
                                             }`}
-                                            title="生成卡组码"
+                                            title={t('sidebar.deckCode')}
                                         >
                                             {isGeneratingDeckCode ? (
                                                 <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -675,12 +677,12 @@ export default function MobileCardDrawer({
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                                 </svg>
                                             )}
-                                            卡组码
+                                            {t('sidebar.deckCode')}
                                         </button>
                                         <button
                                             onClick={() => setShowExportMenu(!showExportMenu)}
                                             className="px-1.5 rounded-r-lg bg-(--primary) text-white active:bg-(--primary)/80 border-l border-white/20 transition-colors flex items-center"
-                                            title="更多导出选项"
+                                            title={t('sidebar.moreExport')}
                                         >
                                             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -713,7 +715,7 @@ export default function MobileCardDrawer({
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                                             </svg>
                                                         ) : null}
-                                                        {ydkExported ? '已复制' : '导出 YDK'}
+                                                        {ydkExported ? t('common.copied') : t('sidebar.exportYdk')}
                                                     </button>
                                                 </div>
                                             </>
@@ -771,10 +773,10 @@ export default function MobileCardDrawer({
                             )}
                         </div>
                         <p className="text-foreground font-medium mb-1">
-                            {processingStage === 'detecting' ? '正在检测卡片...' : '等待上传'}
+                            {processingStage === 'detecting' ? t('mobile.detecting') : t('sidebar.waitingUpload')}
                         </p>
                         <p className="text-sm text-(--foreground-muted)">
-                            {processingStage === 'detecting' ? '请稍候' : '上传卡组截图开始识别'}
+                            {processingStage === 'detecting' ? t('mobile.pleaseWait') : t('sidebar.uploadHint')}
                         </p>
                     </div>
                 )}
@@ -824,7 +826,7 @@ export default function MobileCardDrawer({
                                     ? 'bg-[var(--primary)] text-white'
                                     : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]'
                                 }`}
-                                title="识别源图像"
+                                title={t('sidebar.sourceImage')}
                             >
                                 <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -850,7 +852,7 @@ export default function MobileCardDrawer({
                                     {artwork ? (
                                         <FadeImage src={artwork} alt="source crop" className="w-full h-full object-contain" />
                                     ) : (
-                                        <span className="text-xs text-[var(--foreground-muted)]">无</span>
+                                        <span className="text-xs text-[var(--foreground-muted)]">{t('sidebar.noSource')}</span>
                                     )}
                                 </div>
                                 {/* 模式切换 */}
@@ -863,7 +865,7 @@ export default function MobileCardDrawer({
                                                 : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)]'
                                             }`}
                                         >
-                                            标准
+                                            {t('mobile.standard')}
                                         </button>
                                         <button
                                             onClick={() => { if (!forcePendulumMode) onToggleCardMode(); }}
@@ -872,10 +874,10 @@ export default function MobileCardDrawer({
                                                 : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)]'
                                             }`}
                                         >
-                                            灵摆
+                                            {t('mobile.pendulum')}
                                         </button>
                                     </div>
-                                    <span className="text-[10px] text-[var(--foreground-muted)]">点击方向键微调选区</span>
+                                    <span className="text-[10px] text-[var(--foreground-muted)]">{t('mobile.adjustHint')}</span>
                                 </div>
                                 {/* 四向微调按钮 */}
                                 <div className="relative w-16 h-16 shrink-0 ml-auto">

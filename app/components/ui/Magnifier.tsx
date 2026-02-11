@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from '@/app/i18n';
 
 interface MagnifierProps {
     show: boolean;
@@ -8,6 +9,8 @@ interface MagnifierProps {
 }
 
 export default function Magnifier({ show, x, y, content }: MagnifierProps) {
+    const { t } = useTranslation();
+
     if (!show || !content) return null;
 
     return (
@@ -40,7 +43,7 @@ export default function Magnifier({ show, x, y, content }: MagnifierProps) {
 
                 {/* 提示文字 */}
                 <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs text-[var(--foreground-muted)] bg-[var(--card-bg)] px-2 py-1 rounded shadow">
-                    拖动调整位置
+                    {t('magnifier.dragHint')}
                 </div>
             </div>
         </div>

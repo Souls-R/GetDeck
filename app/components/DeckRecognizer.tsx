@@ -20,6 +20,7 @@ import HistoryDrawer from './ui/HistoryDrawer';
 import ShareModal from './ui/ShareModal';
 import YdkCanvas from './ui/YdkCanvas';
 import WelcomeModal from './ui/WelcomeModal';
+import { useTranslation } from '@/app/i18n';
 
 const loadImage = (file: File): Promise<HTMLImageElement> => {
     return new Promise((resolve, reject) => {
@@ -67,6 +68,7 @@ const shouldAutoCrop = (img: HTMLImageElement, isMobile: boolean): boolean => {
 };
 
 export default function DeckRecognizer() {
+    const { t } = useTranslation();
     const isMobile = useMobile();
     const recognition = useRecognition();
     const {
@@ -836,11 +838,11 @@ export default function DeckRecognizer() {
                     updateHistory(currentHistoryId, { deckCode: data.deck_code }).catch(console.error);
                 }
             } else {
-                setDeckCodeModal({ show: true, error: '未知错误' });
+                setDeckCodeModal({ show: true, error: t('deckCodeModal.unknownError') });
             }
         } catch (error) {
             console.error('Failed to generate deck code:', error);
-            setDeckCodeModal({ show: true, error: '网络错误，请重试' });
+            setDeckCodeModal({ show: true, error: t('deckCodeModal.networkError') });
         } finally {
             setIsGeneratingDeckCode(false);
         }
@@ -933,11 +935,11 @@ export default function DeckRecognizer() {
                     updateHistory(currentHistoryId, { deckCode: data.deck_code }).catch(console.error);
                 }
             } else {
-                setDeckCodeModal({ show: true, error: '未知错误' });
+                setDeckCodeModal({ show: true, error: t('deckCodeModal.unknownError') });
             }
         } catch (error) {
             console.error('Failed to generate deck code:', error);
-            setDeckCodeModal({ show: true, error: '网络错误，请重试' });
+            setDeckCodeModal({ show: true, error: t('deckCodeModal.networkError') });
         } finally {
             setIsGeneratingDeckCode(false);
         }
@@ -1080,7 +1082,7 @@ export default function DeckRecognizer() {
                         <svg className="w-12 h-12 text-(--primary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                         </svg>
-                        <span className="text-lg font-medium text-foreground">松开以上传文件</span>
+                        <span className="text-lg font-medium text-foreground">{t('upload.dropOverlay')}</span>
                     </div>
                 </div>
             )}
@@ -1122,12 +1124,12 @@ export default function DeckRecognizer() {
                             <div className="w-12 h-12 rounded-full border-3 border-(--card-border) border-t-(--primary) animate-spin"></div>
                             <div className="text-center">
                                 <p className="text-(--foreground) font-medium mb-1">
-                                    {modelDownloadProgress !== null ? '正在下载识别模型' : '正在加载模型'}
+                                    {modelDownloadProgress !== null ? t('recognition.downloadingModelTitle') : t('recognition.loadingModel')}
                                 </p>
                                 <p className="text-sm text-(--foreground-muted)">
                                     {modelDownloadProgress !== null
                                         ? `${modelDownloadProgress}%`
-                                        : '首次访问需要几秒钟下载模型文件...'}
+                                        : t('recognition.firstVisitHint')}
                                 </p>
                             </div>
                             {modelDownloadProgress !== null && (
@@ -1139,7 +1141,7 @@ export default function DeckRecognizer() {
                                 </div>
                             )}
                             <p className="text-xs text-(--foreground-subtle) mt-2">
-                                图片已准备好，模型加载完成后将自动处理
+                                {t('recognition.imageReady')}
                             </p>
                         </div>
                     </div>
@@ -1293,14 +1295,14 @@ export default function DeckRecognizer() {
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                         </svg>
                                     </div>
-                                    <h3 className="text-lg font-bold text-foreground">生成失败</h3>
+                                    <h3 className="text-lg font-bold text-foreground">{t('deckCodeModal.generateFailed')}</h3>
                                 </div>
                                 <p className="text-sm text-(--foreground-muted) mb-6">{deckCodeModal.error}</p>
                                 <button
                                     onClick={() => setDeckCodeModal({ show: false })}
                                     className="w-full py-2.5 rounded-lg bg-(--background-secondary) text-foreground font-medium hover:bg-(--card-border) transition-colors"
                                 >
-                                    关闭
+                                    {t('common.close')}
                                 </button>
                             </>
                         ) : (
@@ -1311,7 +1313,7 @@ export default function DeckRecognizer() {
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                         </svg>
                                     </div>
-                                    <h3 className="text-lg font-bold text-foreground">卡组码生成成功</h3>
+                                    <h3 className="text-lg font-bold text-foreground">{t('deckCodeModal.generateSuccess')}</h3>
                                 </div>
                                 <div className="bg-(--background-secondary) rounded-lg p-4 mb-4">
                                     <p className="text-sm text-foreground font-mono break-all select-all">{deckCodeModal.code}</p>
@@ -1336,14 +1338,14 @@ export default function DeckRecognizer() {
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                                 </svg>
-                                                已复制
+                                                {t('common.copied')}
                                             </>
                                         ) : (
                                             <>
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                                 </svg>
-                                                复制
+                                                {t('common.copy')}
                                             </>
                                         )}
                                     </button>
@@ -1357,13 +1359,13 @@ export default function DeckRecognizer() {
                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                                         </svg>
-                                        分享
+                                        {t('common.share')}
                                     </button>
                                     <button
                                         onClick={() => setDeckCodeModal({ show: false })}
                                         className="py-2.5 px-4 rounded-lg bg-(--background-secondary) text-foreground font-medium hover:bg-(--card-border) transition-colors"
                                     >
-                                        关闭
+                                        {t('common.close')}
                                     </button>
                                 </div>
                             </>
@@ -1386,16 +1388,20 @@ export default function DeckRecognizer() {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                     </svg>
                                 </div>
-                                <h3 className="text-lg font-bold text-foreground">识别太少？</h3>
+                                <h3 className="text-lg font-bold text-foreground">{t('mobile.lowCountTitle')}</h3>
                             </div>
                             
                             <div className="space-y-3 mb-6">
                                 <p className="text-sm text-foreground leading-relaxed">
-                                    仅支持 <span className="font-bold">Master Duel 电脑端</span>卡组截图，移动端或其他来源的效果较差。
+                                    {(() => {
+                                        const desc = t('mobile.lowCountDesc', { bold: '\x01', '/bold': '\x02' });
+                                        const parts = desc.split(/\x01|\x02/);
+                                        return <>{parts[0]}<span className="font-bold">{parts[1]}</span>{parts[2]}</>;
+                                    })()}
                                 </p>
                                 <div className="p-3 rounded-xl bg-(--background-secondary) border border-(--card-border)">
                                     <p className="text-xs text-(--foreground-muted) leading-relaxed">
-                                        或者请尝试点击屏幕下方的 <svg className="w-3.5 h-3.5 inline-block align-text-bottom text-(--primary)" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="6" r="3" /><circle cx="6" cy="18" r="3" /><line x1="20" y1="4" x2="8.12" y2="15.88" /><line x1="14.47" y1="14.48" x2="20" y2="20" /><line x1="8.12" y1="8.12" x2="12" y2="12" /></svg> 按钮进行手动裁剪，仅保留卡片区域可提高识别成功率。
+                                        {t('mobile.lowCountCropHint').split('{icon}')[0]}<svg className="w-3.5 h-3.5 inline-block align-text-bottom text-(--primary)" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="6" r="3" /><circle cx="6" cy="18" r="3" /><line x1="20" y1="4" x2="8.12" y2="15.88" /><line x1="14.47" y1="14.48" x2="20" y2="20" /><line x1="8.12" y1="8.12" x2="12" y2="12" /></svg>{t('mobile.lowCountCropHint').split('{icon}')[1]}
                                     </p>
                                 </div>
                             </div>
@@ -1404,7 +1410,7 @@ export default function DeckRecognizer() {
                                 onClick={() => setShowLowCountWarning(false)}
                                 className="w-full py-3 rounded-xl bg-(--primary) text-white font-bold hover:bg-(--primary-hover) transition-all active:scale-[0.98] shadow-lg shadow-(--primary)/20"
                             >
-                                我知道了
+                                {t('common.gotIt')}
                             </button>
                         </div>
                     </div>

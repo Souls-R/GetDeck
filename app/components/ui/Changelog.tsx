@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import HoloCard from './HoloCard';
+import { useTranslation } from '@/app/i18n';
 
 interface CardInfo {
     id: number;
@@ -110,6 +111,7 @@ function ChangelogCard({ card }: { card: CardInfo }) {
 }
 
 export default function Changelog() {
+    const { t, locale } = useTranslation();
     const [changelog, setChangelog] = useState<ChangelogData | null>(null);
     const [loading, setLoading] = useState(true);
     const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
@@ -166,7 +168,7 @@ export default function Changelog() {
 
     const formatDate = (dateStr: string) => {
         const date = new Date(dateStr);
-        return date.toLocaleDateString('zh-CN', {
+        return date.toLocaleDateString(locale, {
             month: 'long',
             day: 'numeric'
         });
@@ -174,7 +176,7 @@ export default function Changelog() {
 
     const formatDateTime = (dateStr: string) => {
         const date = new Date(dateStr);
-        return date.toLocaleDateString('zh-CN', {
+        return date.toLocaleDateString(locale, {
             year: 'numeric',
             month: 'short',
             day: 'numeric',
@@ -192,10 +194,10 @@ export default function Changelog() {
                     <svg className="w-5 h-5 text-(--primary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <h3 className="text-lg font-semibold text-(--foreground)">卡片数据更新</h3>
+                    <h3 className="text-lg font-semibold text-(--foreground)">{t('changelog.cardDataUpdate')}</h3>
                 </div>
                 <p className="text-xs text-(--foreground-muted) mt-1 ml-7">
-                    卡图来自百鸽，新卡可能尚未更新导致显示错误，并且不会显示异画；识别基于游戏内资源，不受影响
+                    {t('changelog.cardImageNote')}
                 </p>
             </div>
 
@@ -212,21 +214,21 @@ export default function Changelog() {
                         >
                             <div className="flex items-center gap-3 flex-wrap">
                                 <span className="px-2 py-0.5 text-xs font-mono rounded bg-(--primary)/10 text-(--primary)" title="Master Duel CDN 版本号">
-                                    版本号 {update.version}
+                                    {t('changelog.version', { version: update.version })}
                                 </span>
                                 <span className="text-xs text-(--foreground-muted) pl-2" title={formatDateTime(update.sync_date)}>
-                                    网站自动更新于 {formatDate(update.sync_date)}
+                                    {t('changelog.autoUpdate', { date: formatDate(update.sync_date) })}
                                 </span>
                             </div>
                             <div className="flex items-center gap-2 shrink-0">
                                 {update.added_count > 0 && (
                                     <span className="text-xs text-(--success) whitespace-nowrap">
-                                        +{update.added_count} 新卡
+                                        {t('changelog.newCards', { count: update.added_count })}
                                     </span>
                                 )}
                                 {update.updated_count > 0 && (
                                     <span className="text-xs text-(--warning) whitespace-nowrap">
-                                        {update.updated_count} 更新
+                                        {t('changelog.updatedCards', { count: update.updated_count })}
                                     </span>
                                 )}
                                 <svg
@@ -246,7 +248,7 @@ export default function Changelog() {
                                 {/* 新增卡片文字说明 */}
                                 {update.added_cards.length > 0 && (
                                     <p className="text-sm text-(--foreground-muted) mb-3">
-                                        <span className="text-(--success)">新增 {update.added_count} 张卡片</span>
+                                        <span className="text-(--success)">{t('changelog.addedCards', { count: update.added_count })}</span>
                                         ：{update.added_cards.map((c, i) => (
                                             <span key={c.id}>
                                                 <CardNameLink card={c} />
@@ -258,7 +260,7 @@ export default function Changelog() {
                                 {/* 更新卡片文字说明 */}
                                 {update.updated_cards.length > 0 && (
                                     <p className="text-sm text-(--foreground-muted) mb-3">
-                                        <span className="text-(--warning)">更新 {update.updated_count} 张卡片</span>
+                                        <span className="text-(--warning)">{t('changelog.updatedCardsDetail', { count: update.updated_count })}</span>
                                         ：{update.updated_cards.map((c, i) => (
                                             <span key={c.id}>
                                                 <CardNameLink card={c} />
@@ -279,7 +281,7 @@ export default function Changelog() {
                                                 className="aspect-[59/86] rounded-lg bg-(--background-tertiary) border border-(--card-border) flex items-center justify-center hover:bg-(--background-secondary) hover:border-(--primary)/50 transition-colors cursor-pointer"
                                             >
                                                 <span className="text-xs text-(--foreground-muted)">
-                                                    +{update.added_cards.length - 10} 更多
+                                                    {t('changelog.moreCards', { count: update.added_cards.length - 10 })}
                                                 </span>
                                             </button>
                                         )}
@@ -295,7 +297,7 @@ export default function Changelog() {
             {recentUpdates[0] && (
                 <div className="mt-4 text-center">
                     <span className="text-xs text-(--foreground-subtle)">
-                        当前数据库共 {recentUpdates[0].total_cards.toLocaleString()} 张卡片
+                        {t('changelog.totalCards', { count: recentUpdates[0].total_cards.toLocaleString() })}
                     </span>
                 </div>
             )}

@@ -4,6 +4,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { RecognizedCard, CardInfo } from '../../types';
 import { globalCardInfoCache } from '../../hooks/useRecognition';
 import { useMobile } from '../../hooks/useMobile';
+import { useTranslation } from '@/app/i18n';
 import QRCode from 'qrcode';
 
 interface ShareModalProps {
@@ -28,6 +29,7 @@ const imageCache: Record<number, HTMLImageElement> = {};
 export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards }: ShareModalProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const isMobile = useMobile();
+    const { t } = useTranslation();
     const [isGenerating, setIsGenerating] = useState(false);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [progress, setProgress] = useState(0);
@@ -86,7 +88,7 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
         const generateImage = async () => {
             setIsGenerating(true);
             setProgress(0);
-            setStatusText('正在加载卡片信息...');
+            setStatusText(t('share.loadingCardInfo'));
 
             // 额外卡组的怪兽类型关键词
             const extraDeckTypes = ['融合', '超量', '连接', '同调', '链接', '同步'];
@@ -111,7 +113,7 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
                         if (name) {
                             await fetchCardInfo(name);
                             loadedCount++;
-                            setStatusText(`正在加载卡片信息... (${loadedCount}/${totalToLoad})`);
+                            setStatusText(t('share.loadingCardInfoProgress', { loaded: loadedCount, total: totalToLoad }));
                         }
                     }
                 });
@@ -146,7 +148,7 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
 
             // 并行预加载所有卡片图片（20 并发）
             if (uniqueBaigeIds.length > 0) {
-                setStatusText('正在加载卡片图片...');
+                setStatusText(t('share.loadingCardImages'));
                 const IMAGE_CONCURRENCY = 20;
                 let imageLoadedCount = 0;
                 const imageQueue = [...uniqueBaigeIds];
@@ -162,14 +164,14 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
                             }
                             imageLoadedCount++;
                             setProgress(Math.round((imageLoadedCount / uniqueBaigeIds.length) * 50));
-                            setStatusText(`正在加载卡片图片... (${imageLoadedCount}/${uniqueBaigeIds.length})`);
+                            setStatusText(t('share.loadingCardImagesProgress', { loaded: imageLoadedCount, total: uniqueBaigeIds.length }));
                         }
                     }
                 });
                 await Promise.all(imageWorkers);
             }
 
-            setStatusText('正在生成分享图片...');
+            setStatusText(t('share.generatingImage'));
 
             console.log('ShareModal generating:', { main: mainDeckCards.length, extra: extraDeckCards.length });
 
@@ -219,12 +221,12 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
             ctx.fillStyle = '#171717';
             ctx.font = 'bold 30px system-ui, -apple-system, sans-serif';
             ctx.textAlign = 'left';
-            ctx.fillText(`MasterDuel卡组码: ${deckCode}`, padding, currentY + 36);
+            ctx.fillText(t('share.deckCodeTitle', { code: deckCode }), padding, currentY + 36);
 
             // 卡片数量
             ctx.fillStyle = '#737373';
             ctx.font = '21px system-ui, -apple-system, sans-serif';
-            ctx.fillText(`主卡组 ${mainDeckCards.length} · 额外卡组 ${extraDeckCards.length}`, padding, currentY + 72);
+            ctx.fillText(t('share.deckSummary', { main: mainDeckCards.length, extra: extraDeckCards.length }), padding, currentY + 72);
 
             currentY += headerHeight;
 
@@ -233,7 +235,7 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
             ctx.fillRect(padding, currentY, 6, 24);
             ctx.fillStyle = '#171717';
             ctx.font = 'bold 21px system-ui, -apple-system, sans-serif';
-            ctx.fillText('主卡组', padding + 18, currentY + 20);
+            ctx.fillText(t('share.mainDeck'), padding + 18, currentY + 20);
 
             currentY += sectionHeaderHeight;
 
@@ -271,7 +273,7 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
                 ctx.fillRect(padding, currentY, 6, 24);
                 ctx.fillStyle = '#171717';
                 ctx.font = 'bold 21px system-ui, -apple-system, sans-serif';
-                ctx.fillText('额外卡组', padding + 18, currentY + 20);
+                ctx.fillText(t('share.extraDeck'), padding + 18, currentY + 20);
 
                 currentY += sectionHeaderHeight;
 
@@ -322,7 +324,7 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
             ctx.fillStyle = '#737373';
             ctx.font = '20px system-ui, -apple-system, sans-serif';
             ctx.textAlign = 'left';
-            ctx.fillText('扫码查看卡组详情', padding + qrSize + 18, currentY + 30);
+            ctx.fillText(t('share.scanQr'), padding + qrSize + 18, currentY + 30);
             ctx.fillStyle = '#3b82f6';
             ctx.font = '22px system-ui, -apple-system, sans-serif';
             ctx.fillText(`${SHARE_DOMAIN}/deck/?code=${deckCode}`, padding + qrSize + 18, currentY + 60);
@@ -425,8 +427,8 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
             if (navigator.share && navigator.canShare({ files: [file] })) {
                 await navigator.share({
                     files: [file],
-                    title: `MasterDuel卡组码: ${deckCode}`,
-                    text: `GetDeck 卡组分享 - ${deckCode}`
+                    title: t('share.shareTitle', { code: deckCode }),
+                    text: t('share.shareText', { code: deckCode })
                 });
             } else {
                 // 不支持文件分享，降级到下载
@@ -446,7 +448,7 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in">
             <div className="bg-[var(--card-bg)] rounded-2xl shadow-2xl border border-[var(--card-border)] p-6 mx-4 max-w-2xl w-full max-h-[90vh] overflow-auto animate-scale-in">
                 <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-[var(--foreground)]">分享卡组</h3>
+                    <h3 className="text-lg font-bold text-[var(--foreground)]">{t('share.title')}</h3>
                     <button
                         onClick={onClose}
                         className="p-1.5 rounded-lg bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors"
@@ -462,12 +464,12 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
                     {isGenerating ? (
                         <div className="flex flex-col items-center gap-3">
                             <div className="w-8 h-8 rounded-full border-2 border-[var(--card-border)] border-t-[var(--primary)] animate-spin" />
-                            <p className="text-sm text-[var(--foreground-muted)]">{statusText || `正在生成分享图片... ${progress}%`}</p>
+                            <p className="text-sm text-[var(--foreground-muted)]">{statusText || t('share.generating', { progress })}</p>
                         </div>
                     ) : previewUrl ? (
                         <img
                             src={previewUrl}
-                            alt="分享预览"
+                            alt={t('share.sharePreview')}
                             className="max-w-full max-h-[400px] rounded-lg shadow-lg select-none"
                             draggable={false}
                             onDragStart={(e) => e.preventDefault()}
@@ -490,7 +492,7 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                             </svg>
-                            分享
+                            {t('common.share')}
                         </button>
                     ) : (
                         // PC端：复制按钮
@@ -508,14 +510,14 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    已复制
+                                    {t('common.copied')}
                                 </>
                             ) : (
                                 <>
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                     </svg>
-                                    复制图片
+                                    {t('share.copyImage')}
                                 </>
                             )}
                         </button>
@@ -528,7 +530,7 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
-                        {isMobile ? '下载' : '下载图片'}
+                        {isMobile ? t('share.downloadMobile') : t('share.downloadImage')}
                     </button>
                     <button
                         onClick={handleCopyLink}
@@ -543,14 +545,14 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
-                                已复制
+                                {t('common.copied')}
                             </>
                         ) : (
                             <>
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                                 </svg>
-                                {isMobile ? '链接' : '复制链接'}
+                                {isMobile ? t('share.linkMobile') : t('share.copyLink')}
                             </>
                         )}
                     </button>

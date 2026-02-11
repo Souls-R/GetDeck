@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { RecognizedCard, CardInfo } from '../../types';
 import { ProcessingStage } from '../../hooks/useRecognition';
 import HoloCard from './HoloCard';
+import { useTranslation } from '@/app/i18n';
 
 interface SidebarProps {
     processingStage: ProcessingStage;
@@ -105,6 +106,7 @@ export default function Sidebar({
     ydkExported,
     sourceType = 'image'
 }: SidebarProps) {
+    const { t } = useTranslation();
     const [isSourcePanelExpanded, setIsSourcePanelExpanded] = useState(false);
     const [showExportMenu, setShowExportMenu] = useState(false);
 
@@ -148,7 +150,7 @@ export default function Sidebar({
             {(processingStage === 'detecting' || processingStage === 'identifying') && (
                 <div className="h-full flex flex-col items-center justify-center p-8 text-center">
                     <div className="w-12 h-12 rounded-full border-2 border-[var(--card-border)] border-t-[var(--primary)] animate-spin mb-4" />
-                    <p className="text-[var(--foreground)] font-medium">正在识别...</p>
+                    <p className="text-[var(--foreground)] font-medium">{t('sidebar.recognizing')}</p>
                 </div>
             )}
 
@@ -174,7 +176,7 @@ export default function Sidebar({
                                 <button
                                     onClick={() => onSelectCard(-1)}
                                     className="p-1.5 rounded-lg transition-colors shrink-0 bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]"
-                                    title="返回列表"
+                                    title={t('sidebar.backToList')}
                                 >
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -187,7 +189,7 @@ export default function Sidebar({
                                         ? 'bg-[var(--primary)] text-white'
                                         : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]'
                                         }`}
-                                    title="识别源图像"
+                                    title={t('sidebar.sourceImage')}
                                 >
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -215,7 +217,7 @@ export default function Sidebar({
                                         {selectedCardArtwork ? (
                                             <img src={selectedCardArtwork} className="w-full h-full object-contain" alt="source crop" draggable={false} />
                                         ) : (
-                                            <span className="text-xs text-[var(--foreground-muted)]">无</span>
+                                            <span className="text-xs text-[var(--foreground-muted)]">{t('sidebar.noSource')}</span>
                                         )}
                                     </div>
                                     {/* 模式切换按钮 */}
@@ -227,7 +229,7 @@ export default function Sidebar({
                                                 : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]'
                                                 }`}
                                         >
-                                            标准卡
+                                            {t('sidebar.standardCard')}
                                         </button>
                                         <button
                                             onClick={() => { if (!forcePendulumMode) onToggleCardMode(); }}
@@ -236,7 +238,7 @@ export default function Sidebar({
                                                 : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]'
                                                 }`}
                                         >
-                                            灵摆卡
+                                            {t('sidebar.pendulumCard')}
                                         </button>
                                     </div>
                                     {/* 四向微调按钮 */}
@@ -244,7 +246,7 @@ export default function Sidebar({
                                         <button
                                             onClick={() => onMoveCardBox('up')}
                                             className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-6 rounded-md bg-[var(--background-secondary)] hover:bg-[var(--primary)] hover:text-white text-[var(--foreground-muted)] transition-colors flex items-center justify-center"
-                                            title="上移选区"
+                                            title={t('sidebar.moveUp')}
                                         >
                                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
@@ -253,7 +255,7 @@ export default function Sidebar({
                                         <button
                                             onClick={() => onMoveCardBox('down')}
                                             className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-6 rounded-md bg-[var(--background-secondary)] hover:bg-[var(--primary)] hover:text-white text-[var(--foreground-muted)] transition-colors flex items-center justify-center"
-                                            title="下移选区"
+                                            title={t('sidebar.moveDown')}
                                         >
                                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -262,7 +264,7 @@ export default function Sidebar({
                                         <button
                                             onClick={() => onMoveCardBox('left')}
                                             className="absolute left-0 top-1/2 -translate-y-1/2 w-6 h-6 rounded-md bg-[var(--background-secondary)] hover:bg-[var(--primary)] hover:text-white text-[var(--foreground-muted)] transition-colors flex items-center justify-center"
-                                            title="左移选区"
+                                            title={t('sidebar.moveLeft')}
                                         >
                                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -271,7 +273,7 @@ export default function Sidebar({
                                         <button
                                             onClick={() => onMoveCardBox('right')}
                                             className="absolute right-0 top-1/2 -translate-y-1/2 w-6 h-6 rounded-md bg-[var(--background-secondary)] hover:bg-[var(--primary)] hover:text-white text-[var(--foreground-muted)] transition-colors flex items-center justify-center"
-                                            title="右移选区"
+                                            title={t('sidebar.moveRight')}
                                         >
                                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -282,7 +284,7 @@ export default function Sidebar({
                                     </div>
                                 </div>
                                 <p className="text-xs text-[var(--foreground-muted)] leading-relaxed">
-                                    使用上方的方向键微调选区位置，调整识别区域
+                                    {t('sidebar.adjustHint')}
                                 </p>
                             </div>
                         )}
@@ -340,7 +342,7 @@ export default function Sidebar({
                         {selectedCard.matches.length > 1 && (
                             <div className="space-y-3">
                                 <h3 className="text-xs font-semibold text-[var(--foreground-muted)] uppercase tracking-wider">
-                                    备选匹配
+                                    {t('sidebar.altMatches')}
                                 </h3>
                                 {selectedCard.matches.map((m, idx) => (
                                     idx !== selectedCard.selectedMatchIndex && (
@@ -398,8 +400,8 @@ export default function Sidebar({
                                         <span className="text-lg font-bold text-white">{recognizedCards.length}</span>
                                     </div>
                                     <div>
-                                        <h2 className="text-base font-bold text-[var(--foreground)]">识别完成</h2>
-                                        <p className="text-xs text-[var(--foreground-muted)]">{cardGroups.length} 种卡片</p>
+                                        <h2 className="text-base font-bold text-[var(--foreground)]">{t('sidebar.recognitionDone')}</h2>
+                                        <p className="text-xs text-[var(--foreground-muted)]">{t('sidebar.cardTypes', { count: cardGroups.length })}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -407,7 +409,7 @@ export default function Sidebar({
                                     <button
                                         onClick={onShare}
                                         className="p-1.5 rounded-lg bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)] hover:bg-[var(--card-border)] transition-colors"
-                                        title="分享卡组"
+                                        title={t('sidebar.shareDeck')}
                                     >
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
@@ -422,7 +424,7 @@ export default function Sidebar({
                                                 ? 'bg-(--primary)/70 text-white cursor-not-allowed'
                                                 : 'bg-(--primary) text-white hover:bg-(--primary)/90'
                                             }`}
-                                            title="生成卡组码"
+                                            title={t('sidebar.deckCode')}
                                         >
                                             {isGeneratingDeckCode ? (
                                                 <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -434,12 +436,12 @@ export default function Sidebar({
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                                 </svg>
                                             )}
-                                            卡组码
+                                            {t('sidebar.deckCode')}
                                         </button>
                                         <button
                                             onClick={() => setShowExportMenu(!showExportMenu)}
                                             className="px-1.5 rounded-r-lg bg-(--primary) text-white hover:bg-(--primary)/90 border-l border-white/20 transition-colors flex items-center"
-                                            title="更多导出选项"
+                                            title={t('sidebar.moreExport')}
                                         >
                                             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -472,7 +474,7 @@ export default function Sidebar({
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                                             </svg>
                                                         ) : null}
-                                                        {ydkExported ? '已复制' : '导出 YDK'}
+                                                        {ydkExported ? t('common.copied') : t('sidebar.exportYdk')}
                                                     </button>
                                                 </div>
                                             </>
@@ -488,7 +490,7 @@ export default function Sidebar({
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
                                         <span className="text-xs font-medium leading-normal opacity-90">
-                                            仅支持 Master Duel 电脑端卡组截图，其他效果较差。<br />识别太少？请尝试点击屏幕下方的 <svg className="w-3.5 h-3.5 inline-block align-text-bottom" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="6" r="3" /><circle cx="6" cy="18" r="3" /><line x1="20" y1="4" x2="8.12" y2="15.88" /><line x1="14.47" y1="14.48" x2="20" y2="20" /><line x1="8.12" y1="8.12" x2="12" y2="12" /></svg> 按钮尝试裁剪
+                                            {t('sidebar.lowCountWarning')}<br />{t('sidebar.lowCountCropHint').split('{icon}')[0]}<svg className="w-3.5 h-3.5 inline-block align-text-bottom" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="6" r="3" /><circle cx="6" cy="18" r="3" /><line x1="20" y1="4" x2="8.12" y2="15.88" /><line x1="14.47" y1="14.48" x2="20" y2="20" /><line x1="8.12" y1="8.12" x2="12" y2="12" /></svg>{t('sidebar.lowCountCropHint').split('{icon}')[1]}
                                         </span>
                                     </div>
                                 </div>
@@ -540,8 +542,8 @@ export default function Sidebar({
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                         </svg>
                     </div>
-                    <p className="text-[var(--foreground)] font-medium mb-2">等待上传</p>
-                    <p className="text-sm text-[var(--foreground-muted)]">上传卡组截图开始识别</p>
+                    <p className="text-[var(--foreground)] font-medium mb-2">{t('sidebar.waitingUpload')}</p>
+                    <p className="text-sm text-[var(--foreground-muted)]">{t('sidebar.uploadHint')}</p>
                 </div>
             )}
         </div>

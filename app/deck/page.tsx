@@ -6,6 +6,7 @@ import { Suspense } from 'react';
 import BottomDrawer from '../components/ui/BottomDrawer';
 import HoloCard from '../components/ui/HoloCard';
 import { apiUrl, siteUrl } from '../config';
+import { useTranslation } from '@/app/i18n';
 
 interface DeckData {
     monsters: string[];
@@ -213,6 +214,7 @@ function CardDetailPanel({
     gameId: string;
     onClose: () => void;
 }) {
+    const { t } = useTranslation();
     const [cardInfo, setCardInfo] = useState<YgocdbResult | null>(null);
     const [cardName, setCardName] = useState<string>('');
     const [loading, setLoading] = useState(true);
@@ -245,7 +247,7 @@ function CardDetailPanel({
     if (!cardInfo) {
         return (
             <div className="p-6 text-center text-[var(--foreground-muted)]">
-                无法加载卡片信息
+                {t('deck.cannotLoadCard')}
             </div>
         );
     }
@@ -324,6 +326,7 @@ function CardDetailPanel({
 }
 
 function DeckContent() {
+    const { t } = useTranslation();
     const searchParams = useSearchParams();
     const deckCode = searchParams.get('code');
 
@@ -484,7 +487,7 @@ function DeckContent() {
     useEffect(() => {
         if (!deckCode) {
             setLoading(false);
-            setError('缺少卡组码参数');
+            setError(t('deck.missingCode'));
             return;
         }
 
@@ -498,14 +501,14 @@ function DeckContent() {
             }
         })
             .then(res => {
-                if (!res.ok) throw new Error('卡组码不存在或者不是从GetDeck生成的');
+                if (!res.ok) throw new Error(t('deck.deckNotFound'));
                 return res.json();
             })
             .then((data: DeckResponse) => {
                 setDeckData(data);
             })
             .catch(err => {
-                setError(err.message || '加载失败');
+                setError(err.message || t('deck.loadFailed'));
             })
             .finally(() => {
                 setLoading(false);
@@ -660,7 +663,7 @@ function DeckContent() {
                                 <div>
                                     <p className="text-sm font-bold font-mono text-[var(--primary)]">{deckData.deck_code}</p>
                                     <p className="text-xs text-[var(--foreground-muted)]">
-                                        主卡组 {mainDeck.length} · 额外卡组 {extraDeck.length}
+                                        {t('deck.mainExtraSummary', { main: mainDeck.length, extra: extraDeck.length })}
                                     </p>
                                 </div>
                             </div>
@@ -675,7 +678,7 @@ function DeckContent() {
                             <button
                                 onClick={handleZoomOut}
                                 className="p-1.5 rounded-lg hover:bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors"
-                                title="缩小"
+                                title={t('deck.zoomOut')}
                             >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
@@ -687,7 +690,7 @@ function DeckContent() {
                             <button
                                 onClick={handleZoomIn}
                                 className="p-1.5 rounded-lg hover:bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors"
-                                title="放大"
+                                title={t('deck.zoomIn')}
                             >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -724,7 +727,7 @@ function DeckContent() {
                 {loading ? (
                     <div className="flex-1 flex flex-col items-center justify-center">
                         <div className="w-10 h-10 rounded-full border-2 border-[var(--card-border)] border-t-[var(--primary)] animate-spin mb-4" />
-                        <p className="text-[var(--foreground-muted)]">加载卡组数据...</p>
+                        <p className="text-[var(--foreground-muted)]">{t('deck.loadingDeck')}</p>
                     </div>
                 ) : error ? (
                     <div className="flex-1 flex flex-col items-center justify-center">
@@ -733,7 +736,7 @@ function DeckContent() {
                         </svg>
                         <p className="text-[var(--foreground)] font-medium mb-2">{error}</p>
                         <a href="/" className="text-sm text-[var(--primary)] hover:underline">
-                            返回首页
+                            {t('deck.backToHome')}
                         </a>
                     </div>
                 ) : deckData ? (
@@ -761,7 +764,7 @@ function DeckContent() {
                                         <div className="space-y-2 mb-4">
                                             <div className="flex items-center gap-2">
                                                 <div className="w-1 h-4 rounded-full bg-purple-500" />
-                                                <span className="text-xs font-medium text-[var(--foreground-muted)]">主卡组</span>
+                                                <span className="text-xs font-medium text-[var(--foreground-muted)]">{t('deck.mainDeck')}</span>
                                                 <span className="text-xs text-[var(--foreground-muted)]">{mainDeck.length}</span>
                                             </div>
                                             <div
@@ -794,7 +797,7 @@ function DeckContent() {
                                         <div className="space-y-2">
                                             <div className="flex items-center gap-2">
                                                 <div className="w-1 h-4 rounded-full bg-[var(--primary)]" />
-                                                <span className="text-xs font-medium text-[var(--foreground-muted)]">额外卡组</span>
+                                                <span className="text-xs font-medium text-[var(--foreground-muted)]">{t('deck.extraDeck')}</span>
                                                 <span className="text-xs text-[var(--foreground-muted)]">{extraDeck.length}</span>
                                             </div>
                                             <div
@@ -842,9 +845,9 @@ function DeckContent() {
                                                     <span className="text-lg font-bold text-white">{deckData.card_count}</span>
                                                 </div>
                                                 <div>
-                                                    <h2 className="text-base font-bold text-[var(--foreground)]">卡组详情</h2>
+                                                    <h2 className="text-base font-bold text-[var(--foreground)]">{t('deck.deckDetail')}</h2>
                                                     <p className="text-xs text-[var(--foreground-muted)]">
-                                                        主卡组 {mainDeck.length} · 额外 {extraDeck.length}
+                                                        {t('deck.mainExtraSummary', { main: mainDeck.length, extra: extraDeck.length })}
                                                     </p>
                                                 </div>
                                             </div>
@@ -856,7 +859,7 @@ function DeckContent() {
                                                             ? 'bg-[var(--success)] text-white'
                                                             : 'bg-(--primary) text-white hover:bg-(--primary)/90'
                                                     }`}
-                                                    title="复制卡组码"
+                                                    title={t('deck.copyDeckCode')}
                                                 >
                                                     {copied ? (
                                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -867,12 +870,12 @@ function DeckContent() {
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                                         </svg>
                                                     )}
-                                                    {copied ? '已复制' : '卡组码'}
+                                                    {copied ? t('common.copied') : t('deck.deckCode')}
                                                 </button>
                                                 <button
                                                     onClick={() => setShowExportMenu(!showExportMenu)}
                                                     className="px-1.5 rounded-r-lg bg-(--primary) text-white hover:bg-(--primary)/90 border-l border-white/20 transition-colors flex items-center"
-                                                    title="更多导出选项"
+                                                    title={t('sidebar.moreExport')}
                                                 >
                                                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -905,7 +908,7 @@ function DeckContent() {
                                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                                                     </svg>
                                                                 ) : null}
-                                                                {ydkExported ? '已复制' : '导出 YDK'}
+                                                                {ydkExported ? t('common.copied') : t('sidebar.exportYdk')}
                                                             </button>
                                                         </div>
                                                     </>
@@ -927,8 +930,8 @@ function DeckContent() {
                                                 </svg>
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <p className="text-sm font-semibold text-[var(--foreground)] group-hover:text-[var(--primary)] transition-colors">识别我的卡组</p>
-                                                <p className="text-xs text-[var(--foreground-muted)]">截图识别，一键生成卡组码</p>
+                                                <p className="text-sm font-semibold text-[var(--foreground)] group-hover:text-[var(--primary)] transition-colors">{t('deck.recognizeMyDeck')}</p>
+                                                <p className="text-xs text-[var(--foreground-muted)]">{t('deck.recognizeMyDeckDesc')}</p>
                                             </div>
                                             <svg className="w-5 h-5 text-[var(--foreground-muted)] group-hover:text-[var(--primary)] group-hover:translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -1050,14 +1053,14 @@ function DeckContent() {
                                     <span className="text-lg font-bold text-white">{deckData?.card_count || 0}</span>
                                 </div>
                                 <div>
-                                    <h2 className="text-base font-bold text-[var(--foreground)]">卡组详情</h2>
+                                    <h2 className="text-base font-bold text-[var(--foreground)]">{t('deck.deckDetail')}</h2>
                                     <p className="text-xs text-[var(--foreground-muted)]">
-                                        主卡组 {mainDeck.length} · 额外 {extraDeck.length}
+                                        {t('deck.mainExtraSummary', { main: mainDeck.length, extra: extraDeck.length })}
                                     </p>
                                 </div>
                             </div>
                             <div className="text-right">
-                                <p className="text-xs text-[var(--foreground-muted)]">卡组码</p>
+                                <p className="text-xs text-[var(--foreground-muted)]">{t('deck.deckCode')}</p>
                                 <p className="text-sm font-bold text-[var(--foreground)] font-mono">{deckData?.deck_code}</p>
                             </div>
                         </div>
@@ -1076,8 +1079,8 @@ function DeckContent() {
                                 </svg>
                             </div>
                             <div className="flex-1 min-w-0">
-                                <p className="text-sm font-semibold text-[var(--foreground)] group-hover:text-[var(--primary)] transition-colors">识别我的卡组</p>
-                                <p className="text-xs text-[var(--foreground-muted)]">截图识别，一键生成卡组码</p>
+                                <p className="text-sm font-semibold text-[var(--foreground)] group-hover:text-[var(--primary)] transition-colors">{t('deck.recognizeMyDeck')}</p>
+                                <p className="text-xs text-[var(--foreground-muted)]">{t('deck.recognizeMyDeckDesc')}</p>
                             </div>
                             <svg className="w-5 h-5 text-[var(--foreground-muted)] group-hover:text-[var(--primary)] group-hover:translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -1148,7 +1151,7 @@ function DeckContent() {
                                 <svg className="w-4 h-4 text-[var(--success)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
-                                <span className="text-sm font-medium text-[var(--foreground)]">已复制以下 YDK 代码</span>
+                                <span className="text-sm font-medium text-[var(--foreground)]">{t('deck.ydkCopied')}</span>
                             </div>
                             <button onClick={() => setYdkModalContent(null)} className="p-1 rounded-lg hover:bg-[var(--background-secondary)] text-[var(--foreground-muted)]">
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

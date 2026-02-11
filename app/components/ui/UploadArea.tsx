@@ -1,6 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react';
 import Changelog from './Changelog';
 import { apiUrl } from '@/app/config';
+import { useTranslation } from '@/app/i18n';
+import LanguageSwitcher from './LanguageSwitcher';
 
 interface UploadAreaProps {
     isInitializing: boolean;
@@ -13,6 +15,7 @@ interface UploadAreaProps {
 }
 
 export default function UploadArea({ isInitializing, modelDownloadProgress, onFileSelect, onYdkImport, onHistoryClick, onQuickStart, historyCount = 0 }: UploadAreaProps) {
+    const { t } = useTranslation();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isDragOver, setIsDragOver] = useState(false);
     const [deckCount, setDeckCount] = useState<number | null>(null);
@@ -85,7 +88,7 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                             </svg>
-                            <span>快速开始</span>
+                            <span>{t('header.quickStart')}</span>
                         </button>
                         <a
                             href="#changelog"
@@ -94,8 +97,9 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <span className="hidden sm:inline">更新日志</span>
+                            <span className="hidden sm:inline">{t('header.changelog')}</span>
                         </a>
+                        <LanguageSwitcher />
                         <a
                             href="https://github.com/Souls-R/getdeck"
                             target="_blank"
@@ -118,20 +122,21 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
                     <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-(--background-secondary) border border-(--card-border) mb-6 sm:mb-8">
                         <span className="w-2 h-2 rounded-full bg-(--accent) animate-pulse"></span>
                         <span className="text-xs sm:text-sm text-(--foreground-muted)">
-                            {deckCount !== null ? `已生成 ${deckCount.toLocaleString()} 个卡组码` : '开源免费 · 离线识别'}
+                            {deckCount !== null ? t('upload.heroDeckCount', { count: deckCount.toLocaleString() }) : t('upload.heroTag')}
                         </span>
                     </div>
 
                     {/* 主标题 */}
-                    <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight mb-4 sm:mb-6">
-                        <span className="text-neutral-700 dark:text-neutral-200">Master Duel</span><br className="sm:hidden" />
-                        <span className="text-(--primary)"> 卡组识别</span>
+                    <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight mb-4 sm:mb-6 whitespace-nowrap">
+                        <span className="text-neutral-700 dark:text-neutral-200">{t('upload.title')}</span><br className="sm:hidden" />
+                        <span className="text-(--primary)">{t('upload.titleHighlight')}</span>
                     </h1>
 
                     {/* 副标题 */}
                     <p className="text-lg sm:text-xl text-(--foreground-muted) max-w-2xl mx-auto mb-8 sm:mb-12 leading-relaxed">
-                        上传游戏卡组截图，瞬间识别所有卡片，<br className="hidden sm:block" />
-                        一键生成可直接导入游戏的卡组码并分享
+                        {t('upload.subtitle').split('\n').map((line, i) => (
+                            <React.Fragment key={i}>{i > 0 && <br className="hidden sm:block" />}{line}</React.Fragment>
+                        ))}
                     </p>
 
                     {/* 上传区域 - 即使模型在下载也允许上传 */}
@@ -154,10 +159,10 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
                             </div>
                             <div className="text-center">
                                 <p className="text-lg font-medium text-(--foreground) mb-1">
-                                    {isDragOver ? '释放以上传' : '拖拽截图或 YDK 文件到这里'}
+                                    {isDragOver ? t('upload.dropRelease') : t('upload.dropHint')}
                                 </p>
                                 <p className="text-sm text-(--foreground-muted)">
-                                    支持图片文件与 YDK 格式
+                                    {t('upload.supportFormat')}
                                 </p>
                             </div>
                             <div className="flex flex-col sm:flex-row justify-center gap-3 w-full sm:w-auto px-4 sm:px-0">
@@ -171,9 +176,9 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                                     </svg>
-                                    选择文件
+                                    {t('upload.selectFile')}
                                 </button>
-                                <button 
+                                <button
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         setShowYdkModal(true);
@@ -183,11 +188,11 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                                     </svg>
-                                    粘贴 YDK
+                                    {t('upload.pasteYdk')}
                                 </button>
                             </div>
                             <p className="text-xs text-(--foreground-subtle) hidden sm:block">
-                                或按 <kbd className="px-1.5 py-0.5 rounded bg-(--background-tertiary) border border-(--card-border) font-mono">Ctrl+V</kbd> 粘贴截图或 YDK 文本
+                                {t('upload.pasteHint', { shortcut: 'Ctrl+V' })}
                             </p>
                         </div>
                     </div>
@@ -204,7 +209,7 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            历史记录
+                            {t('upload.history')}
                             <span className="px-1.5 py-0.5 rounded bg-(--card-border) text-xs">
                                 {historyCount}
                             </span>
@@ -224,28 +229,28 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
             <section className="py-16 sm:py-20 px-4 sm:px-6 bg-(--background-secondary)">
                 <div className="max-w-5xl mx-auto">
                     <h2 className="text-2xl sm:text-3xl font-bold text-(--foreground) text-center mb-4">
-                        三步完成卡组导出
+                        {t('upload.stepsTitle')}
                     </h2>
                     <p className="text-(--foreground-muted) text-center mb-12 sm:mb-16 max-w-xl mx-auto">
-                        无需注册、无需安装，打开网页即可使用
+                        {t('upload.stepsSubtitle')}
                     </p>
 
                     <div className="grid sm:grid-cols-3 gap-8 sm:gap-12">
                         {[
                             {
                                 step: '01',
-                                title: '截图上传',
-                                desc: '上传 Master Duel 中截取卡组编辑界面或其他人分享的卡组截图'
+                                title: t('upload.step1Title'),
+                                desc: t('upload.step1Desc')
                             },
                             {
                                 step: '02',
-                                title: 'AI 识别',
-                                desc: '基于 YOLO 模型的本地 AI 自动识别，精准定位每张卡片'
+                                title: t('upload.step2Title'),
+                                desc: t('upload.step2Desc')
                             },
                             {
                                 step: '03',
-                                title: '导出卡组',
-                                desc: '一键复制卡组码，直接粘贴到游戏中即可导入'
+                                title: t('upload.step3Title'),
+                                desc: t('upload.step3Desc')
                             }
                         ].map((item, i) => (
                             <div key={i} className="relative">
@@ -279,8 +284,8 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                     </svg>
                                 ),
-                                title: '完全隐私',
-                                desc: '所有处理在本地浏览器完成，图片不会上传到任何服务器'
+                                title: t('upload.featurePrivacyTitle'),
+                                desc: t('upload.featurePrivacyDesc')
                             },
                             {
                                 icon: (
@@ -288,8 +293,8 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
                                     </svg>
                                 ),
-                                title: '极速识别',
-                                desc: '基于 WebAssembly 加速，识别速度快至毫秒级，无需等待'
+                                title: t('upload.featureSpeedTitle'),
+                                desc: t('upload.featureSpeedDesc')
                             },
                             {
                                 icon: (
@@ -297,8 +302,8 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                     </svg>
                                 ),
-                                title: '高精度',
-                                desc: '覆盖 Master Duel 全部卡片数据库，支持日文、繁中、简中等多语言卡图'
+                                title: t('upload.featureAccuracyTitle'),
+                                desc: t('upload.featureAccuracyDesc')
                             },
                             {
                                 icon: (
@@ -306,8 +311,8 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
                                     </svg>
                                 ),
-                                title: '手动微调',
-                                desc: '识别结果可手动调整，支持框选修正和候选卡片切换，确保结果准确'
+                                title: t('upload.featureManualTitle'),
+                                desc: t('upload.featureManualDesc')
                             }
                         ].map((feature, i) => (
                             <div
@@ -333,7 +338,7 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
             <section className="py-12 sm:py-16 px-4 sm:px-6 border-t border-(--card-border)">
                 <div className="max-w-5xl mx-auto">
                     <p className="text-center text-sm text-(--foreground-muted) mb-6">
-                        基于现代 Web 技术构建
+                        {t('upload.techStackLabel')}
                     </p>
                     <div className="flex flex-wrap justify-center gap-4 sm:gap-8 text-sm text-(--foreground-subtle)">
                         {['Next.js', 'ONNX Runtime', 'WebAssembly', 'YOLOv11', 'TypeScript'].map((tech) => (
@@ -366,13 +371,13 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
             {/* 页脚 */}
             <footer className="py-8 px-4 sm:px-6 border-t border-(--card-border)">
                 <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-(--foreground-muted)">
-                    <p>© 2026 GetDeck. 开源项目，使用 MIT 协议。</p>
-                    <div className="flex gap-6">
-                        <a href="/about" className="hover:text-(--primary) transition-colors">关于</a>
+                    <p>{t('upload.footerCopyright')}</p>
+                    <div className="flex items-center gap-6">
+                        <a href="/about" className="hover:text-(--primary) transition-colors">{t('common.about')}</a>
                         <a href="https://github.com/Souls-R/GetDeck" target="_blank" rel="noopener noreferrer" className="hover:text-(--primary) transition-colors">GitHub</a>
-                        <a href="https://github.com/Souls-R/GetDeck/issues" target="_blank" rel="noopener noreferrer" className="hover:text-(--primary) transition-colors">反馈</a>
+                        <a href="https://github.com/Souls-R/GetDeck/issues" target="_blank" rel="noopener noreferrer" className="hover:text-(--primary) transition-colors">{t('common.feedback')}</a>
                         <a href="https://github.com/Souls-R/GetDeck/wiki/GetDeck-API-%E6%96%87%E6%A1%A3" target="_blank" rel="noopener noreferrer" className="hover:text-(--primary) transition-colors">API</a>
-                        <a href="https://qm.qq.com/q/BMOI04uaNG" target="_blank" rel="noopener noreferrer" className="hover:text-(--primary) transition-colors">加群</a>
+                        <a href="https://qm.qq.com/q/BMOI04uaNG" target="_blank" rel="noopener noreferrer" className="hover:text-(--primary) transition-colors">{t('common.joinGroup')}</a>
                     </div>
                 </div>
             </footer>
@@ -399,8 +404,8 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
                                 </svg>
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-foreground">粘贴 YDK 文本</h3>
-                                <p className="text-xs text-(--foreground-muted)">请在下方框内粘贴 YDK 文件内容</p>
+                                <h3 className="text-lg font-bold text-foreground">{t('upload.ydkModalTitle')}</h3>
+                                <p className="text-xs text-(--foreground-muted)">{t('upload.ydkModalHint')}</p>
                             </div>
                         </div>
 
@@ -420,7 +425,7 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
                                 }}
                                 className="flex-1 py-3 rounded-xl bg-(--background-secondary) text-(--foreground) font-medium hover:bg-(--card-border) transition-all active:scale-[0.98]"
                             >
-                                取消
+                                {t('common.cancel')}
                             </button>
                             <button
                                 onClick={() => {
@@ -433,7 +438,7 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
                                 disabled={!ydkText.trim()}
                                 className="flex-1 py-3 rounded-xl bg-(--primary) text-white font-bold hover:bg-(--primary-hover) transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none shadow-lg shadow-(--primary)/20"
                             >
-                                导入卡组
+                                {t('upload.ydkImport')}
                             </button>
                         </div>
                     </div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from '@/app/i18n';
 
 interface HeaderProps {
     show?: boolean;
@@ -10,6 +11,8 @@ export default function Header({
     onQuickStart
 }: HeaderProps) {
     if (!show) return null;
+
+    const { t } = useTranslation();
 
     return (
         <header className="h-14 flex items-center justify-between px-4 sm:px-6 bg-(--card-bg) border-b border-(--card-border) shrink-0 z-10">
@@ -30,7 +33,7 @@ export default function Header({
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
-                        <span className="hidden sm:inline">快速开始</span>
+                        <span className="hidden sm:inline">{t('header.quickStart')}</span>
                     </button>
                 )}
                 <a
@@ -44,7 +47,7 @@ export default function Header({
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span className="hidden sm:inline">更新日志</span>
+                    <span className="hidden sm:inline">{t('header.changelog')}</span>
                 </a>
                 <a
                     href="https://github.com/Souls-R/getdeck"

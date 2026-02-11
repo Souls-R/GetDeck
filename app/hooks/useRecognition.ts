@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useTranslation } from '@/app/i18n';
 import * as ort from 'onnxruntime-web';
 import init, { Database, get_phash_raw } from 'core-wasm';
 import { Box, CardHashEntry, RecognizedCard, CardInfo, Match } from '../types';
@@ -68,12 +69,13 @@ const initPromise = new Promise<void>((resolve) => {
 });
 
 export function useRecognition(): UseRecognitionReturn {
+    const { t } = useTranslation();
     // 会话状态
     const [session, setSession] = useState<ort.InferenceSession | null>(null);
     const [hashDatabase, setHashDatabase] = useState<CardHashEntry[] | null>(null);
     const [wasmDb, setWasmDb] = useState<Database | null>(null);
     const [isInitializing, setIsInitializing] = useState(true);
-    const [statusText, setStatusText] = useState('正在初始化模型...');
+    const [statusText, setStatusText] = useState('');
     const [modelDownloadProgress, setModelDownloadProgress] = useState<number | null>(null);
 
     // 使用 ref 存储最新值，解决闭包陷阱问题
@@ -132,7 +134,7 @@ export function useRecognition(): UseRecognitionReturn {
                 showProgressTimer = setTimeout(() => {
                     shouldShowProgress = true;
                     setModelDownloadProgress(0);
-                    setStatusText('正在下载模型...');
+                    setStatusText(t('recognition.downloadingModel'));
                 }, 5000);
 
                 // 并行下载所有资源：
@@ -194,7 +196,7 @@ export function useRecognition(): UseRecognitionReturn {
                         if (shouldShowProgress) {
                             const progressPercent = Math.round((received / total) * 100);
                             setModelDownloadProgress(progressPercent);
-                            setStatusText(`正在下载模型... ${progressPercent}%`);
+                            setStatusText(t('recognition.downloadingModelProgress', { progress: progressPercent }));
                         }
                     }
 
@@ -251,14 +253,14 @@ export function useRecognition(): UseRecognitionReturn {
                 setWasmDb(db);
                 setIsInitializing(false);
                 setModelDownloadProgress(null);
-                setStatusText('就绪');
+                setStatusText(t('recognition.ready'));
 
                 // 通知等待初始化的代码
                 if (initResolve) {
                     initResolve();
                 }
             } catch (error: any) {
-                setStatusText(`初始化失败: ${error.message}`);
+                setStatusText(t('recognition.initFailed', { message: error.message }));
                 setModelDownloadProgress(null);
                 console.error(error);
             }
@@ -354,7 +356,7 @@ export function useRecognition(): UseRecognitionReturn {
 
         try {
             setProcessingStage('detecting');
-            setStatusText('正在检测卡片位置...');
+            setStatusText(t('recognition.detectingCards'));
             await new Promise(resolve => requestAnimationFrame(resolve));
 
             const { tensor, scale, padX, padY } = preprocessImage(img);
@@ -364,7 +366,7 @@ export function useRecognition(): UseRecognitionReturn {
             const boxes = postprocessYOLO(output, scale, padX, padY, img.width, img.height);
 
             if (boxes.length === 0) {
-                setStatusText('未检测到卡片');
+                setStatusText(t('recognition.noCardsDetected'));
                 setProcessingStage('done');
                 return;
             }
@@ -381,7 +383,7 @@ export function useRecognition(): UseRecognitionReturn {
             setRecognizedCards(initialCards);
 
             setProcessingStage('identifying');
-            setStatusText('正在识别卡片...');
+            setStatusText(t('recognition.identifyingCards'));
 
             const ctx = document.createElement('canvas').getContext('2d', { willReadFrequently: true })!;
             ctx.canvas.width = img.width;
@@ -483,7 +485,7 @@ export function useRecognition(): UseRecognitionReturn {
             }
 
             setProcessingStage('done');
-            setStatusText('识别完成');
+            setStatusText(t('recognition.recognitionDone'));
             setProcessingVisual(null);
 
             // 预加载卡片信息
@@ -506,7 +508,7 @@ export function useRecognition(): UseRecognitionReturn {
             }
         } catch (error: any) {
             console.error(error);
-            setStatusText(`处理出错: ${error.message}`);
+            setStatusText(t('recognition.processingError', { message: error.message }));
             setProcessingStage('done');
         }
     }, [fetchCardInfo]);
