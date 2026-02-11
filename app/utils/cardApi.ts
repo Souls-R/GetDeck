@@ -145,6 +145,12 @@ export function getCardBadges(info: CardInfo, locale: Locale): string[] {
   return badges;
 }
 
+// API uses 'zh-CN', frontend uses 'zh'. Pick {zh, ja, en} from API multilingual object.
+function pickLangs(obj: any): { zh?: string; ja?: string; en?: string } {
+  if (!obj) return {};
+  return { zh: obj['zh-CN'], ja: obj.ja, en: obj.en };
+}
+
 function buildCardInfo(apiCard: any, zhName: string): CardInfo {
   return {
     password: apiCard.password,
@@ -158,8 +164,8 @@ function buildCardInfo(apiCard: any, zhName: string): CardInfo {
     link_arrows: apiCard.link_arrows,
     pendulum_scale: apiCard.pendulum_scale,
     name: { zh: zhName, ja: apiCard.name?.ja, en: apiCard.name?.en },
-    text: apiCard.text || {},
-    pendulum_effect: apiCard.pendulum_effect,
+    text: pickLangs(apiCard.text),
+    pendulum_effect: apiCard.pendulum_effect ? pickLangs(apiCard.pendulum_effect) : undefined,
   };
 }
 
