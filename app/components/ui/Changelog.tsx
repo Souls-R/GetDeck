@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import HoloCard from './HoloCard';
 import { useTranslation } from '@/app/i18n';
+import { fetchCardInfo as apiFetchCardInfo, globalCardInfoCache } from '../../utils/cardApi';
 
-interface CardInfo {
+interface ChangelogCardInfo {
     id: number;
     name: string;
 }
@@ -10,8 +11,8 @@ interface CardInfo {
 interface UpdateEntry {
     version: string;
     sync_date: string;
-    added_cards: CardInfo[];
-    updated_cards: CardInfo[];
+    added_cards: ChangelogCardInfo[];
+    updated_cards: ChangelogCardInfo[];
     total_cards: number;
     added_count: number;
     updated_count: number;
@@ -24,33 +25,20 @@ interface ChangelogData {
 // 卡片图片 CDN（使用百鸽 ID）
 const CARD_IMAGE_CDN = 'https://cdn.233.momobako.com/ygoimg/sc';
 
-// 缓存百鸽 ID
-const baigeIdCache: Record<string, number | null> = {};
-
-// 获取百鸽 ID
-async function getBaigeId(name: string): Promise<number | null> {
-    if (name in baigeIdCache) {
-        return baigeIdCache[name];
-    }
-    try {
-        const response = await fetch(`https://ygocdb.com/api/v0/?search=${encodeURIComponent(name)}`);
-        const data = await response.json();
-        const id = data.result?.[0]?.id || null;
-        baigeIdCache[name] = id;
-        return id;
-    } catch {
-        baigeIdCache[name] = null;
-        return null;
-    }
+// 获取百鸽 ID (password) via cardApi
+async function getBaigeId(name: string, konamiId: number): Promise<number | null> {
+    if (globalCardInfoCache[name]) return globalCardInfoCache[name].password;
+    const info = await apiFetchCardInfo(name, konamiId);
+    return info?.password || null;
 }
 
 // 卡片名称链接组件
-function CardNameLink({ card }: { card: CardInfo }) {
+function CardNameLink({ card }: { card: ChangelogCardInfo }) {
     const [baigeId, setBaigeId] = useState<number | null>(null);
 
     useEffect(() => {
-        getBaigeId(card.name).then(id => setBaigeId(id));
-    }, [card.name]);
+        getBaigeId(card.name, card.id).then(id => setBaigeId(id));
+    }, [card.name, card.id]);
 
     if (!baigeId) {
         return <span>{card.name}</span>;
@@ -69,16 +57,16 @@ function CardNameLink({ card }: { card: CardInfo }) {
 }
 
 // 卡片组件（使用 HoloCard）
-function ChangelogCard({ card }: { card: CardInfo }) {
+function ChangelogCard({ card }: { card: ChangelogCardInfo }) {
     const [baigeId, setBaigeId] = useState<number | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        getBaigeId(card.name).then(id => {
+        getBaigeId(card.name, card.id).then(id => {
             setBaigeId(id);
             setLoading(false);
         });
-    }, [card.name]);
+    }, [card.name, card.id]);
 
     if (loading) {
         return (

@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useRecognition, globalCardInfoCache } from '../hooks/useRecognition';
+import { useRecognition } from '../hooks/useRecognition';
+import { globalCardInfoCache, fetchCardInfoBatch, fetchCardInfoByPasswords, isExtraDeck } from '../utils/cardApi';
 import { useCanvasInteraction } from '../hooks/useCanvasInteraction';
 import { useMobile } from '../hooks/useMobile';
 import { extractArtwork, STANDARD_CARD, PENDULUM_CARD } from '../utils/recognition';
@@ -270,7 +271,6 @@ export default function DeckRecognizer() {
 
     // 处理 YDK 导入
     const handleYdkImport = useCallback(async (ydkText: string) => {
-        console.log('handleYdkImport called, text length:', ydkText.length);
         resetState();
         setSourceType('ydk');
         setForcePendulumMode(false);
@@ -281,71 +281,62 @@ export default function DeckRecognizer() {
 
         try {
             const { main, extra } = parseYdk(ydkText);
-            const allIds = [...main, ...extra];
-            console.log('Parsed YDK: main =', main.length, 'extra =', extra.length, 'total =', allIds.length);
-            if (allIds.length === 0) {
+            const allPasswords = [...main, ...extra];
+            if (allPasswords.length === 0) {
                 setProcessingStage('idle');
                 return;
             }
 
-            // 批量查询 ygocdb 获取卡片信息（逐个加载，边加载边展示）
-            const uniqueIds = [...new Set(allIds)];
-            console.log('Unique IDs to fetch:', uniqueIds.length);
-            const cardInfoMap = new Map<string, { name: string; baigeId: number; cid: number; types: string }>();
+            // Batch fetch by passwords
+            const resultMap = await fetchCardInfoByPasswords(allPasswords);
 
-            const buildCards = () => {
-                const cards: RecognizedCard[] = [];
-                const processIds = (ids: string[]) => {
-                    ids.forEach((baigeId) => {
-                        const info = cardInfoMap.get(baigeId);
-                        if (!info) return;
-                        cards.push({
-                            box: { x1: 0, y1: 0, x2: 0, y2: 0, conf: 1 },
-                            index: cards.length,
-                            matches: [{
-                                id: info.cid,
-                                name: info.name,
-                                distance: 0,
-                                cardType: 'standard',
-                                dbHash: ''
-                            }],
-                            selectedMatchIndex: 0,
-                            hashStandard: '',
-                            hashPendulum: ''
-                        });
-                    });
+            // Also load card_data.json to get proper zh names
+            const cardData = await loadCardData();
+            const cardDataByPassword = new Map<number, { id: number; name: string }>();
+
+            // Build a lookup: for each result, find the card_data entry by konamiId
+            for (const [pw, info] of resultMap) {
+                const cdEntry = cardData.find((c: { id: number; name: string }) => c.id === info.konamiId);
+                if (cdEntry) {
+                    // Override zh name with card_data.json name
+                    info.name = cdEntry.name;
+                    info.cardInfo.name.zh = cdEntry.name;
+                    globalCardInfoCache[cdEntry.name] = info.cardInfo;
+                    cardDataByPassword.set(Number(pw), cdEntry);
+                } else {
+                    globalCardInfoCache[info.name] = info.cardInfo;
+                }
+            }
+
+            const buildCard = (pw: string, idx: number): RecognizedCard | null => {
+                const info = resultMap.get(pw);
+                if (!info) return null;
+                const cdEntry = cardDataByPassword.get(Number(pw));
+                return {
+                    box: { x1: 0, y1: 0, x2: 0, y2: 0, conf: 1 },
+                    index: idx,
+                    matches: [{
+                        id: cdEntry?.id || info.konamiId,
+                        name: cdEntry?.name || info.name,
+                        distance: 0,
+                        cardType: 'standard',
+                        dbHash: ''
+                    }],
+                    selectedMatchIndex: 0,
+                    hashStandard: '',
+                    hashPendulum: ''
                 };
-                processIds(main);
-                processIds(extra);
-                return cards;
             };
 
-            await Promise.all(
-                uniqueIds.map(async (baigeId) => {
-                    try {
-                        const res = await fetch(`https://ygocdb.com/api/v0/?search=${baigeId}`);
-                        const data = await res.json();
-                        const result = data?.result?.[0];
-                        if (result) {
-                            cardInfoMap.set(baigeId, {
-                                name: result.cn_name,
-                                baigeId: result.id,
-                                cid: result.cid,
-                                types: result.text?.types || ''
-                            });
-                            // 缓存到 globalCardInfoCache
-                            globalCardInfoCache[result.cn_name] = data;
-                            // 增量更新显示
-                            recognition.setRecognizedCards(buildCards());
-                            setProcessingStage('done');
-                        }
-                    } catch (e) { console.error('Fetch error for', baigeId, e); }
-                })
-            );
-            console.log('cardInfoMap size after fetch:', cardInfoMap.size);
-
-            const cards = buildCards();
-            console.log('YDK import: cards count =', cards.length, 'cardInfoMap size =', cardInfoMap.size);
+            let idx = 0;
+            const cards: RecognizedCard[] = [];
+            for (const pw of allPasswords) {
+                const card = buildCard(pw, idx);
+                if (card) {
+                    cards.push(card);
+                    idx++;
+                }
+            }
 
             recognition.setRecognizedCards(cards);
             setProcessingStage('done');
@@ -435,20 +426,15 @@ export default function DeckRecognizer() {
             setOriginalImage(null);
 
             // 加载缺失的卡片信息到缓存
-            const missingNames = history.recognizedCards
-                .map(c => c.matches[c.selectedMatchIndex]?.name)
-                .filter((name): name is string => !!name && !globalCardInfoCache[name]);
-            const uniqueNames = [...new Set(missingNames)];
-            if (uniqueNames.length > 0) {
-                Promise.all(
-                    uniqueNames.map(name =>
-                        fetch(`https://ygocdb.com/api/v0/?search=${encodeURIComponent(name)}`)
-                            .then(r => r.json())
-                            .then(data => { globalCardInfoCache[name] = data; })
-                            .catch(() => {})
-                    )
-                ).then(() => {
-                    // 强制重新渲染
+            const missingEntries: { id: number; name: string }[] = [];
+            for (const c of history.recognizedCards) {
+                const m = c.matches[c.selectedMatchIndex];
+                if (m && !globalCardInfoCache[m.name]) {
+                    missingEntries.push({ id: m.id, name: m.name });
+                }
+            }
+            if (missingEntries.length > 0) {
+                fetchCardInfoBatch(missingEntries).then(() => {
                     recognition.setRecognizedCards([...history.recognizedCards]);
                 });
             }
@@ -753,66 +739,36 @@ export default function DeckRecognizer() {
     // 生成卡组码
     const handleGenerateDeckCode = useCallback(async () => {
         if (isGeneratingDeckCode) return;
-
-        // 开始加载
         setIsGeneratingDeckCode(true);
 
         try {
-            // 先确保所有卡片信息都已加载
-            const uniqueNames = Array.from(
-                new Set(recognizedCards.map(c => c.matches[c.selectedMatchIndex]?.name).filter(Boolean))
-            );
-
-            // 并行加载所有缺失的卡片信息
-            const missingNames = uniqueNames.filter(name => !globalCardInfoCache[name]);
-            if (missingNames.length > 0) {
-                await Promise.all(
-                    missingNames.map(name =>
-                        fetch(`https://ygocdb.com/api/v0/?search=${encodeURIComponent(name)}`)
-                            .then(r => r.json())
-                            .then(data => {
-                                globalCardInfoCache[name] = data;
-                            })
-                            .catch(err => console.error(`Failed to fetch card info for ${name}:`, err))
-                    )
-                );
+            // Batch fetch missing card info
+            const missingEntries: { id: number; name: string }[] = [];
+            for (const c of recognizedCards) {
+                const m = c.matches[c.selectedMatchIndex];
+                if (m && !globalCardInfoCache[m.name]) {
+                    missingEntries.push({ id: m.id, name: m.name });
+                }
             }
+            if (missingEntries.length > 0) await fetchCardInfoBatch(missingEntries);
 
-            // 额外卡组的怪兽类型关键词
-            const extraDeckTypes = ['融合', '超量', '连接', '同调', '链接', '同步'];
-            // 临时：百鸽未更新的额外卡组卡片 ID
-            const extraDeckIds = new Set(['22715']);
-
-            const deck: {
-                monsters: string[];
-                spells: string[];
-                traps: string[];
-                extra: string[];
-            } = {
-                monsters: [],
-                spells: [],
-                traps: [],
-                extra: []
+            const deck: { monsters: string[]; spells: string[]; traps: string[]; extra: string[] } = {
+                monsters: [], spells: [], traps: [], extra: []
             };
 
             recognizedCards.forEach(card => {
                 const match = card.matches[card.selectedMatchIndex];
                 if (!match) return;
-
                 const cid = String(match.id);
                 const cardInfo = globalCardInfoCache[match.name];
-                const types = cardInfo?.result?.[0]?.text?.types || '';
 
-                if (extraDeckIds.has(cid) || extraDeckTypes.some(t => types.includes(t))) {
-                    // 融合/同步/超量/链接怪兽放入额外卡组
+                if (isExtraDeck(cardInfo)) {
                     deck.extra.push(cid);
-                    console.log(`Adding to deck: ${match.name} (Types: ${types}) added to Extra Deck`);
-                } else if (types.includes('魔法') && !types.includes('魔法师')) {
+                } else if (cardInfo?.card_type === 'Spell') {
                     deck.spells.push(cid);
-                } else if (types.includes('陷阱')) {
+                } else if (cardInfo?.card_type === 'Trap') {
                     deck.traps.push(cid);
                 } else {
-                    // 其他怪兽卡放入主卡组
                     deck.monsters.push(cid);
                 }
             });
@@ -861,56 +817,31 @@ export default function DeckRecognizer() {
         setIsGeneratingDeckCode(true);
 
         try {
-            // 先确保所有卡片信息都已加载
-            const uniqueNames = Array.from(
-                new Set(recognizedCards.map(c => c.matches[c.selectedMatchIndex]?.name).filter(Boolean))
-            );
-
-            // 并行加载所有缺失的卡片信息
-            const missingNames = uniqueNames.filter(name => !globalCardInfoCache[name]);
-            if (missingNames.length > 0) {
-                await Promise.all(
-                    missingNames.map(name =>
-                        fetch(`https://ygocdb.com/api/v0/?search=${encodeURIComponent(name)}`)
-                            .then(r => r.json())
-                            .then(data => {
-                                globalCardInfoCache[name] = data;
-                            })
-                            .catch(err => console.error(`Failed to fetch card info for ${name}:`, err))
-                    )
-                );
+            // Batch fetch missing card info
+            const missingEntries: { id: number; name: string }[] = [];
+            for (const c of recognizedCards) {
+                const m = c.matches[c.selectedMatchIndex];
+                if (m && !globalCardInfoCache[m.name]) {
+                    missingEntries.push({ id: m.id, name: m.name });
+                }
             }
+            if (missingEntries.length > 0) await fetchCardInfoBatch(missingEntries);
 
-            // 额外卡组的怪兽类型关键词
-            const extraDeckTypes = ['融合', '超量', '连接', '同调', '链接', '同步'];
-            // 临时：百鸽未更新的额外卡组卡片 ID
-            const extraDeckIds = new Set(['22715']);
-
-            const deck: {
-                monsters: string[];
-                spells: string[];
-                traps: string[];
-                extra: string[];
-            } = {
-                monsters: [],
-                spells: [],
-                traps: [],
-                extra: []
+            const deck: { monsters: string[]; spells: string[]; traps: string[]; extra: string[] } = {
+                monsters: [], spells: [], traps: [], extra: []
             };
 
             recognizedCards.forEach(card => {
                 const match = card.matches[card.selectedMatchIndex];
                 if (!match) return;
-
                 const cid = String(match.id);
                 const cardInfo = globalCardInfoCache[match.name];
-                const types = cardInfo?.result?.[0]?.text?.types || '';
 
-                if (extraDeckIds.has(cid) || extraDeckTypes.some(t => types.includes(t))) {
+                if (isExtraDeck(cardInfo)) {
                     deck.extra.push(cid);
-                } else if (types.includes('魔法') && !types.includes('魔法师')) {
+                } else if (cardInfo?.card_type === 'Spell') {
                     deck.spells.push(cid);
-                } else if (types.includes('陷阱')) {
+                } else if (cardInfo?.card_type === 'Trap') {
                     deck.traps.push(cid);
                 } else {
                     deck.monsters.push(cid);
@@ -951,24 +882,15 @@ export default function DeckRecognizer() {
         setIsExportingYdk(true);
 
         try {
-            // 先确保所有卡片信息都已加载
-            const uniqueNames = Array.from(
-                new Set(recognizedCards.map(c => c.matches[c.selectedMatchIndex]?.name).filter(Boolean))
-            );
-            const missingNames = uniqueNames.filter(name => !globalCardInfoCache[name]);
-            if (missingNames.length > 0) {
-                await Promise.all(
-                    missingNames.map(name =>
-                        fetch(`https://ygocdb.com/api/v0/?search=${encodeURIComponent(name)}`)
-                            .then(r => r.json())
-                            .then(data => { globalCardInfoCache[name] = data; })
-                            .catch(() => {})
-                    )
-                );
+            // Batch fetch missing card info
+            const missingEntries: { id: number; name: string }[] = [];
+            for (const c of recognizedCards) {
+                const m = c.matches[c.selectedMatchIndex];
+                if (m && !globalCardInfoCache[m.name]) {
+                    missingEntries.push({ id: m.id, name: m.name });
+                }
             }
-
-            const extraDeckTypes = ['融合', '超量', '连接', '同调', '链接', '同步'];
-            const extraDeckIds = new Set([22715]);
+            if (missingEntries.length > 0) await fetchCardInfoBatch(missingEntries);
 
             const mainDeck: number[] = [];
             const extraDeck: number[] = [];
@@ -977,11 +899,10 @@ export default function DeckRecognizer() {
                 const match = card.matches[card.selectedMatchIndex];
                 if (!match) return;
                 const cardInfo = globalCardInfoCache[match.name];
-                const baigeId = cardInfo?.result?.[0]?.id;
+                const baigeId = cardInfo?.password;
                 if (!baigeId) return;
-                const types = cardInfo?.result?.[0]?.text?.types || '';
 
-                if (extraDeckIds.has(baigeId) || extraDeckTypes.some(t => types.includes(t))) {
+                if (isExtraDeck(cardInfo)) {
                     extraDeck.push(baigeId);
                 } else {
                     mainDeck.push(baigeId);

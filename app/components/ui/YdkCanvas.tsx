@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { RecognizedCard } from '../../types';
-import { globalCardInfoCache } from '../../hooks/useRecognition';
+import { globalCardInfoCache, isExtraDeck } from '../../utils/cardApi';
 import { useTranslation } from '@/app/i18n';
 
 interface YdkCanvasProps {
@@ -9,9 +9,6 @@ interface YdkCanvasProps {
     onCardClick: (index: number) => void;
     isMobile?: boolean;
 }
-
-// 额外卡组判断
-const extraDeckTypes = ['融合', '超量', '连接', '同调', '链接', '同步'];
 
 export default function YdkCanvas({ recognizedCards, selectedCardIndex, onCardClick, isMobile = false }: YdkCanvasProps) {
     const { t } = useTranslation();
@@ -23,10 +20,9 @@ export default function YdkCanvas({ recognizedCards, selectedCardIndex, onCardCl
         const match = card.matches[card.selectedMatchIndex];
         if (!match) return;
         const cardInfo = globalCardInfoCache[match.name];
-        const types = cardInfo?.result?.[0]?.text?.types || '';
-        const baigeId = cardInfo?.result?.[0]?.id;
+        const baigeId = cardInfo?.password;
 
-        if (extraDeckTypes.some(t => types.includes(t))) {
+        if (isExtraDeck(cardInfo)) {
             extraDeck.push({ card, index, baigeId });
         } else {
             mainDeck.push({ card, index, baigeId });

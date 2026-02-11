@@ -7,6 +7,9 @@ import BottomDrawer from '../components/ui/BottomDrawer';
 import HoloCard from '../components/ui/HoloCard';
 import { apiUrl, siteUrl } from '../config';
 import { useTranslation } from '@/app/i18n';
+import { CardInfo } from '../types';
+import { globalCardInfoCache, fetchCardInfoBatch, isExtraDeck, getCardBadges } from '../utils/cardApi';
+import { getLocalizedCardName, getLocalizedCardText } from '../i18n/cardName';
 
 interface DeckData {
     monsters: string[];
@@ -26,21 +29,6 @@ interface DeckResponse {
 interface CardData {
     id: number;
     name: string;
-}
-
-interface YgocdbResult {
-    id: number;
-    cn_name: string;
-    text: {
-        types?: string;
-        desc?: string;
-        atk?: number;
-        def?: number;
-    };
-}
-
-interface YgocdbResponse {
-    result: YgocdbResult[];
 }
 
 // 加载本地卡片数据
@@ -68,37 +56,10 @@ async function getCardNameById(gameId: string): Promise<string | null> {
     return card?.name || null;
 }
 
-// ygocdb API 缓存
-const ygocdbCache: Record<string, YgocdbResult | null> = {};
-const ygocdbPendingRequests: Record<string, Promise<YgocdbResult | null>> = {};
-
-// 通过卡片名称获取 ygocdb 卡片信息（带缓存）
-async function getYgocdbCardInfo(name: string): Promise<YgocdbResult | null> {
-    if (name in ygocdbCache) return ygocdbCache[name];
-    if (name in ygocdbPendingRequests) return ygocdbPendingRequests[name];
-
-    ygocdbPendingRequests[name] = fetch(`https://ygocdb.com/api/v0/?search=${encodeURIComponent(name)}`)
-        .then(res => res.json())
-        .then((data: YgocdbResponse) => {
-            const result = data.result?.[0] || null;
-            ygocdbCache[name] = result;
-            return result;
-        })
-        .catch(() => {
-            ygocdbCache[name] = null;
-            return null;
-        })
-        .finally(() => {
-            delete ygocdbPendingRequests[name];
-        });
-
-    return ygocdbPendingRequests[name];
-}
-
-// 通过卡片名称获取百鸽CDN的ID
-async function getBaigeIdByName(name: string): Promise<number | null> {
-    const cardInfo = await getYgocdbCardInfo(name);
-    return cardInfo?.id || null;
+// 通过游戏ID获取卡片数据条目
+async function getCardDataById(gameId: string): Promise<CardData | null> {
+    const cardData = await loadCardData();
+    return cardData.find(c => String(c.id) === gameId) || null;
 }
 
 // 卡片图片 URL (百鸽CDN)
@@ -109,42 +70,6 @@ const getCardImageUrl = (baigeId: number) =>
 function formatCardDesc(desc: string): string {
     if (!desc) return '';
     return desc.replace(/([^\n])(①|②|③|④|⑤|⑥|⑦|⑧|⑨|⑩)(?=：|:)/g, '$1\n$2');
-}
-
-// 解析卡片类型
-function parseCardTypes(typesStr: string): string[] {
-    const badges: string[] = [];
-    const mainTypeMatch = typesStr.match(/\[([^\]]+)\]/);
-    if (mainTypeMatch) {
-        const mainType = mainTypeMatch[1];
-        if (!mainType.startsWith('★') && !mainType.startsWith('☆')) {
-            badges.push(mainType.replace(/\|/g, '/'));
-        }
-    }
-    let badget2 = '';
-    const firstLine = typesStr.split('\n')[0];
-    const afterBracket = firstLine.replace(/\[[^\]]+\]\s*/, '').trim();
-    if (afterBracket) {
-        const subTypes = afterBracket.split('/').map(s => s.trim()).filter(s => s);
-        badget2 = subTypes.join('/');
-    }
-    const starMatch = typesStr.match(/\[(★\d+|☆\d+)\]/);
-    if (starMatch) {
-        if (badget2) {
-            badget2 = badget2 + ' ' + starMatch[1];
-        }
-    }
-    if (badget2) {
-        badges.push(badget2);
-    }
-    const secondLine = typesStr.split('\n')[1];
-    if (secondLine) {
-        const atkDefMatch = secondLine.match(/(\d+)\/(\d+)/);
-        if (atkDefMatch) {
-            badges.push(`${atkDefMatch[1]}/${atkDefMatch[2]}`);
-        }
-    }
-    return badges;
 }
 
 // 卡片信息组件
@@ -164,13 +89,13 @@ function CardItem({
     useEffect(() => {
         let cancelled = false;
         (async () => {
-            const name = await getCardNameById(gameId);
+            const cdEntry = await getCardDataById(gameId);
             if (cancelled) return;
-            if (name) {
-                setCardName(name);
-                const id = await getBaigeIdByName(name);
-                if (cancelled) return;
-                setBaigeId(id);
+            if (cdEntry) {
+                setCardName(cdEntry.name);
+                if (globalCardInfoCache[cdEntry.name]) {
+                    setBaigeId(globalCardInfoCache[cdEntry.name].password);
+                }
             }
             setLoading(false);
         })();
@@ -214,8 +139,8 @@ function CardDetailPanel({
     gameId: string;
     onClose: () => void;
 }) {
-    const { t } = useTranslation();
-    const [cardInfo, setCardInfo] = useState<YgocdbResult | null>(null);
+    const { t, locale } = useTranslation();
+    const [cardInfo, setCardInfo] = useState<CardInfo | null>(null);
     const [cardName, setCardName] = useState<string>('');
     const [loading, setLoading] = useState(true);
 
@@ -223,12 +148,11 @@ function CardDetailPanel({
         let cancelled = false;
         (async () => {
             setLoading(true);
-            const name = await getCardNameById(gameId);
+            const cdEntry = await getCardDataById(gameId);
             if (cancelled) return;
-            if (name) {
-                setCardName(name);
-                const info = await getYgocdbCardInfo(name);
-                if (cancelled) return;
+            if (cdEntry) {
+                setCardName(cdEntry.name);
+                const info = globalCardInfoCache[cdEntry.name] || null;
                 setCardInfo(info);
             }
             setLoading(false);
@@ -258,10 +182,10 @@ function CardDetailPanel({
             <div className="p-6 border-b border-[var(--card-border)] bg-gradient-card">
                 <div className="flex items-center justify-between gap-3 mb-2">
                     <h2
-                        onClick={() => window.open(`https://ygocdb.com/card/${cardInfo.id}`, '_blank')}
+                        onClick={() => window.open(`https://ygocdb.com/card/${cardInfo.password}`, '_blank')}
                         className="text-xl font-bold text-[var(--foreground)] line-clamp-2 leading-tight flex-1 min-w-0 cursor-pointer hover:text-[var(--primary)] transition-colors"
                     >
-                        {cardName}
+                        {getLocalizedCardName(cardInfo, cardName, locale)}
                     </h2>
                     <button
                         onClick={onClose}
@@ -272,9 +196,9 @@ function CardDetailPanel({
                         </svg>
                     </button>
                 </div>
-                {cardInfo.text?.types && (
+                {cardInfo && (
                     <div className="flex flex-wrap gap-2">
-                        {parseCardTypes(cardInfo.text.types).map((badge, i) => (
+                        {getCardBadges(cardInfo, locale).map((badge, i) => (
                             <span key={i} className="badge text-xs">{badge}</span>
                         ))}
                     </div>
@@ -285,27 +209,27 @@ function CardDetailPanel({
                 {/* 官方卡图 - 使用 HoloCard */}
                 <div className="w-full rounded-xl overflow-visible">
                     <HoloCard
-                        src={getCardImageUrl(cardInfo.id)}
+                        src={getCardImageUrl(cardInfo.password)}
                         alt={cardName}
                     />
                 </div>
 
                 {/* ATK/DEF */}
-                {(cardInfo.text?.atk !== undefined || cardInfo.text?.def !== undefined) && (
+                {(cardInfo.atk !== undefined || cardInfo.def !== undefined) && (
                     <div className="flex gap-3">
-                        {cardInfo.text.atk !== undefined && (
+                        {cardInfo.atk !== undefined && (
                             <div className="flex-1 panel p-3 text-center">
                                 <div className="text-xs text-[var(--foreground-muted)] mb-1">ATK</div>
                                 <div className="text-lg font-bold text-[var(--warning)]">
-                                    {cardInfo.text.atk}
+                                    {cardInfo.atk}
                                 </div>
                             </div>
                         )}
-                        {cardInfo.text.def !== undefined && (
+                        {cardInfo.def !== undefined && (
                             <div className="flex-1 panel p-3 text-center">
                                 <div className="text-xs text-[var(--foreground-muted)] mb-1">DEF</div>
                                 <div className="text-lg font-bold text-[var(--primary)]">
-                                    {cardInfo.text.def}
+                                    {cardInfo.def}
                                 </div>
                             </div>
                         )}
@@ -313,10 +237,10 @@ function CardDetailPanel({
                 )}
 
                 {/* 卡片描述 */}
-                {cardInfo.text?.desc && (
+                {getLocalizedCardText(cardInfo, locale) && (
                     <div className="panel p-4">
                         <p className="text-sm text-[var(--foreground)] leading-relaxed whitespace-pre-line">
-                            {formatCardDesc(cardInfo.text.desc)}
+                            {formatCardDesc(getLocalizedCardText(cardInfo, locale))}
                         </p>
                     </div>
                 )}
@@ -535,23 +459,27 @@ function DeckContent() {
                 ...(deckData.deck.traps || []),
                 ...(deckData.deck.extra || []),
             ];
-            const uniqueIds = [...new Set(allGameIds)];
 
-            // 加载卡片名称和信息
+            // Batch fetch all card info
             const cardData = await loadCardData();
-            const extraDeckTypes = ['融合', '超量', '连接', '同调', '链接', '同步'];
+            const entries: { id: number; name: string }[] = [];
+            for (const gameId of [...new Set(allGameIds)]) {
+                const card = cardData.find(c => String(c.id) === gameId);
+                if (card) entries.push({ id: card.id, name: card.name });
+            }
+            await fetchCardInfoBatch(entries);
+
             const mainIds: number[] = [];
             const extraIds: number[] = [];
 
             for (const gameId of allGameIds) {
                 const card = cardData.find(c => String(c.id) === gameId);
                 if (!card) continue;
-                const info = await getYgocdbCardInfo(card.name);
-                const baigeId = info?.id;
+                const info = globalCardInfoCache[card.name];
+                const baigeId = info?.password;
                 if (!baigeId) continue;
-                const types = info?.text?.types || '';
 
-                if (extraDeckTypes.some(t => types.includes(t))) {
+                if (isExtraDeck(info)) {
                     extraIds.push(baigeId);
                 } else {
                     mainIds.push(baigeId);
@@ -602,19 +530,25 @@ function DeckContent() {
     // 额外卡组每行数量（移动端固定 5 张，PC 端 10 张）
     const extraCardsPerRow = isMobile ? 5 : 10;
 
-    // 加载卡片名称
+    // 加载卡片名称 + 批量获取卡片信息
     useEffect(() => {
         if (allCards.length === 0) return;
         const uniqueIds = [...new Set(allCards)];
         (async () => {
+            const cardData = await loadCardData();
             const newMap = new Map<string, string>();
+            const entries: { id: number; name: string }[] = [];
             for (const gameId of uniqueIds) {
-                const name = await getCardNameById(gameId);
-                if (name) {
-                    newMap.set(gameId, name);
+                const card = cardData.find(c => String(c.id) === gameId);
+                if (card) {
+                    newMap.set(gameId, card.name);
+                    entries.push({ id: card.id, name: card.name });
                 }
             }
             setCardNameMap(newMap);
+            await fetchCardInfoBatch(entries);
+            // Force re-render after batch fetch
+            setCardNameMap(new Map(newMap));
         })();
     }, [deckData]); // eslint-disable-line react-hooks/exhaustive-deps
 

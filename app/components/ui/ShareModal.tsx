@@ -2,7 +2,7 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import { RecognizedCard, CardInfo } from '../../types';
-import { globalCardInfoCache } from '../../hooks/useRecognition';
+import { globalCardInfoCache, isExtraDeck, fetchCardInfoBatch } from '../../utils/cardApi';
 import { useMobile } from '../../hooks/useMobile';
 import { useTranslation } from '@/app/i18n';
 import QRCode from 'qrcode';
@@ -37,18 +37,17 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
     const [copied, setCopied] = useState(false);
     const [linkCopied, setLinkCopied] = useState(false);
 
-    // 获取卡片信息（从缓存或API）
-    const fetchCardInfo = async (name: string): Promise<CardInfo | null> => {
-        if (globalCardInfoCache[name]) {
-            return globalCardInfoCache[name];
+    // 获取卡片信息（从缓存或API）— batch fetch missing
+    const fetchAllCardInfo = async (cards: RecognizedCard[]) => {
+        const entries: { id: number; name: string }[] = [];
+        for (const card of cards) {
+            const match = card.matches[card.selectedMatchIndex];
+            if (match && !globalCardInfoCache[match.name]) {
+                entries.push({ id: match.id, name: match.name });
+            }
         }
-        try {
-            const response = await fetch(`https://ygocdb.com/api/v0/?search=${encodeURIComponent(name)}`);
-            const data = await response.json();
-            globalCardInfoCache[name] = data;
-            return data;
-        } catch {
-            return null;
+        if (entries.length > 0) {
+            await fetchCardInfoBatch(entries);
         }
     };
 
@@ -90,35 +89,8 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
             setProgress(0);
             setStatusText(t('share.loadingCardInfo'));
 
-            // 额外卡组的怪兽类型关键词
-            const extraDeckTypes = ['融合', '超量', '连接', '同调', '链接', '同步'];
-            // 临时：百鸽未更新的额外卡组卡片 ID
-            const extraDeckIds = new Set([22715]);
-
-            // 先收集所有需要的卡名
-            const cardNames = recognizedCards
-                .map(card => card.matches[card.selectedMatchIndex]?.name)
-                .filter(Boolean) as string[];
-
-            // 并发加载所有卡片信息
-            const INFO_CONCURRENCY = 10;
-            let loadedCount = 0;
-            const totalToLoad = cardNames.filter(name => !globalCardInfoCache[name]).length;
-
-            if (totalToLoad > 0) {
-                const queue = [...cardNames.filter(name => !globalCardInfoCache[name])];
-                const workers = Array(Math.min(INFO_CONCURRENCY, queue.length)).fill(null).map(async () => {
-                    while (queue.length > 0) {
-                        const name = queue.shift();
-                        if (name) {
-                            await fetchCardInfo(name);
-                            loadedCount++;
-                            setStatusText(t('share.loadingCardInfoProgress', { loaded: loadedCount, total: totalToLoad }));
-                        }
-                    }
-                });
-                await Promise.all(workers);
-            }
+            // Batch fetch all missing card info
+            await fetchAllCardInfo(recognizedCards);
 
             // 分类卡片：主卡组和额外卡组
             const mainDeckCards: { name: string; baigeId?: number }[] = [];
@@ -129,12 +101,11 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
                 if (!match) return;
 
                 const cardInfo = globalCardInfoCache[match.name];
-                const baigeId = cardInfo?.result?.[0]?.id;
-                const types = cardInfo?.result?.[0]?.text?.types || '';
+                const baigeId = cardInfo?.password;
 
                 const cardData = { name: match.name, baigeId };
 
-                if (extraDeckIds.has(match.id) || extraDeckTypes.some(t => types.includes(t))) {
+                if (isExtraDeck(cardInfo)) {
                     extraDeckCards.push(cardData);
                 } else {
                     mainDeckCards.push(cardData);
