@@ -14,13 +14,12 @@ import {
     EARLY_EXIT_DISTANCE
 } from '../utils/recognition';
 import { modelPath } from '../config';
+import { globalCardInfoCache, fetchCardInfo as apiFetchCardInfo } from '../utils/cardApi';
+
+export { globalCardInfoCache };
 
 const MODEL_PATH = modelPath;
 const HASH_DB_PATH = '/card_data.json';
-
-// 全局缓存（模块作用域）
-export const globalCardInfoCache: Record<string, CardInfo> = {};
-const pendingRequests: Record<string, Promise<CardInfo>> = {};
 
 export type ProcessingStage = 'idle' | 'detecting' | 'identifying' | 'done';
 
@@ -60,6 +59,7 @@ export interface UseRecognitionReturn {
     setProcessingStage: React.Dispatch<React.SetStateAction<ProcessingStage>>;
     resetState: () => void;
     waitForInit: () => Promise<void>;
+    cardInfoVersion: number;
 }
 
 // 初始化 Promise 的 resolve 函数引用
@@ -98,6 +98,7 @@ export function useRecognition(): UseRecognitionReturn {
     const [selectedCardIndex, setSelectedCardIndex] = useState(-1);
     const [selectedCardInfo, setSelectedCardInfo] = useState<CardInfo | null>(null);
     const [isDetailLoading, setIsDetailLoading] = useState(false);
+    const [cardInfoVersion, setCardInfoVersion] = useState(0);
 
     const latestRequestedNameRef = useRef<string | null>(null);
 
@@ -279,7 +280,7 @@ export function useRecognition(): UseRecognitionReturn {
     }, []);
 
     // 获取卡片信息
-    const fetchCardInfo = useCallback(async (name: string, updateUI: boolean = true) => {
+    const fetchCardInfo = useCallback(async (name: string, id: number, updateUI: boolean = true) => {
         if (globalCardInfoCache[name]) {
             if (updateUI && name === latestRequestedNameRef.current) {
                 setSelectedCardInfo(globalCardInfoCache[name]);
@@ -287,44 +288,15 @@ export function useRecognition(): UseRecognitionReturn {
             return globalCardInfoCache[name];
         }
 
-        const pendingPromise = pendingRequests[name];
-        if (pendingPromise !== undefined) {
-            if (updateUI) setIsDetailLoading(true);
-            try {
-                const data = await pendingPromise;
-                if (updateUI && name === latestRequestedNameRef.current) {
-                    setSelectedCardInfo(data);
-                }
-                return data;
-            } catch (error) {
-                console.error('Pending request failed:', error);
-                if (updateUI && name === latestRequestedNameRef.current) {
-                    setSelectedCardInfo(null);
-                }
-            } finally {
-                if (updateUI && name === latestRequestedNameRef.current) {
-                    setIsDetailLoading(false);
-                }
-            }
-            return null;
-        }
-
         if (updateUI) setIsDetailLoading(true);
 
-        const promise = fetch(`https://ygocdb.com/api/v0/?search=${encodeURIComponent(name)}`)
-            .then(r => r.json());
-
-        pendingRequests[name] = promise;
-
         try {
-            const data = await promise;
-            globalCardInfoCache[name] = data;
+            const data = await apiFetchCardInfo(name, id);
 
             // 预加载 CDN 图片
-            const baigeId = data?.result?.[0]?.id;
-            if (baigeId) {
+            if (data?.password) {
                 const img = new Image();
-                img.src = `https://cdn.233.momobako.com/ygoimg/sc/${baigeId}.webp`;
+                img.src = `https://cdn.233.momobako.com/ygoimg/sc/${data.password}.webp`;
             }
 
             if (updateUI && name === latestRequestedNameRef.current) {
@@ -338,7 +310,6 @@ export function useRecognition(): UseRecognitionReturn {
             }
             return null;
         } finally {
-            delete pendingRequests[name];
             if (updateUI && name === latestRequestedNameRef.current) {
                 setIsDetailLoading(false);
             }
@@ -488,24 +459,19 @@ export function useRecognition(): UseRecognitionReturn {
             setStatusText(t('recognition.recognitionDone'));
             setProcessingVisual(null);
 
-            // 预加载卡片信息
-            const uniqueNames = Array.from(
-                new Set(finalResults.map(c => c.matches[0]?.name).filter(Boolean))
-            );
-
-            const CONCURRENCY_LIMIT = 10;
-            let currentIndex = 0;
-
-            const processNext = async () => {
-                if (currentIndex >= uniqueNames.length) return;
-                const name = uniqueNames[currentIndex++];
-                await fetchCardInfo(name, false);
-                processNext();
-            };
-
-            for (let i = 0; i < Math.min(CONCURRENCY_LIMIT, uniqueNames.length); i++) {
-                processNext();
+            // 预加载卡片信息 — batch fetch (all matches including alternates)
+            const uniqueEntries = new Map<string, { id: number; name: string }>();
+            for (const c of finalResults) {
+                for (const m of c.matches) {
+                    if (m && !uniqueEntries.has(m.name)) {
+                        uniqueEntries.set(m.name, { id: m.id, name: m.name });
+                    }
+                }
             }
+            const { fetchCardInfoBatch } = await import('../utils/cardApi');
+            await fetchCardInfoBatch(Array.from(uniqueEntries.values()));
+            // Bump version so consumers re-render with localized names
+            setCardInfoVersion(v => v + 1);
         } catch (error: any) {
             console.error(error);
             setStatusText(t('recognition.processingError', { message: error.message }));
@@ -522,7 +488,7 @@ export function useRecognition(): UseRecognitionReturn {
         if (card.matches.length > 0) {
             const currentMatch = card.matches[card.selectedMatchIndex];
             latestRequestedNameRef.current = currentMatch.name;
-            await fetchCardInfo(currentMatch.name, true);
+            await fetchCardInfo(currentMatch.name, currentMatch.id, true);
         }
     }, [recognizedCards, fetchCardInfo]);
 
@@ -612,7 +578,7 @@ export function useRecognition(): UseRecognitionReturn {
 
         if (matches.length > 0) {
             latestRequestedNameRef.current = matches[0].name;
-            await fetchCardInfo(matches[0].name, true);
+            await fetchCardInfo(matches[0].name, matches[0].id, true);
         }
     }, [originalImage, recognizedCards, fetchCardInfo]);
 
@@ -629,7 +595,7 @@ export function useRecognition(): UseRecognitionReturn {
         const newMatch = card.matches[matchIndex];
         if (newMatch) {
             latestRequestedNameRef.current = newMatch.name;
-            fetchCardInfo(newMatch.name, true);
+            fetchCardInfo(newMatch.name, newMatch.id, true);
         }
     }, [selectedCardIndex, recognizedCards, fetchCardInfo]);
 
@@ -666,6 +632,7 @@ export function useRecognition(): UseRecognitionReturn {
         setRecognizedCards,
         setProcessingStage,
         resetState,
-        waitForInit
+        waitForInit,
+        cardInfoVersion
     };
 }

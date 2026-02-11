@@ -31,14 +31,17 @@ export interface CardHashEntry {
 }
 
 export interface CardInfo {
-  result?: {
-    id: number;
-    text: {
-      types?: string;
-      atk?: number;
-      def?: number;
-      desc?: string;
-      marker?: number[];
-    };
-  }[];
+  password: number;
+  card_type: string;
+  monster_type_line?: string;
+  attribute?: string;
+  level?: number;
+  rank?: number;
+  atk?: number;
+  def?: number;
+  link_arrows?: string[];
+  pendulum_scale?: number;
+  name: { zh: string; ja?: string; en?: string };
+  text: { zh?: string; ja?: string; en?: string };
+  pendulum_effect?: { zh?: string; ja?: string; en?: string };
 }

@@ -4,6 +4,8 @@ import { ProcessingStage } from '../../hooks/useRecognition';
 import MobileCardCarousel from './MobileCardCarousel';
 import HoloCard from './HoloCard';
 import { useTranslation } from '@/app/i18n';
+import { getCardBadges, globalCardInfoCache } from '../../utils/cardApi';
+import { getLocalizedCardName, getLocalizedCardText } from '../../i18n/cardName';
 
 // 视图模式：列表或详情
 type ViewMode = 'list' | 'detail';
@@ -36,47 +38,6 @@ interface MobileCardDrawerProps {
     initialViewMode?: ViewMode;
     // 当请求显示详情时，传入entry point
     entryPoint?: EntryPoint;
-}
-
-// 解析卡片类型字符串
-function parseCardTypes(typesStr: string): string[] {
-    const badges: string[] = [];
-
-    const mainTypeMatch = typesStr.match(/\[([^\]]+)\]/);
-    if (mainTypeMatch) {
-        const mainType = mainTypeMatch[1];
-        if (!mainType.startsWith('★') && !mainType.startsWith('☆')) {
-            badges.push(mainType.replace(/\|/g, '/'));
-        }
-    }
-
-    let badget2 = '';
-    const firstLine = typesStr.split('\n')[0];
-    const afterBracket = firstLine.replace(/\[[^\]]+\]\s*/, '').trim();
-    if (afterBracket) {
-        const subTypes = afterBracket.split('/').map(s => s.trim()).filter(s => s);
-        badget2 = subTypes.join('/');
-    }
-
-    const starMatch = typesStr.match(/\[(★\d+|☆\d+)\]/);
-    if (starMatch) {
-        if (badget2) {
-            badget2 = badget2 + '/' + starMatch[1];
-        }
-    }
-    if (badget2) {
-        badges.push(badget2);
-    }
-
-    const secondLine = typesStr.split('\n')[1];
-    if (secondLine) {
-        const atkDefMatch = secondLine.match(/(\d+)\/(\d+)/);
-        if (atkDefMatch) {
-            badges.push(`${atkDefMatch[1]}/${atkDefMatch[2]}`);
-        }
-    }
-
-    return badges;
 }
 
 // 格式化卡片描述文字
@@ -136,8 +97,7 @@ export default function MobileCardDrawer({
     initialViewMode = 'list',
     entryPoint = 'list'
 }: MobileCardDrawerProps) {
-    const { t } = useTranslation();
-    // 抽屉动画状态
+    const { t, locale } = useTranslation();
     const [isAnimating, setIsAnimating] = useState(false);
     const [shouldRender, setShouldRender] = useState(false);
     const [overlayVisible, setOverlayVisible] = useState(false);
@@ -246,7 +206,7 @@ export default function MobileCardDrawer({
 
     // 名称淡入淡出
     useEffect(() => {
-        const newName = currentMatch?.name || '';
+        const newName = currentMatch ? getLocalizedCardName(cardInfo, currentMatch.name, locale) : '';
         if (newName !== displayName && newName) {
             setIsNameFading(true);
             const timer = setTimeout(() => {
@@ -255,15 +215,14 @@ export default function MobileCardDrawer({
             }, 150);
             return () => clearTimeout(timer);
         }
-    }, [currentMatch?.name, displayName]);
+    }, [currentMatch?.name, cardInfo, locale, displayName]);
 
     // 徽章淡入淡出
     useEffect(() => {
-        const types = cardInfo?.result?.[0]?.text?.types;
-        // 只在 types 实际改变时才更新
-        if (types !== prevTypesRef.current) {
-            prevTypesRef.current = types;
-            const newBadges = types ? parseCardTypes(types) : [];
+        const badgeKey = cardInfo ? `${cardInfo.card_type}|${cardInfo.monster_type_line}` : '';
+        if (badgeKey !== prevTypesRef.current) {
+            prevTypesRef.current = badgeKey;
+            const newBadges = cardInfo ? getCardBadges(cardInfo, locale) : [];
             setIsBadgesFading(true);
             const timer = setTimeout(() => {
                 setDisplayBadges(newBadges);
@@ -271,7 +230,7 @@ export default function MobileCardDrawer({
             }, 150);
             return () => clearTimeout(timer);
         }
-    }, [cardInfo?.result?.[0]?.text?.types]);
+    }, [cardInfo, locale]);
 
     // 滚动保存
     const handleScroll = () => {
@@ -296,14 +255,15 @@ export default function MobileCardDrawer({
     recognizedCards.forEach((card, index) => {
         const match = card.matches[card.selectedMatchIndex];
         if (!match) return;
+        const displayName = getLocalizedCardName(globalCardInfoCache[match.name], match.name, locale);
 
-        const existing = cardGroups.find(g => g.name === match.name);
+        const existing = cardGroups.find(g => g.name === displayName);
         if (existing) {
             existing.count++;
             existing.indices.push(index);
         } else {
             cardGroups.push({
-                name: match.name,
+                name: displayName,
                 count: 1,
                 indices: [index],
                 cardType: match.cardType
@@ -456,44 +416,22 @@ export default function MobileCardDrawer({
     const renderCardContent = useCallback((card: RecognizedCard, index: number, isActive: boolean) => {
         const match = card.matches[card.selectedMatchIndex];
         const info = match ? getCardInfo(match.name) : null;
-        const cardResult = info?.result?.[0];
 
         return (
             <div className="p-4 space-y-4">
-                {cardResult && (
+                {info && (
                     <div className="space-y-4">
                         <div className="w-full rounded-xl overflow-visible">
                             <HoloCard
-                                src={`https://cdn.233.momobako.com/ygoimg/sc/${cardResult.id}.webp`}
+                                src={`https://cdn.233.momobako.com/ygoimg/sc/${info.password}.webp`}
                                 alt="Official Art"
                             />
                         </div>
 
-                        {(cardResult.text.atk !== undefined || cardResult.text.def !== undefined) && (
-                            <div className="flex gap-3">
-                                {cardResult.text.atk !== undefined && (
-                                    <div className="flex-1 panel p-3 text-center">
-                                        <div className="text-xs text-[var(--foreground-muted)]">ATK</div>
-                                        <div className="text-xl font-bold text-[var(--warning)]">
-                                            {cardResult.text.atk}
-                                        </div>
-                                    </div>
-                                )}
-                                {cardResult.text.def !== undefined && (
-                                    <div className="flex-1 panel p-3 text-center">
-                                        <div className="text-xs text-[var(--foreground-muted)]">DEF</div>
-                                        <div className="text-xl font-bold text-[var(--primary)]">
-                                            {cardResult.text.def}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
-                        {cardResult.text.desc && (
+                        {getLocalizedCardText(info, locale) && (
                             <div className="panel p-3">
                                 <p className="text-sm text-[var(--foreground)] leading-relaxed whitespace-pre-line">
-                                    {formatCardDesc(cardResult.text.desc)}
+                                    {formatCardDesc(getLocalizedCardText(info, locale))}
                                 </p>
                             </div>
                         )}
@@ -520,7 +458,7 @@ export default function MobileCardDrawer({
                                 >
                                     <div className="flex justify-between items-center">
                                         <span className="text-sm text-[var(--foreground)] truncate flex-1 font-medium">
-                                            {m.name}
+                                            {getLocalizedCardName(globalCardInfoCache[m.name], m.name, locale)}
                                         </span>
                                         <span className="text-xs text-[var(--foreground-muted)] ml-3 font-mono bg-[var(--card-bg)] px-2 py-1 rounded">
                                             {m.distance}
@@ -533,7 +471,7 @@ export default function MobileCardDrawer({
                 )}
             </div>
         );
-    }, [getCardInfo, isDetailLoading, onSelectAltMatch]);
+    }, [getCardInfo, isDetailLoading, onSelectAltMatch, locale]);
 
     if (!shouldRender) return null;
 
@@ -806,9 +744,8 @@ export default function MobileCardDrawer({
                         )}
                         <h2
                             onClick={() => {
-                                const baigeId = cardInfo?.result?.[0]?.id;
-                                if (baigeId) {
-                                    window.open(`https://ygocdb.com/card/${baigeId}`, '_blank');
+                                if (cardInfo?.password) {
+                                    window.open(`https://ygocdb.com/card/${cardInfo.password}`, '_blank');
                                 }
                             }}
                             className={`text-lg font-bold text-[var(--foreground)] line-clamp-2 leading-tight flex-1 min-w-0 transition-opacity duration-150 cursor-pointer ${isNameFading ? 'opacity-0' : 'opacity-100'}`}
