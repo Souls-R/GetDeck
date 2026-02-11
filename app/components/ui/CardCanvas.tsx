@@ -170,11 +170,9 @@ export default function CardCanvas({
             if (!touchStateRef.current.isPinching) {
                 touchStateRef.current.wasPinching = false;
             }
-            if (transformRef.current.scale > 1) {
-                // 单指拖动开始（仅在缩放状态下）
-                touchStateRef.current.isDragging = true;
-                touchStateRef.current.isPinching = false;
-            }
+            // 单指拖动开始
+            touchStateRef.current.isDragging = true;
+            touchStateRef.current.isPinching = false;
         }
     }, []);
 
@@ -224,7 +222,7 @@ export default function CardCanvas({
             touchStateRef.current.lastCenter = center;
 
             updateTransform();
-        } else if (touches.length === 1 && touchStateRef.current.isDragging && transformRef.current.scale > 1) {
+        } else if (touches.length === 1 && touchStateRef.current.isDragging) {
             // 单指拖动
             if (e.cancelable) e.preventDefault();
             const dx = touches[0].clientX - touchStateRef.current.lastSingleTouch.x;
@@ -290,13 +288,14 @@ export default function CardCanvas({
 
             touchStateRef.current.isPinching = false;
             touchStateRef.current.isDragging = false;
-            touchStateRef.current.wasPinching = false;  // 重置双指操作标记
 
-            // 如果缩放回到1，重置平移
-            if (transformRef.current.scale <= 1) {
+            // 如果从双指缩放回到1x，重置平移
+            if (touchStateRef.current.wasPinching && transformRef.current.scale <= 1) {
                 transformRef.current = { scale: 1, x: 0, y: 0 };
                 updateTransform();
             }
+
+            touchStateRef.current.wasPinching = false;  // 重置双指操作标记
         } else if (remainingTouches === 1 && touchStateRef.current.isPinching) {
             // 从双指变成单指，标记为刚结束双指操作
             touchStateRef.current.isPinching = false;

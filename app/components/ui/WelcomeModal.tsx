@@ -38,7 +38,7 @@ export default function WelcomeModal({ isOpen, onClose }: WelcomeModalProps) {
                 {/* 头部 */}
                 <div className="px-5 pt-5 pb-4 border-b border-[var(--card-border)]">
                     <h2 className="text-lg font-bold text-[var(--foreground)]">快速开始</h2>
-                    <p className="text-xs text-[var(--foreground-muted)] mt-0.5">GetDeck · Master Duel 卡组截图识别工具</p>
+                    <p className="text-xs text-[var(--foreground-muted)] mt-0.5">记得向分享构筑的人表示感谢，不要拿了卡组就跑哦~</p>
                 </div>
 
                 {/* 内容 */}
