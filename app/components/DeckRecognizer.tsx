@@ -286,10 +286,37 @@ export default function DeckRecognizer() {
                 return;
             }
 
-            // 批量查询 ygocdb 获取卡片信息
+            // 批量查询 ygocdb 获取卡片信息（逐个加载，边加载边展示）
             const uniqueIds = [...new Set(allIds)];
             console.log('Unique IDs to fetch:', uniqueIds.length);
             const cardInfoMap = new Map<string, { name: string; baigeId: number; cid: number; types: string }>();
+
+            const buildCards = () => {
+                const cards: RecognizedCard[] = [];
+                const processIds = (ids: string[]) => {
+                    ids.forEach((baigeId) => {
+                        const info = cardInfoMap.get(baigeId);
+                        if (!info) return;
+                        cards.push({
+                            box: { x1: 0, y1: 0, x2: 0, y2: 0, conf: 1 },
+                            index: cards.length,
+                            matches: [{
+                                id: info.cid,
+                                name: info.name,
+                                distance: 0,
+                                cardType: 'standard',
+                                dbHash: ''
+                            }],
+                            selectedMatchIndex: 0,
+                            hashStandard: '',
+                            hashPendulum: ''
+                        });
+                    });
+                };
+                processIds(main);
+                processIds(extra);
+                return cards;
+            };
 
             await Promise.all(
                 uniqueIds.map(async (baigeId) => {
@@ -306,40 +333,17 @@ export default function DeckRecognizer() {
                             });
                             // 缓存到 globalCardInfoCache
                             globalCardInfoCache[result.cn_name] = data;
+                            // 增量更新显示
+                            recognition.setRecognizedCards(buildCards());
+                            setProcessingStage('done');
                         }
                     } catch (e) { console.error('Fetch error for', baigeId, e); }
                 })
             );
             console.log('cardInfoMap size after fetch:', cardInfoMap.size);
 
-            // 构造 recognizedCards
-            const cards: RecognizedCard[] = [];
-            const processIds = (ids: string[]) => {
-                ids.forEach((baigeId) => {
-                    const info = cardInfoMap.get(baigeId);
-                    if (!info) return;
-                    cards.push({
-                        box: { x1: 0, y1: 0, x2: 0, y2: 0, conf: 1 },
-                        index: cards.length,
-                        matches: [{
-                            id: info.cid,
-                            name: info.name,
-                            distance: 0,
-                            cardType: 'standard',
-                            dbHash: ''
-                        }],
-                        selectedMatchIndex: 0,
-                        hashStandard: '',
-                        hashPendulum: ''
-                    });
-                });
-            };
-
-            processIds(main);
-            processIds(extra);
-
+            const cards = buildCards();
             console.log('YDK import: cards count =', cards.length, 'cardInfoMap size =', cardInfoMap.size);
-            console.log('First card:', cards[0]);
 
             recognition.setRecognizedCards(cards);
             setProcessingStage('done');

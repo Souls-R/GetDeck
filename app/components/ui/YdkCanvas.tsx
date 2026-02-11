@@ -93,11 +93,9 @@ export default function YdkCanvas({ recognizedCards, selectedCardIndex, onCardCl
         if (!container || recognizedCards.length === 0) return;
 
         const handleWheel = (e: WheelEvent) => {
-            if (e.ctrlKey || e.metaKey) {
-                e.preventDefault();
-                const delta = e.deltaY > 0 ? -10 : 10;
-                setCardHeight(prev => prev ? Math.max(40, Math.min(200, prev + delta)) : 80);
-            }
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? -5 : 5;
+            setCardHeight(prev => prev ? Math.max(40, Math.min(200, prev + delta)) : 80);
         };
 
         container.addEventListener('wheel', handleWheel, { passive: false });
