@@ -332,6 +332,10 @@ function DeckContent() {
     const [deckData, setDeckData] = useState<DeckResponse | null>(null);
     const [copied, setCopied] = useState(false);
     const [selectedCardIndex, setSelectedCardIndex] = useState(-1);
+    const [isExportingYdk, setIsExportingYdk] = useState(false);
+    const [ydkExported, setYdkExported] = useState(false);
+    const [showExportMenu, setShowExportMenu] = useState(false);
+    const [ydkModalContent, setYdkModalContent] = useState<string | null>(null);
 
     // 移动端状态
     const [showCardListDrawer, setShowCardListDrawer] = useState(false);
@@ -515,6 +519,65 @@ function DeckContent() {
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     }, [deckData]);
+
+    // 导出 YDK 文件
+    const handleExportYdk = useCallback(async () => {
+        if (isExportingYdk || !deckData) return;
+        setIsExportingYdk(true);
+
+        try {
+            const allGameIds = [
+                ...(deckData.deck.monsters || []),
+                ...(deckData.deck.spells || []),
+                ...(deckData.deck.traps || []),
+                ...(deckData.deck.extra || []),
+            ];
+            const uniqueIds = [...new Set(allGameIds)];
+
+            // 加载卡片名称和信息
+            const cardData = await loadCardData();
+            const extraDeckTypes = ['融合', '超量', '连接', '同调', '链接', '同步'];
+            const mainIds: number[] = [];
+            const extraIds: number[] = [];
+
+            for (const gameId of allGameIds) {
+                const card = cardData.find(c => String(c.id) === gameId);
+                if (!card) continue;
+                const info = await getYgocdbCardInfo(card.name);
+                const baigeId = info?.id;
+                if (!baigeId) continue;
+                const types = info?.text?.types || '';
+
+                if (extraDeckTypes.some(t => types.includes(t))) {
+                    extraIds.push(baigeId);
+                } else {
+                    mainIds.push(baigeId);
+                }
+            }
+
+            const ydk = `#created by GetDeck\n#main\n${mainIds.join('\n')}\n#extra\n${extraIds.join('\n')}\n!side\n`;
+
+            navigator.clipboard.writeText(ydk).catch(() => {});
+
+            // 移动端显示弹窗，PC端下载文件
+            if (window.innerWidth < 1024) {
+                setYdkModalContent(ydk);
+            } else {
+                const blob = new Blob([ydk], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'deck.ydk';
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+
+            setYdkExported(true);
+            setTimeout(() => setYdkExported(false), 2000);
+        } finally {
+            setIsExportingYdk(false);
+        }
+    }, [deckData, isExportingYdk]);
 
     // 合并主卡组（怪兽+魔法+陷阱）
     const mainDeck = deckData ? [
@@ -785,26 +848,69 @@ function DeckContent() {
                                                     </p>
                                                 </div>
                                             </div>
-                                            <button
-                                                onClick={handleCopy}
-                                                className={`px-3 py-1.5 text-sm rounded-lg font-medium transition-colors flex items-center gap-1.5 ${
-                                                    copied
-                                                        ? 'bg-[var(--success)] text-white'
-                                                        : 'bg-[var(--primary)] text-white hover:bg-[var(--primary)]/90'
-                                                }`}
-                                                title="复制卡组码"
-                                            >
-                                                {copied ? (
-                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                            <div className="relative flex">
+                                                <button
+                                                    onClick={handleCopy}
+                                                    className={`px-3 py-1.5 text-sm rounded-l-lg font-medium transition-colors flex items-center gap-1.5 ${
+                                                        copied
+                                                            ? 'bg-[var(--success)] text-white'
+                                                            : 'bg-(--primary) text-white hover:bg-(--primary)/90'
+                                                    }`}
+                                                    title="复制卡组码"
+                                                >
+                                                    {copied ? (
+                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                    ) : (
+                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                                        </svg>
+                                                    )}
+                                                    {copied ? '已复制' : '卡组码'}
+                                                </button>
+                                                <button
+                                                    onClick={() => setShowExportMenu(!showExportMenu)}
+                                                    className="px-1.5 rounded-r-lg bg-(--primary) text-white hover:bg-(--primary)/90 border-l border-white/20 transition-colors flex items-center"
+                                                    title="更多导出选项"
+                                                >
+                                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                                     </svg>
-                                                ) : (
-                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                                    </svg>
+                                                </button>
+                                                {(showExportMenu || ydkExported) && (
+                                                    <>
+                                                        {!ydkExported && <div className="fixed inset-0 z-10" onClick={() => setShowExportMenu(false)} />}
+                                                        <div className={`absolute right-0 top-full mt-1 z-20 rounded-lg shadow-lg overflow-hidden ${
+                                                            ydkExported
+                                                                ? 'bg-[var(--success)]'
+                                                                : 'bg-[var(--card-bg)] border border-[var(--card-border)]'
+                                                        }`}>
+                                                            <button
+                                                                onClick={() => { handleExportYdk(); }}
+                                                                disabled={isExportingYdk || ydkExported}
+                                                                className={`px-3 py-1.5 text-sm transition-colors whitespace-nowrap flex items-center gap-2 disabled:cursor-default ${
+                                                                    ydkExported
+                                                                        ? 'text-white'
+                                                                        : 'text-[var(--foreground)] hover:bg-[var(--background-secondary)]'
+                                                                }`}
+                                                            >
+                                                                {isExportingYdk ? (
+                                                                    <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                                                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                                    </svg>
+                                                                ) : ydkExported ? (
+                                                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                                    </svg>
+                                                                ) : null}
+                                                                {ydkExported ? '已复制' : '导出 YDK'}
+                                                            </button>
+                                                        </div>
+                                                    </>
                                                 )}
-                                                {copied ? '已复制' : '卡组码'}
-                                            </button>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -897,15 +1003,32 @@ function DeckContent() {
                                     <svg className="w-5 h-5 text-[var(--success)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    {/* <span className="text-sm font-medium text-[var(--success)]">已复制</span> */}
                                 </>
                             ) : (
                                 <>
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                     </svg>
-                                    {/* <span className="text-sm font-medium">卡组码</span> */}
                                 </>
+                            )}
+                        </button>
+
+                        {/* 分隔线 */}
+                        <div className="w-px h-8 bg-[var(--card-border)]" />
+
+                        {/* 导出 YDK 按钮 */}
+                        <button
+                            onClick={handleExportYdk}
+                            disabled={isExportingYdk}
+                            className="flex items-center gap-1 px-4 py-2.5 rounded-xl text-[var(--foreground)] hover:bg-[var(--background-secondary)] transition-colors active:bg-[var(--card-border)]"
+                        >
+                            {isExportingYdk ? (
+                                <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            ) : (
+                                <span className="text-sm font-medium">YDK</span>
                             )}
                         </button>
                     </div>
@@ -1015,6 +1138,30 @@ function DeckContent() {
                     />
                 )}
             </BottomDrawer>
+
+            {/* YDK 弹窗 */}
+            {ydkModalContent && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setYdkModalContent(null)}>
+                    <div className="mx-4 w-full max-w-md rounded-2xl bg-[var(--card-bg)] border border-[var(--card-border)] shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+                        <div className="p-4 border-b border-[var(--card-border)] flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <svg className="w-4 h-4 text-[var(--success)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span className="text-sm font-medium text-[var(--foreground)]">已复制以下 YDK 代码</span>
+                            </div>
+                            <button onClick={() => setYdkModalContent(null)} className="p-1 rounded-lg hover:bg-[var(--background-secondary)] text-[var(--foreground-muted)]">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div className="p-4">
+                            <pre className="text-xs text-[var(--foreground-muted)] bg-[var(--background-secondary)] rounded-lg p-3 max-h-60 overflow-y-auto whitespace-pre font-mono">{ydkModalContent}</pre>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
