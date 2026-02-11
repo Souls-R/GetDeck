@@ -157,7 +157,7 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
                                     {isDragOver ? '释放以上传' : '拖拽截图或 YDK 文件到这里'}
                                 </p>
                                 <p className="text-sm text-(--foreground-muted)">
-                                    支持 PNG、JPG、YDK 格式
+                                    支持图片文件与 YDK 格式
                                 </p>
                             </div>
                             <div className="flex flex-col sm:flex-row justify-center gap-3 w-full sm:w-auto px-4 sm:px-0">
@@ -381,7 +381,7 @@ export default function UploadArea({ isInitializing, modelDownloadProgress, onFi
                 type="file"
                 ref={fileInputRef}
                 className="hidden"
-                accept="image/*"
+                accept="image/*,.ydk"
                 onChange={handleFileChange}
             />
 

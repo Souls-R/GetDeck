@@ -1428,7 +1428,7 @@ export default function DeckRecognizer() {
             />
 
             {/* 首次访问欢迎弹窗 */}
-            <WelcomeModal isOpen={showWelcome} onClose={() => setShowWelcome(false)} />
+            <WelcomeModal isOpen={showWelcome || undefined} onClose={() => setShowWelcome(false)} />
         </div>
     );
 }
