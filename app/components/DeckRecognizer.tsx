@@ -19,6 +19,7 @@ import MobileCardDrawer from './ui/MobileCardDrawer';
 import HistoryDrawer from './ui/HistoryDrawer';
 import ShareModal from './ui/ShareModal';
 import YdkCanvas from './ui/YdkCanvas';
+import WelcomeModal from './ui/WelcomeModal';
 
 const loadImage = (file: File): Promise<HTMLImageElement> => {
     return new Promise((resolve, reject) => {
@@ -126,6 +127,7 @@ export default function DeckRecognizer() {
 
     // 历史记录相关状态
     const [showHistoryDrawer, setShowHistoryDrawer] = useState(false);
+    const [showWelcome, setShowWelcome] = useState(false);
     const [historyCount, setHistoryCount] = useState(0);
     const [currentHistoryId, setCurrentHistoryId] = useState<string | null>(null);
 
@@ -1083,6 +1085,7 @@ export default function DeckRecognizer() {
 
             <Header
                 show={uploadedImage !== null || originalImage !== null || sourceType === 'ydk'}
+                onQuickStart={() => setShowWelcome(true)}
             />
 
             <div className={`flex flex-1 overflow-hidden relative ${isMobile ? 'flex-col' : ''}`}>
@@ -1103,6 +1106,7 @@ export default function DeckRecognizer() {
                         onFileSelect={handleFile}
                         onYdkImport={handleYdkImport}
                         onHistoryClick={() => setShowHistoryDrawer(true)}
+                        onQuickStart={() => setShowWelcome(true)}
                         historyCount={historyCount}
                     />
                 )}
@@ -1197,6 +1201,7 @@ export default function DeckRecognizer() {
                         cardCount={recognizedCards.length}
                         disabled={isInitializing || isProcessing}
                         hideCropButton={sourceType === 'ydk'}
+                        onQuickStart={() => setShowWelcome(true)}
                     />
                 )}
 
@@ -1417,6 +1422,9 @@ export default function DeckRecognizer() {
                 deckCode={deckCodeModal.code || ''}
                 recognizedCards={recognizedCards}
             />
+
+            {/* 首次访问欢迎弹窗 */}
+            <WelcomeModal isOpen={showWelcome} onClose={() => setShowWelcome(false)} />
         </div>
     );
 }

@@ -12,6 +12,7 @@ interface FloatingToolbarProps {
     onUploadClick: () => void;
     onCardListClick?: () => void;
     onHistoryClick?: () => void;
+    onQuickStart?: () => void;
     showCardListButton?: boolean;
     cardCount?: number;
     disabled?: boolean;
@@ -23,6 +24,7 @@ export default function FloatingToolbar({
     onUploadClick,
     onCardListClick,
     onHistoryClick,
+    onQuickStart,
     showCardListButton = false,
     cardCount = 0,
     disabled = false,
@@ -162,15 +164,12 @@ export default function FloatingToolbar({
                                 GetDeck · Master Duel 卡组识别
                             </span>
                             <div className="flex items-center gap-3">
-                                <a
-                                    href="https://qm.qq.com/q/BMOI04uaNG"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    onClick={(e) => e.stopPropagation()}
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); onQuickStart?.(); setShowAboutTip(false); setIsPinned(false); }}
                                     className="text-[10px] text-[var(--foreground-muted)] hover:text-[var(--primary)] transition-colors"
                                 >
-                                    加群反馈交流
-                                </a>
+                                    快速开始
+                                </button>
                                 <a
                                     href="https://github.com/Souls-R/getdeck"
                                     target="_blank"
