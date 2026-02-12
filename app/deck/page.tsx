@@ -227,10 +227,9 @@ function DeckContent() {
     const [baigeIdMap, setBaigeIdMap] = useState<Map<string, number>>(new Map());
 
     // 检测是否为移动端
-    const [isMobile, setIsMobile] = useState(false);
+    const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1024);
     useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth < 1024);
-        checkMobile();
         window.addEventListener('resize', checkMobile);
         return () => window.removeEventListener('resize', checkMobile);
     }, []);

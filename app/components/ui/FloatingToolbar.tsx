@@ -34,8 +34,8 @@ export default function FloatingToolbar({
     const { t } = useTranslation();
     const [showAboutTip, setShowAboutTip] = useState(false);
     const [isPinned, setIsPinned] = useState(false);
-    const [isMobile, setIsMobile] = useState(false);
-    const [isLargeScreen, setIsLargeScreen] = useState(false);
+    const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && (window.innerWidth < 768 || 'ontouchstart' in window));
+    const [isLargeScreen, setIsLargeScreen] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 1024);
     const [latestUpdate, setLatestUpdate] = useState<ChangelogUpdate | null>(null);
     const tooltipRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
@@ -45,7 +45,6 @@ export default function FloatingToolbar({
             setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window);
             setIsLargeScreen(window.innerWidth >= 1024);
         };
-        checkMobile();
         window.addEventListener('resize', checkMobile);
         return () => window.removeEventListener('resize', checkMobile);
     }, []);

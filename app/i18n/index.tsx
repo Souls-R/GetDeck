@@ -42,25 +42,27 @@ function detectLocale(): Locale {
   return 'zh';
 }
 
-export function I18nProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>('zh');
+function getInitialLocale(): Locale {
+  if (typeof window === 'undefined') return 'zh';
+  const saved = localStorage.getItem(STORAGE_KEY) as Locale | null;
+  if (saved && translations[saved]) return saved;
+  const detected = detectLocale();
+  localStorage.setItem(STORAGE_KEY, detected);
+  return detected;
+}
 
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY) as Locale | null;
-    if (saved && translations[saved]) {
-      setLocaleState(saved);
-    } else {
-      const detected = detectLocale();
-      setLocaleState(detected);
-      localStorage.setItem(STORAGE_KEY, detected);
-    }
-  }, []);
+export function I18nProvider({ children }: { children: React.ReactNode }) {
+  const [locale, setLocaleState] = useState<Locale>(getInitialLocale);
 
   useEffect(() => {
     document.documentElement.lang = localeToLang[locale];
     document.title = translations[locale].layout.title;
     const meta = document.querySelector('meta[name="description"]');
     if (meta) meta.setAttribute('content', translations[locale].layout.description);
+    if (document.body.dataset.i18nHide) {
+      delete document.body.dataset.i18nHide;
+      document.body.style.opacity = '';
+    }
   }, [locale]);
 
   const setLocale = useCallback((l: Locale) => {

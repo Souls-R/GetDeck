@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+/* i18n 防闪烁：JS 出错时 fallback 显示 */
+body[data-i18n-hide] {
+  animation: i18n-fallback 0s 0.5s forwards;
+}
+@keyframes i18n-fallback {
+  to { opacity: 1; }
+}
+
 :root {
   /* 干净专业的配色系统 */
   --background: #ffffff;

@@ -47,6 +47,17 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${geistMono.variable} antialiased`}
       >
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function(){
+            var l=localStorage.getItem('getdeck-locale');
+            if(l&&l!=='zh'){
+              var m={'ja':'ja','en':'en'};
+              if(m[l])document.documentElement.lang=m[l];
+              document.body.style.opacity='0';
+              document.body.dataset.i18nHide='1';
+            }
+          })();
+        `}} />
         <I18nProvider>{children}</I18nProvider>
       </body>
     </html>
