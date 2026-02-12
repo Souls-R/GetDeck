@@ -5,6 +5,7 @@ import HoloCard from './HoloCard';
 import { useTranslation } from '@/app/i18n';
 import { getCardBadges, globalCardInfoCache } from '../../utils/cardApi';
 import { getLocalizedCardName, getLocalizedCardText } from '../../i18n/cardName';
+import { getCardImageUrl } from '../../config';
 
 interface SidebarProps {
     processingStage: ProcessingStage;
@@ -245,7 +246,7 @@ export default function Sidebar({
                             <div className="space-y-4">
                                 <div className="w-full rounded-xl overflow-visible">
                                     <HoloCard
-                                        src={`https://cdn.233.momobako.com/ygoimg/sc/${selectedCardInfo.password}.webp`}
+                                        src={getCardImageUrl(selectedCardInfo.password, locale)}
                                         alt="Official Art"
                                     />
                                 </div>

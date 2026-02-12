@@ -13,7 +13,7 @@ import {
     SAMPLE_OFFSETS,
     EARLY_EXIT_DISTANCE
 } from '../utils/recognition';
-import { modelPath } from '../config';
+import { modelPath, getCardImageUrl } from '../config';
 import { globalCardInfoCache, fetchCardInfo as apiFetchCardInfo } from '../utils/cardApi';
 
 export { globalCardInfoCache };
@@ -69,7 +69,7 @@ const initPromise = new Promise<void>((resolve) => {
 });
 
 export function useRecognition(): UseRecognitionReturn {
-    const { t } = useTranslation();
+    const { t, locale } = useTranslation();
     // 会话状态
     const [session, setSession] = useState<ort.InferenceSession | null>(null);
     const [hashDatabase, setHashDatabase] = useState<CardHashEntry[] | null>(null);
@@ -296,7 +296,8 @@ export function useRecognition(): UseRecognitionReturn {
             // 预加载 CDN 图片
             if (data?.password) {
                 const img = new Image();
-                img.src = `https://cdn.233.momobako.com/ygoimg/sc/${data.password}.webp`;
+                img.crossOrigin = 'anonymous';
+                img.src = getCardImageUrl(data.password, locale);
             }
 
             if (updateUI && name === latestRequestedNameRef.current) {

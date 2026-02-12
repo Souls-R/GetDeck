@@ -6,6 +6,7 @@ import HoloCard from './HoloCard';
 import { useTranslation } from '@/app/i18n';
 import { getCardBadges, globalCardInfoCache } from '../../utils/cardApi';
 import { getLocalizedCardName, getLocalizedCardText } from '../../i18n/cardName';
+import { getCardImageUrl } from '../../config';
 
 // 视图模式：列表或详情
 type ViewMode = 'list' | 'detail';
@@ -423,7 +424,7 @@ export default function MobileCardDrawer({
                     <div className="space-y-4">
                         <div className="w-full rounded-xl overflow-visible">
                             <HoloCard
-                                src={`https://cdn.233.momobako.com/ygoimg/sc/${info.password}.webp`}
+                                src={getCardImageUrl(info.password, locale)}
                                 alt="Official Art"
                             />
                         </div>

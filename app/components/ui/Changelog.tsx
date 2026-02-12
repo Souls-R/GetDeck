@@ -3,6 +3,7 @@ import HoloCard from './HoloCard';
 import { useTranslation, Locale } from '@/app/i18n';
 import { fetchCardInfoBatch, globalCardInfoCache } from '../../utils/cardApi';
 import { getLocalizedCardName } from '@/app/i18n/cardName';
+import { getCardImageUrl } from '@/app/config';
 
 interface ChangelogCardInfo {
     id: number;
@@ -22,9 +23,6 @@ interface UpdateEntry {
 interface ChangelogData {
     updates: UpdateEntry[];
 }
-
-// 卡片图片 CDN（使用百鸽 ID）
-const CARD_IMAGE_CDN = 'https://cdn.233.momobako.com/ygoimg/sc';
 
 // 卡片名称链接组件
 function CardNameLink({ card, locale }: { card: ChangelogCardInfo; locale: Locale }) {
@@ -70,7 +68,7 @@ function ChangelogCard({ card, locale }: { card: ChangelogCardInfo; locale: Loca
             className="block overflow-visible p-1"
         >
             <HoloCard
-                src={`${CARD_IMAGE_CDN}/${baigeId}.webp`}
+                src={getCardImageUrl(baigeId, locale)}
                 alt={displayName}
                 className="!p-0"
             />

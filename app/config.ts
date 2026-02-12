@@ -21,3 +21,10 @@ export const config = {
 
 // 便捷导出
 export const { siteUrl, apiUrl, cdnUrl, modelPath } = config;
+
+// 卡图多语言 URL
+type CardImageLang = 'zh' | 'ja' | 'en';
+const CARD_IMAGE_LANG_FALLBACK: Record<string, CardImageLang> = { zh: 'zh', ja: 'ja', en: 'en' };
+
+export const getCardImageUrl = (id: number, locale: string) =>
+  `${apiUrl}/img-v2/${CARD_IMAGE_LANG_FALLBACK[locale] ?? 'zh'}/${id}`;

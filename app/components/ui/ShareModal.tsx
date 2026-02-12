@@ -14,22 +14,15 @@ interface ShareModalProps {
     recognizedCards: RecognizedCard[];
 }
 
-import { siteUrl, apiUrl } from '../../config';
-
-// 获取卡片图片 URL (解决 CORS 脏画布无法生成图片的问题)
-const getCardImageUrl = (baigeId: number) =>
-    `${apiUrl}/img/${baigeId}`;
+import { siteUrl, getCardImageUrl } from '../../config';
 
 // 分享链接域名配置
 const SHARE_DOMAIN = siteUrl;
 
-// 图片缓存
-const imageCache: Record<number, HTMLImageElement> = {};
-
 export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards }: ShareModalProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const isMobile = useMobile();
-    const { t } = useTranslation();
+    const { t, locale } = useTranslation();
     const [isGenerating, setIsGenerating] = useState(false);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [progress, setProgress] = useState(0);
@@ -51,21 +44,14 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
         }
     };
 
-    // 加载图片的辅助函数（通过 wsrv.nl 代理，支持 CORS）
+    // 加载图片的辅助函数
     const loadImage = (baigeId: number): Promise<HTMLImageElement> => {
-        // 如果已缓存，直接返回
-        if (imageCache[baigeId]) {
-            return Promise.resolve(imageCache[baigeId]);
-        }
         return new Promise((resolve, reject) => {
             const img = new Image();
             img.crossOrigin = 'anonymous';
-            img.onload = () => {
-                imageCache[baigeId] = img;
-                resolve(img);
-            };
+            img.onload = () => resolve(img);
             img.onerror = reject;
-            img.src = getCardImageUrl(baigeId);
+            img.src = getCardImageUrl(baigeId, locale);
         });
     };
 
@@ -114,8 +100,9 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
 
             // 收集所有需要加载的图片 ID
             const allCards = [...mainDeckCards, ...extraDeckCards];
-            const baigeIds = allCards.map(c => c.baigeId).filter((id): id is number => !!id && !imageCache[id]);
+            const baigeIds = allCards.map(c => c.baigeId).filter((id): id is number => !!id);
             const uniqueBaigeIds = [...new Set(baigeIds)];
+            const loadedImages: Record<number, HTMLImageElement> = {};
 
             // 并行预加载所有卡片图片（20 并发）
             if (uniqueBaigeIds.length > 0) {
@@ -129,7 +116,7 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
                         const baigeId = imageQueue.shift();
                         if (baigeId) {
                             try {
-                                await loadImage(baigeId);
+                                loadedImages[baigeId] = await loadImage(baigeId);
                             } catch {
                                 // 忽略加载失败
                             }
@@ -225,8 +212,8 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
                 ctx.fillStyle = '#f5f5f5';
                 ctx.fillRect(x, y, cardWidth, cardHeight);
 
-                if (card.baigeId && imageCache[card.baigeId]) {
-                    ctx.drawImage(imageCache[card.baigeId], x, y, cardWidth, cardHeight);
+                if (card.baigeId && loadedImages[card.baigeId]) {
+                    ctx.drawImage(loadedImages[card.baigeId], x, y, cardWidth, cardHeight);
                 }
 
                 loadedCards++;
@@ -260,8 +247,8 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
                     ctx.fillStyle = '#f5f5f5';
                     ctx.fillRect(x, y, cardWidth, cardHeight);
 
-                    if (card.baigeId && imageCache[card.baigeId]) {
-                        ctx.drawImage(imageCache[card.baigeId], x, y, cardWidth, cardHeight);
+                    if (card.baigeId && loadedImages[card.baigeId]) {
+                        ctx.drawImage(loadedImages[card.baigeId], x, y, cardWidth, cardHeight);
                     }
 
                     loadedCards++;

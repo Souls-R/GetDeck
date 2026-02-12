@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import BottomDrawer from '../components/ui/BottomDrawer';
 import HoloCard from '../components/ui/HoloCard';
-import { apiUrl, siteUrl } from '../config';
+import { apiUrl, siteUrl, getCardImageUrl } from '../config';
 import { useTranslation } from '@/app/i18n';
 import { CardInfo } from '../types';
 import { globalCardInfoCache, fetchCardInfoBatch, isExtraDeck, getCardBadges } from '../utils/cardApi';
@@ -62,10 +62,6 @@ async function getCardDataById(gameId: string): Promise<CardData | null> {
     return cardData.find(c => String(c.id) === gameId) || null;
 }
 
-// 卡片图片 URL (百鸽CDN)
-const getCardImageUrl = (baigeId: number) =>
-    `https://cdn.233.momobako.com/ygoimg/sc/${baigeId}.webp`;
-
 // 格式化卡片描述文字
 function formatCardDesc(desc: string): string {
     if (!desc) return '';
@@ -77,12 +73,14 @@ function CardItem({
     gameId,
     baigeId,
     onClick,
-    isSelected
+    isSelected,
+    locale
 }: {
     gameId: string;
     baigeId: number | null;
     onClick: () => void;
     isSelected: boolean;
+    locale: string;
 }) {
     return (
         <div
@@ -96,8 +94,9 @@ function CardItem({
         >
             {baigeId ? (
                 <img
-                    src={getCardImageUrl(baigeId)}
+                    src={getCardImageUrl(baigeId, locale)}
                     alt={gameId}
+                    crossOrigin="anonymous"
                     className="w-full h-full object-contain card-image"
                     loading="lazy"
                     draggable={false}
@@ -188,7 +187,7 @@ function CardDetailPanel({
                 {/* 官方卡图 - 使用 HoloCard */}
                 <div className="w-full rounded-xl overflow-visible">
                     <HoloCard
-                        src={getCardImageUrl(cardInfo.password)}
+                        src={getCardImageUrl(cardInfo.password, locale)}
                         alt={cardName}
                     />
                 </div>
@@ -688,6 +687,7 @@ function DeckContent() {
                                                             if (isMobile) setShowCardDetailDrawer(true);
                                                         }}
                                                         isSelected={selectedCardIndex === i}
+                                                        locale={locale}
                                                     />
                                                 ))}
                                             </div>
@@ -722,6 +722,7 @@ function DeckContent() {
                                                             if (isMobile) setShowCardDetailDrawer(true);
                                                         }}
                                                         isSelected={selectedCardIndex === extraStart + i}
+                                                        locale={locale}
                                                     />
                                                 ))}
                                             </div>

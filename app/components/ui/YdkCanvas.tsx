@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { RecognizedCard } from '../../types';
 import { globalCardInfoCache, isExtraDeck } from '../../utils/cardApi';
 import { useTranslation } from '@/app/i18n';
+import { getCardImageUrl } from '../../config';
 
 interface YdkCanvasProps {
     recognizedCards: RecognizedCard[];
@@ -11,7 +12,7 @@ interface YdkCanvasProps {
 }
 
 export default function YdkCanvas({ recognizedCards, selectedCardIndex, onCardClick, isMobile = false }: YdkCanvasProps) {
-    const { t } = useTranslation();
+    const { t, locale } = useTranslation();
     // 分离主卡组和额外卡组
     const mainDeck: { card: RecognizedCard; index: number; baigeId?: number }[] = [];
     const extraDeck: { card: RecognizedCard; index: number; baigeId?: number }[] = [];
@@ -116,8 +117,9 @@ export default function YdkCanvas({ recognizedCards, selectedCardIndex, onCardCl
             >
                 {item.baigeId ? (
                     <img
-                        src={`https://cdn.233.momobako.com/ygoimg/sc/${item.baigeId}.webp`}
+                        src={getCardImageUrl(item.baigeId, locale)}
                         alt={match.name}
+                        crossOrigin="anonymous"
                         className="w-full h-full object-cover"
                         draggable={false}
                     />

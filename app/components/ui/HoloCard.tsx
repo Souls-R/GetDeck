@@ -107,6 +107,7 @@ export default function HoloCard({ src, alt, className = '' }: HoloCardProps) {
                         ref={imgRef}
                         src={src}
                         alt={alt}
+                        crossOrigin="anonymous"
                         draggable={false}
                         className={`pointer-events-none transition-opacity duration-200 ${isImageLoaded ? 'opacity-100' : 'opacity-0'}`}
                     />
