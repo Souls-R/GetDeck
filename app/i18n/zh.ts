@@ -147,6 +147,7 @@ const zh = {
     generateSuccess: '卡组码生成成功',
     unknownError: '未知错误',
     networkError: '网络错误，请重试',
+    mainDeckTooFew: '主卡组不足40张，无法生成卡组码',
   },
   notFound: {
     title: '页面不存在',

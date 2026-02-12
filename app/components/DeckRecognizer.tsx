@@ -777,6 +777,13 @@ export default function DeckRecognizer() {
                 }
             });
 
+            // 主卡组不足40张时提示
+            const mainDeckCount = deck.monsters.length + deck.spells.length + deck.traps.length;
+            if (mainDeckCount < 40) {
+                setDeckCodeModal({ show: true, error: t('deckCodeModal.mainDeckTooFew') });
+                return;
+            }
+
             // 调用API生成卡组码
             const payload = { deck };
             console.log('Deck data:', payload);
@@ -851,6 +858,13 @@ export default function DeckRecognizer() {
                     deck.monsters.push(cid);
                 }
             });
+
+            // 主卡组不足40张时提示
+            const mainDeckCount = deck.monsters.length + deck.spells.length + deck.traps.length;
+            if (mainDeckCount < 40) {
+                setDeckCodeModal({ show: true, error: t('deckCodeModal.mainDeckTooFew') });
+                return;
+            }
 
             const response = await fetch(`${apiUrl}/deck-code`, {
                 method: 'POST',
