@@ -50,7 +50,7 @@ const zh = {
     featureAccuracyDesc: '覆盖 Master Duel 全部卡片数据库，支持日文、繁中、简中等多语言卡图',
     featureManualTitle: '手动微调',
     featureManualDesc: '识别结果可手动调整，支持框选修正和候选卡片切换，确保结果准确',
-    techStackLabel: '基于现代 Web 技术构建',
+    techStackLabel: '基于现代 Web 技术与爱❤构建',
     footerCopyright: '© 2026 GetDeck. 开源项目，使用 MIT 协议。',
     ydkModalTitle: '粘贴 YDK 文本',
     ydkModalHint: '请在下方框内粘贴 YDK 文件内容',
