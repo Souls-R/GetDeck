@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from '@/app/i18n';
 
-const STORAGE_KEY = 'getdeck-welcome-shown-v4';
+const STORAGE_KEY = 'getdeck-welcome-shown-v3';
 
 interface WelcomeModalProps {
     isOpen?: boolean;
