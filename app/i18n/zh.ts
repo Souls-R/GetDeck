@@ -230,7 +230,7 @@ const zh = {
     startRecognition: '开始识别',
   },
   welcome: {
-    title: '快速开始',
+    title: '目前卡组码生成功能更新中暂不可用，请耐心等待更新完成',
     subtitle: '记得向分享构筑的人表示感谢，不要拿了卡组就跑哦~',
     scopeTitle: '适用范围',
     scopeDesc: '本工具适用于 Master Duel（游戏王：大师决斗）的卡组截图识别，对其他类型的截图可能效果不佳。',
