@@ -1,5 +1,8 @@
 # GetDeck
 
+[![Bilibili](https://img.shields.io/badge/Bilibili-fb7299?style=flat&logo=bilibili&logoColor=white)](https://space.bilibili.com/501465442)
+[![Discord](https://img.shields.io/badge/Discord-5865F2?style=flat&logo=discord&logoColor=white)](https://discord.gg/gcPUgPBGw3)
+
 GetDeck 是一个 Master Duel 卡组截图识别，卡组码生成以及分享的工具。
 
 上传卡组截图后GetDeck 会自动识别每张卡片以供查看，还可以一键生成卡组码，方便导入游戏使用，也能生成带二维码与卡组码的分享截图。
