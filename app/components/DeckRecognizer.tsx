@@ -428,20 +428,6 @@ export default function DeckRecognizer() {
             setSourceType('ydk');
             setUploadedImage(null);
             setOriginalImage(null);
-
-            // 加载缺失的卡片信息到缓存
-            const missingEntries: { id: number; name: string }[] = [];
-            for (const c of history.recognizedCards) {
-                const m = c.matches[c.selectedMatchIndex];
-                if (m && !globalCardInfoCache[m.name]) {
-                    missingEntries.push({ id: m.id, name: m.name });
-                }
-            }
-            if (missingEntries.length > 0) {
-                fetchCardInfoBatch(missingEntries).then(() => {
-                    recognition.setRecognizedCards([...history.recognizedCards]);
-                });
-            }
         } else {
             // 图片模式
             setSourceType('image');
@@ -451,6 +437,20 @@ export default function DeckRecognizer() {
 
         // 恢复识别结果
         recognition.setRecognizedCards(history.recognizedCards);
+
+        // 加载缺失的卡片信息到缓存
+        const missingEntries: { id: number; name: string }[] = [];
+        for (const c of history.recognizedCards) {
+            const m = c.matches[c.selectedMatchIndex];
+            if (m && !globalCardInfoCache[m.name]) {
+                missingEntries.push({ id: m.id, name: m.name });
+            }
+        }
+        if (missingEntries.length > 0) {
+            fetchCardInfoBatch(missingEntries).then(() => {
+                recognition.setRecognizedCards([...history.recognizedCards]);
+            });
+        }
 
         // 设置处理阶段为完成
         setProcessingStage('done');
