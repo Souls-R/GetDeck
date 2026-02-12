@@ -246,7 +246,7 @@ const en: Translations = {
     disclaimerTitle: 'Disclaimer',
     disclaimerDesc: 'This tool is for learning and communication purposes only, not affiliated with KONAMI. Card data is sourced from public materials.',
     reopenHint: 'You can reopen this page anytime by clicking "Quick Start" at the top',
-    followBilibili: 'Follow on Bilibili',
+    followBilibili: 'Bilibili',
     joinGroup: 'Join Group',
   },
   toolbar: {

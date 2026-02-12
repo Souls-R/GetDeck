@@ -233,7 +233,7 @@ export default function CropperModal({ imageSrc, onApply, onCancel }: CropperMod
                     <span className="text-sm">{t('cropper.cancel')}</span>
                 </button>
                 <div className="flex items-center gap-4 text-xs">
-                    <span className="text-yellow-400 font-medium">{t('cropper.cropHint')}</span>
+                    <span className="text-yellow-400 font-medium whitespace-nowrap">{t('cropper.cropHint')}</span>
                     <div className="flex items-center text-white/50">
                         {cropPixels && <span>{cropPixels.width} × {cropPixels.height}</span>}
                         <span className="mx-2">·</span>
