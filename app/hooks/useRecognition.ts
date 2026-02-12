@@ -83,6 +83,8 @@ export function useRecognition(): UseRecognitionReturn {
     const sessionRef = useRef<ort.InferenceSession | null>(null);
     const hashDatabaseRef = useRef<CardHashEntry[] | null>(null);
     const wasmDbRef = useRef<Database | null>(null);
+    const localeRef = useRef(locale);
+    localeRef.current = locale;
 
     // 等待初始化完成的方法
     const waitForInit = useCallback(() => initPromise, []);
@@ -293,13 +295,6 @@ export function useRecognition(): UseRecognitionReturn {
         try {
             const data = await apiFetchCardInfo(name, id);
 
-            // 预加载 CDN 图片
-            if (data?.password) {
-                const img = new Image();
-                img.crossOrigin = 'anonymous';
-                img.src = getCardImageUrl(data.password, locale);
-            }
-
             if (updateUI && name === latestRequestedNameRef.current) {
                 setSelectedCardInfo(data);
             }
@@ -471,6 +466,21 @@ export function useRecognition(): UseRecognitionReturn {
             }
             const { fetchCardInfoBatch } = await import('../utils/cardApi');
             await fetchCardInfoBatch(Array.from(uniqueEntries.values()));
+
+            // 预加载首选匹配的卡图（不含备选）
+            const seenIds = new Set<number>();
+            for (const c of finalResults) {
+                const m = c.matches[c.selectedMatchIndex];
+                if (!m) continue;
+                const info = globalCardInfoCache[m.name];
+                if (info?.password && !seenIds.has(info.password)) {
+                    seenIds.add(info.password);
+                    const img = new Image();
+                    img.crossOrigin = 'anonymous';
+                    img.src = getCardImageUrl(info.password, localeRef.current);
+                }
+            }
+
             // Bump version so consumers re-render with localized names
             setCardInfoVersion(v => v + 1);
         } catch (error: any) {

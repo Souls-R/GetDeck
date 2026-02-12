@@ -22,6 +22,7 @@ export default function HoloCard({ src, alt, className = '' }: HoloCardProps) {
     // 预加载图片
     useEffect(() => {
         const img = new Image();
+        img.crossOrigin = 'anonymous';
         img.onload = () => {
             setIsImageLoaded(true);
         };
