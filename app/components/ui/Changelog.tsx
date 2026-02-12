@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import HoloCard from './HoloCard';
-import { useTranslation } from '@/app/i18n';
-import { fetchCardInfo as apiFetchCardInfo, globalCardInfoCache } from '../../utils/cardApi';
+import { useTranslation, Locale } from '@/app/i18n';
+import { fetchCardInfoBatch, globalCardInfoCache } from '../../utils/cardApi';
+import { getLocalizedCardName } from '@/app/i18n/cardName';
 
 interface ChangelogCardInfo {
     id: number;
@@ -25,23 +26,14 @@ interface ChangelogData {
 // 卡片图片 CDN（使用百鸽 ID）
 const CARD_IMAGE_CDN = 'https://cdn.233.momobako.com/ygoimg/sc';
 
-// 获取百鸽 ID (password) via cardApi
-async function getBaigeId(name: string, konamiId: number): Promise<number | null> {
-    if (globalCardInfoCache[name]) return globalCardInfoCache[name].password;
-    const info = await apiFetchCardInfo(name, konamiId);
-    return info?.password || null;
-}
-
 // 卡片名称链接组件
-function CardNameLink({ card }: { card: ChangelogCardInfo }) {
-    const [baigeId, setBaigeId] = useState<number | null>(null);
-
-    useEffect(() => {
-        getBaigeId(card.name, card.id).then(id => setBaigeId(id));
-    }, [card.name, card.id]);
+function CardNameLink({ card, locale }: { card: ChangelogCardInfo; locale: Locale }) {
+    const info = globalCardInfoCache[card.name];
+    const baigeId = info?.password;
+    const displayName = getLocalizedCardName(info, card.name, locale);
 
     if (!baigeId) {
-        return <span>{card.name}</span>;
+        return <span>{displayName}</span>;
     }
 
     return (
@@ -51,33 +43,21 @@ function CardNameLink({ card }: { card: ChangelogCardInfo }) {
             rel="noopener noreferrer"
             className="text-(--foreground) hover:text-(--primary) hover:underline transition-colors"
         >
-            {card.name}
+            {displayName}
         </a>
     );
 }
 
 // 卡片组件（使用 HoloCard）
-function ChangelogCard({ card }: { card: ChangelogCardInfo }) {
-    const [baigeId, setBaigeId] = useState<number | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        getBaigeId(card.name, card.id).then(id => {
-            setBaigeId(id);
-            setLoading(false);
-        });
-    }, [card.name, card.id]);
-
-    if (loading) {
-        return (
-            <div className="aspect-[59/86] rounded-lg bg-(--background-tertiary) animate-pulse" />
-        );
-    }
+function ChangelogCard({ card, locale }: { card: ChangelogCardInfo; locale: Locale }) {
+    const info = globalCardInfoCache[card.name];
+    const baigeId = info?.password;
+    const displayName = getLocalizedCardName(info, card.name, locale);
 
     if (!baigeId) {
         return (
             <div className="aspect-[59/86] rounded-lg bg-(--background-tertiary) flex items-center justify-center">
-                <span className="text-[10px] text-(--foreground-muted) text-center px-1">{card.name}</span>
+                <span className="text-[10px] text-(--foreground-muted) text-center px-1">{displayName}</span>
             </div>
         );
     }
@@ -91,7 +71,7 @@ function ChangelogCard({ card }: { card: ChangelogCardInfo }) {
         >
             <HoloCard
                 src={`${CARD_IMAGE_CDN}/${baigeId}.webp`}
-                alt={card.name}
+                alt={displayName}
                 className="!p-0"
             />
         </a>
@@ -104,6 +84,7 @@ export default function Changelog() {
     const [loading, setLoading] = useState(true);
     const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
     const [showAllCards, setShowAllCards] = useState<Set<number>>(new Set());
+    const [cardsFetched, setCardsFetched] = useState(0);
 
     useEffect(() => {
         fetch('/changelog.json')
@@ -116,6 +97,15 @@ export default function Changelog() {
                 setLoading(false);
             });
     }, []);
+
+    // 展开时批量获取卡片信息
+    useEffect(() => {
+        if (expandedIndex === null || !changelog) return;
+        const update = changelog.updates.slice(0, 5)[expandedIndex];
+        if (!update) return;
+        const entries = [...update.added_cards, ...update.updated_cards].map(c => ({ id: c.id, name: c.name }));
+        fetchCardInfoBatch(entries).then(() => setCardsFetched(n => n + 1));
+    }, [expandedIndex, changelog]);
 
     // 加载完成后检测 hash 并滚动到锚点
     useEffect(() => {
@@ -239,7 +229,7 @@ export default function Changelog() {
                                         <span className="text-(--success)">{t('changelog.addedCards', { count: update.added_count })}</span>
                                         ：{update.added_cards.map((c, i) => (
                                             <span key={c.id}>
-                                                <CardNameLink card={c} />
+                                                <CardNameLink card={c} locale={locale} />
                                                 {i < update.added_cards.length - 1 && '、'}
                                             </span>
                                         ))}
@@ -251,7 +241,7 @@ export default function Changelog() {
                                         <span className="text-(--warning)">{t('changelog.updatedCardsDetail', { count: update.updated_count })}</span>
                                         ：{update.updated_cards.map((c, i) => (
                                             <span key={c.id}>
-                                                <CardNameLink card={c} />
+                                                <CardNameLink card={c} locale={locale} />
                                                 {i < update.updated_cards.length - 1 && '、'}
                                             </span>
                                         ))}
@@ -261,7 +251,7 @@ export default function Changelog() {
                                 {update.added_cards.length > 0 && (
                                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 overflow-visible mt-4">
                                         {(showAllCards.has(index) ? update.added_cards : update.added_cards.slice(0, 10)).map(card => (
-                                            <ChangelogCard key={card.id} card={card} />
+                                            <ChangelogCard key={card.id} card={card} locale={locale} />
                                         ))}
                                         {update.added_cards.length > 10 && !showAllCards.has(index) && (
                                             <button
