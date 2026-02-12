@@ -224,6 +224,7 @@ const ja: Translations = {
     credit1Desc: 'カード詳細情報クエリAPIを提供',
     credit2Desc: '高性能ブラウザ内AI推論機能を提供',
     credit3Desc: '物体検出モデルアーキテクチャを提供',
+    credit4Desc: '多言語カードデータを提供',
     openAPI: 'オープンAPI',
     openAPIDesc: 'GetDeckはデッキコード生成機能のオープンAPIを提供し、開発者が自身のプロジェクトに統合できます。',
     viewAPIDocs: 'APIドキュメントを見る',

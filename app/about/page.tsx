@@ -322,6 +322,15 @@ export default function AboutPage() {
                                     <p className="text-sm text-(--foreground-muted)">{t('about.credit3Desc')}</p>
                                 </div>
                             </li>
+                            <li className="flex items-start gap-3">
+                                <span className="shrink-0 w-6 h-6 rounded-full bg-(--primary-light) flex items-center justify-center text-(--primary) text-xs font-bold">4</span>
+                                <div>
+                                    <a href="https://github.com/DawnbrandBots/yaml-yugi" target="_blank" rel="noopener noreferrer" className="font-medium text-(--foreground) hover:text-(--primary) transition-colors">
+                                        YAML Yugi
+                                    </a>
+                                    <p className="text-sm text-(--foreground-muted)">{t('about.credit4Desc')}</p>
+                                </div>
+                            </li>
                         </ul>
                     </div>
                 </section>

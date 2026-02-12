@@ -43,3 +43,4 @@ GetDeck 是一个 Master Duel 卡组截图识别，卡组码生成以及分享�
 ## 致谢
 
 - [百鸽 (ygocdb.com)](https://ygocdb.com) - 提供卡片详细信息查询 API
+- [YAML Yugi](https://github.com/DawnbrandBots/yaml-yugi) - 提供多语言卡片数据

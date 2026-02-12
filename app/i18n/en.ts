@@ -224,6 +224,7 @@ const en: Translations = {
     credit1Desc: 'Provides card detail information query API',
     credit2Desc: 'Provides high-performance browser-based AI inference',
     credit3Desc: 'Provides object detection model architecture',
+    credit4Desc: 'Provides multilingual card data',
     openAPI: 'Open API',
     openAPIDesc: 'GetDeck provides an open API for deck code generation, making it easy for developers to integrate into their own projects.',
     viewAPIDocs: 'View API Docs',
