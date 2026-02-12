@@ -256,7 +256,7 @@ const en: Translations = {
     deckList: 'Deck list',
     usageTips: 'Usage Tips',
     tipMobileUpload: 'Tap upload button to add deck screenshot',
-    tipMobileSwipe: 'Swipe bottom cards left/right to browse quickly',
+    tipMobileSwipe: 'Swipe bottom cards left/right to browse',
     tipMobileSource: 'Tap the {icon} button next to card name to fine-tune recognition area',
     tipMobileDeckList: 'View all cards and generate deck code in deck list view',
     tipPCPaste: '{shortcut} to paste screenshot or click upload button for quick recognition',
@@ -265,7 +265,7 @@ const en: Translations = {
     tipPCDeckList: 'Click empty area to view deck list and generate deck code',
     cardDataUpdate: 'Card data update: {added} new cards',
     cardDataUpdateWithUpdated: 'Card data update: {added} new cards, {updated} updated',
-    getdeckDesc: 'GetDeck · Master Duel Deck Recognition',
+    getdeckDesc: 'GetDeck',
   },
   history: {
     title: 'History',
