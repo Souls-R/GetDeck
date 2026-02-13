@@ -149,7 +149,7 @@ const en: Translations = {
     generateSuccess: 'Deck code generated successfully',
     unknownError: 'Unknown error',
     networkError: 'Network error, please retry',
-    mainDeckTooFew: 'Main deck has fewer than 40 cards, cannot generate deck code',
+    mainDeckTooFew: 'Main deck has fewer than 40 cards, the deck may not be searchable in-game',
   },
   notFound: {
     title: 'Page Not Found',

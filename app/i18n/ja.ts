@@ -149,7 +149,7 @@ const ja: Translations = {
     generateSuccess: 'デッキコード生成成功',
     unknownError: '不明なエラー',
     networkError: 'ネットワークエラー、再試行してください',
-    mainDeckTooFew: 'メインデッキが40枚未満のため、デッキコードを生成できません',
+    mainDeckTooFew: 'メインデッキが40枚未満のため、ゲーム内でデッキが検索できない場合があります',
   },
   notFound: {
     title: 'ページが見つかりません',

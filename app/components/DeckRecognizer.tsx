@@ -121,7 +121,7 @@ export default function DeckRecognizer() {
     const [isGeneratingDeckCode, setIsGeneratingDeckCode] = useState(false);
     const [isExportingYdk, setIsExportingYdk] = useState(false);
     const [ydkExported, setYdkExported] = useState(false);
-    const [deckCodeModal, setDeckCodeModal] = useState<{ show: boolean; code?: string; error?: string }>({ show: false });
+    const [deckCodeModal, setDeckCodeModal] = useState<{ show: boolean; code?: string; error?: string; warning?: string }>({ show: false });
     const [deckCodeCopied, setDeckCodeCopied] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
     const [showLowCountWarning, setShowLowCountWarning] = useState(false);
@@ -777,12 +777,9 @@ export default function DeckRecognizer() {
                 }
             });
 
-            // 主卡组不足40张时提示
+            // 主卡组不足40张时记录警告
             const mainDeckCount = deck.monsters.length + deck.spells.length + deck.traps.length;
-            if (mainDeckCount < 40) {
-                setDeckCodeModal({ show: true, error: t('deckCodeModal.mainDeckTooFew') });
-                return;
-            }
+            const mainDeckWarning = mainDeckCount < 40;
 
             // 调用API生成卡组码
             const payload = { deck };
@@ -799,7 +796,7 @@ export default function DeckRecognizer() {
             if (data.error) {
                 setDeckCodeModal({ show: true, error: data.error });
             } else if (data.deck_code) {
-                setDeckCodeModal({ show: true, code: data.deck_code });
+                setDeckCodeModal({ show: true, code: data.deck_code, warning: mainDeckWarning ? t('deckCodeModal.mainDeckTooFew') : undefined });
                 // 更新历史记录中的卡组码
                 if (currentHistoryId) {
                     updateHistory(currentHistoryId, { deckCode: data.deck_code }).catch(console.error);
@@ -859,12 +856,9 @@ export default function DeckRecognizer() {
                 }
             });
 
-            // 主卡组不足40张时提示
+            // 主卡组不足40张时记录警告
             const mainDeckCount = deck.monsters.length + deck.spells.length + deck.traps.length;
-            if (mainDeckCount < 40) {
-                setDeckCodeModal({ show: true, error: t('deckCodeModal.mainDeckTooFew') });
-                return;
-            }
+            const mainDeckWarning = mainDeckCount < 40;
 
             const response = await fetch(`${apiUrl}/deck-code`, {
                 method: 'POST',
@@ -878,7 +872,7 @@ export default function DeckRecognizer() {
             if (data.error) {
                 setDeckCodeModal({ show: true, error: data.error });
             } else if (data.deck_code) {
-                setDeckCodeModal({ show: false, code: data.deck_code });
+                setDeckCodeModal({ show: false, code: data.deck_code, warning: mainDeckWarning ? t('deckCodeModal.mainDeckTooFew') : undefined });
                 setShowShareModal(true);
                 if (currentHistoryId) {
                     updateHistory(currentHistoryId, { deckCode: data.deck_code }).catch(console.error);
@@ -1257,6 +1251,9 @@ export default function DeckRecognizer() {
                                 <div className="bg-(--background-secondary) rounded-lg p-4 mb-4">
                                     <p className="text-sm text-foreground font-mono break-all select-all">{deckCodeModal.code}</p>
                                 </div>
+                                {deckCodeModal.warning && (
+                                    <p className="text-xs text-yellow-500 mb-4">{deckCodeModal.warning}</p>
+                                )}
                                 <div className="flex gap-3">
                                     <button
                                         onClick={() => {
