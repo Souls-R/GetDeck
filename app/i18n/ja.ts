@@ -91,6 +91,7 @@ const ja: Translations = {
     edited: '編集済み',
     confirmDelete: '確定?',
     confirmDeleteDesc: 'このカードを削除しますか？',
+    editTip: 'デッキの一番下までスクロールしてカードを追加。カードをタップして詳細から置換・削除できます。',
   },
   share: {
     title: 'デッキを共有',

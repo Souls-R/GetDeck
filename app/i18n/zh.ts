@@ -89,6 +89,7 @@ const zh = {
     edited: '已编辑',
     confirmDelete: '确定?',
     confirmDeleteDesc: '确定要删除这张卡片吗？',
+    editTip: '下滑到卡组底端可添加卡片，点击某张卡片查看详情后可替换或删除',
   },
   share: {
     title: '分享卡组',

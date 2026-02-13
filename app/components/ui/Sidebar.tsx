@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { RecognizedCard, CardInfo } from '../../types';
 import { ProcessingStage } from '../../hooks/useRecognition';
 import HoloCard from './HoloCard';
@@ -401,7 +401,18 @@ export default function Sidebar({
                                         <span className="text-lg font-bold text-white">{recognizedCards.length}</span>
                                     </div>
                                     <div>
-                                        <h2 className="text-base font-bold text-[var(--foreground)]">{t('sidebar.recognitionDone')}</h2>
+                                        <h2 className="text-base font-bold text-[var(--foreground)] flex items-center gap-1">
+                                            {t('sidebar.recognitionDone')}
+                                            <span className="relative group">
+                                                <button className="text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors cursor-pointer">
+                                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                                </button>
+                                                <div className="hidden group-hover:block absolute left-1/2 -translate-x-1/2 top-full mt-2 w-56 p-2.5 rounded-xl bg-[var(--card-bg)] border border-[var(--card-border)] shadow-xl text-xs font-normal text-[var(--foreground-muted)] z-50 animate-float-in">
+                                                    {t('sidebar.editTip')}
+                                                    <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 bg-[var(--card-bg)] border-l border-t border-[var(--card-border)]" />
+                                                </div>
+                                            </span>
+                                        </h2>
                                         <p className="text-xs text-[var(--foreground-muted)]">{t('sidebar.cardTypes', { count: cardGroups.length })}</p>
                                     </div>
                                 </div>

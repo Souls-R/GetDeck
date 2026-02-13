@@ -91,6 +91,7 @@ const en: Translations = {
     edited: 'Edited',
     confirmDelete: 'Sure?',
     confirmDeleteDesc: 'Are you sure?',
+    editTip: 'Scroll to the bottom to add cards. Tap a card for details to replace or delete it.',
   },
   share: {
     title: 'Share Deck',

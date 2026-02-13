@@ -114,6 +114,7 @@ export default function MobileCardDrawer({
     const [searchMode, setSearchMode] = useState<'replace' | 'add' | null>(null);
     const [deleteConfirmPending, setDeleteConfirmPending] = useState(false);
     const [showEditMenu, setShowEditMenu] = useState(false);
+    const [showEditTip, setShowEditTip] = useState(false);
 
     // 视图状态
     const [viewMode, setViewMode] = useState<ViewMode>(initialViewMode);
@@ -585,6 +586,21 @@ export default function MobileCardDrawer({
                 )}
             </BottomDrawer>
 
+            {/* 编辑提示弹窗 */}
+            {showEditTip && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in" onClick={() => setShowEditTip(false)}>
+                    <div className="bg-[var(--card-bg)] rounded-2xl shadow-2xl border border-[var(--card-border)] p-6 mx-4 max-w-sm w-full animate-scale-in" onClick={e => e.stopPropagation()}>
+                        <div className="flex items-center justify-between mb-3">
+                            <h3 className="text-base font-bold text-[var(--foreground)]">{t('toolbar.usageTips')}</h3>
+                            <button onClick={() => setShowEditTip(false)} className="p-1.5 rounded-lg bg-[var(--background-secondary)] text-[var(--foreground-muted)]">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                        </div>
+                        <p className="text-sm text-[var(--foreground-muted)]">{t('sidebar.editTip')}</p>
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 
@@ -611,7 +627,12 @@ export default function MobileCardDrawer({
                                         <span className="text-lg font-bold text-white">{recognizedCards.length}</span>
                                     </div>
                                     <div>
-                                        <h2 className="text-base font-bold text-foreground">{t('sidebar.recognitionDone')}</h2>
+                                        <h2 className="text-base font-bold text-foreground flex items-center gap-1">
+                                            {t('sidebar.recognitionDone')}
+                                            <button onClick={() => setShowEditTip(true)} className="text-(--foreground-muted) active:text-(--foreground) transition-colors cursor-pointer">
+                                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                            </button>
+                                        </h2>
                                         <p className="text-xs text-(--foreground-muted)">{t('sidebar.cardTypes', { count: cardGroups.length })}</p>
                                     </div>
                                 </div>
