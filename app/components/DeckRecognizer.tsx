@@ -94,6 +94,7 @@ export default function DeckRecognizer() {
         updateCardBox,
         setOriginalImage,
         setSelectedCardIndex,
+        setSelectedCardInfo,
         setProcessingStage,
         resetState,
         waitForInit,
@@ -788,9 +789,11 @@ export default function DeckRecognizer() {
         card.matches = [{ id: searchResult.cid, name, distance: 0, cardType: 'standard', dbHash: '' }];
         card.selectedMatchIndex = 0;
         card.isEdited = true;
-        globalCardInfoCache[name] = buildCardInfo(searchResult) as any;
+        const info = buildCardInfo(searchResult) as any;
+        globalCardInfoCache[name] = info;
         recognition.setRecognizedCards(newCards);
-    }, [recognizedCards, recognition]);
+        setSelectedCardInfo(info);
+    }, [recognizedCards, recognition, setSelectedCardInfo]);
 
     const handleDeleteCard = useCallback((cardIndex: number) => {
         const newCards = recognizedCards.filter((_, i) => i !== cardIndex).map((c, i) => ({ ...c, index: i }));
