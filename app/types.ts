@@ -21,6 +21,7 @@ export interface RecognizedCard {
   selectedMatchIndex: number;
   hashStandard: string;
   hashPendulum: string;
+  isEdited?: boolean;
 }
 
 export interface CardHashEntry {

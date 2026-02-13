@@ -7,6 +7,8 @@ import { useTranslation } from '@/app/i18n';
 import { getCardBadges, globalCardInfoCache } from '../../utils/cardApi';
 import { getLocalizedCardName, getLocalizedCardText } from '../../i18n/cardName';
 import { getCardImageUrl } from '../../config';
+import CardSearchPanel, { SearchResult } from './CardSearchPanel';
+import BottomDrawer from './BottomDrawer';
 
 // 视图模式：列表或详情
 type ViewMode = 'list' | 'detail';
@@ -39,6 +41,9 @@ interface MobileCardDrawerProps {
     initialViewMode?: ViewMode;
     // 当请求显示详情时，传入entry point
     entryPoint?: EntryPoint;
+    onReplaceCard?: (cardIndex: number, searchResult: SearchResult) => void;
+    onDeleteCard?: (cardIndex: number) => void;
+    onAddCard?: (searchResult: SearchResult) => void;
 }
 
 // 格式化卡片描述文字
@@ -96,13 +101,19 @@ export default function MobileCardDrawer({
     onSelectAltMatch,
     onMoveCardBox,
     initialViewMode = 'list',
-    entryPoint = 'list'
+    entryPoint = 'list',
+    onReplaceCard,
+    onDeleteCard,
+    onAddCard
 }: MobileCardDrawerProps) {
     const { t, locale } = useTranslation();
     const [isAnimating, setIsAnimating] = useState(false);
     const [shouldRender, setShouldRender] = useState(false);
     const [overlayVisible, setOverlayVisible] = useState(false);
     const [showExportMenu, setShowExportMenu] = useState(false);
+    const [searchMode, setSearchMode] = useState<'replace' | 'add' | null>(null);
+    const [deleteConfirmPending, setDeleteConfirmPending] = useState(false);
+    const [showEditMenu, setShowEditMenu] = useState(false);
 
     // 视图状态
     const [viewMode, setViewMode] = useState<ViewMode>(initialViewMode);
@@ -252,7 +263,7 @@ export default function MobileCardDrawer({
     }, [isOpen, viewMode, scrollPosition]);
 
     // 合并相同卡片
-    const cardGroups: { name: string; count: number; indices: number[]; cardType: string }[] = [];
+    const cardGroups: { name: string; count: number; indices: number[]; cardType: string; isEdited: boolean }[] = [];
     recognizedCards.forEach((card, index) => {
         const match = card.matches[card.selectedMatchIndex];
         if (!match) return;
@@ -262,12 +273,14 @@ export default function MobileCardDrawer({
         if (existing) {
             existing.count++;
             existing.indices.push(index);
+            if (card.isEdited) existing.isEdited = true;
         } else {
             cardGroups.push({
                 name: displayName,
                 count: 1,
                 indices: [index],
-                cardType: match.cardType
+                cardType: match.cardType,
+                isEdited: !!card.isEdited
             });
         }
     });
@@ -553,6 +566,25 @@ export default function MobileCardDrawer({
                     </div>
                 </div>
             </div>
+
+            {/* Search panel as BottomDrawer */}
+            <BottomDrawer isOpen={!!searchMode} onClose={() => setSearchMode(null)} maxHeight="80vh">
+                {searchMode && (
+                    <CardSearchPanel
+                        mode={searchMode}
+                        onReplace={(r) => {
+                            if (selectedCardIndex !== -1) onReplaceCard?.(selectedCardIndex, r);
+                            setSearchMode(null);
+                        }}
+                        onAdd={(r) => {
+                            onAddCard?.(r);
+                            setSearchMode(null);
+                        }}
+                        onClose={() => setSearchMode(null)}
+                    />
+                )}
+            </BottomDrawer>
+
         </div>
     );
 
@@ -670,7 +702,7 @@ export default function MobileCardDrawer({
                                 <button
                                     key={groupIndex}
                                     onClick={() => handleCardClickFromList(group.indices[0])}
-                                    className="w-full text-left px-3 py-2.5 rounded-lg bg-(--background-secondary) hover:bg-(--card-border) active:bg-(--card-border) border border-transparent hover:border-(--primary)/30 transition-all duration-150 group"
+                                    className={`w-full text-left px-3 py-2.5 rounded-lg bg-(--background-secondary) hover:bg-(--card-border) active:bg-(--card-border) border border-transparent hover:border-(--primary)/30 transition-all duration-150 group ${group.isEdited ? 'border-l-2 !border-l-[var(--primary)]' : ''}`}
                                 >
                                     <div className="flex items-center gap-2">
                                         {/* 数量 */}
@@ -695,6 +727,16 @@ export default function MobileCardDrawer({
                                     </div>
                                 </button>
                             ))}
+                            {/* Add Card button */}
+                            <button
+                                onClick={() => setSearchMode('add')}
+                                className="w-full mt-2 px-3 py-2.5 rounded-lg border border-dashed border-[var(--card-border)] text-[var(--foreground-muted)] active:text-[var(--primary)] active:border-[var(--primary)] transition-all duration-150 flex items-center justify-center gap-2"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                </svg>
+                                <span className="text-sm font-medium">{t('sidebar.addCard')}</span>
+                            </button>
                         </div>
                     </div>
                 )}
@@ -758,6 +800,46 @@ export default function MobileCardDrawer({
                             <span className="text-xs text-[var(--foreground-muted)] font-mono">
                                 {selectedCardIndex + 1}/{recognizedCards.length}
                             </span>
+                            {/* Edit menu */}
+                            <div className="relative">
+                                <button
+                                    onClick={() => setShowEditMenu(!showEditMenu)}
+                                    className={`p-1 rounded-lg transition-colors ${showEditMenu ? 'bg-[var(--primary)] text-white' : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)]'}`}
+                                >
+                                    <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                    </svg>
+                                </button>
+                                {showEditMenu && (
+                                    <>
+                                        <div className="fixed inset-0 z-10" onClick={() => { setShowEditMenu(false); setDeleteConfirmPending(false); }} />
+                                        <div className="absolute right-0 top-full mt-1 z-20 rounded-lg shadow-lg bg-[var(--card-bg)] border border-[var(--card-border)] min-w-[100px]">
+                                            <button
+                                                onClick={() => { setSearchMode('replace'); setShowEditMenu(false); }}
+                                                className="w-full px-3 py-2 text-sm text-left text-[var(--foreground)] active:bg-[var(--background-secondary)] transition-colors flex items-center gap-2"
+                                            >
+                                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                                                {t('sidebar.replaceCard')}
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    if (deleteConfirmPending) {
+                                                        onDeleteCard?.(selectedCardIndex);
+                                                        setShowEditMenu(false);
+                                                        setDeleteConfirmPending(false);
+                                                    } else {
+                                                        setDeleteConfirmPending(true);
+                                                    }
+                                                }}
+                                                className="w-full px-3 py-2 text-sm text-left text-red-500 active:bg-red-500/10 transition-colors flex items-center gap-2"
+                                            >
+                                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                {deleteConfirmPending ? t('sidebar.confirmDelete') : t('sidebar.deleteCard')}
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
                             <button
                                 onClick={handleToggleSourcePanel}
                                 className={`p-1 rounded-lg transition-colors ${showSourcePanel

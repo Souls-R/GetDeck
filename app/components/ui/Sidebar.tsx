@@ -6,6 +6,7 @@ import { useTranslation } from '@/app/i18n';
 import { getCardBadges, globalCardInfoCache } from '../../utils/cardApi';
 import { getLocalizedCardName, getLocalizedCardText } from '../../i18n/cardName';
 import { getCardImageUrl } from '../../config';
+import CardSearchPanel, { SearchResult } from './CardSearchPanel';
 
 interface SidebarProps {
     processingStage: ProcessingStage;
@@ -28,6 +29,9 @@ interface SidebarProps {
     isExportingYdk: boolean;
     ydkExported: boolean;
     sourceType?: 'image' | 'ydk';
+    onReplaceCard?: (cardIndex: number, searchResult: SearchResult) => void;
+    onDeleteCard?: (cardIndex: number) => void;
+    onAddCard?: (searchResult: SearchResult) => void;
 }
 
 // 格式化卡片描述文字，在①②③等效果编号前添加换行
@@ -57,11 +61,17 @@ export default function Sidebar({
     onExportYdk,
     isExportingYdk,
     ydkExported,
-    sourceType = 'image'
+    sourceType = 'image',
+    onReplaceCard,
+    onDeleteCard,
+    onAddCard
 }: SidebarProps) {
     const { t, locale } = useTranslation();
     const [isSourcePanelExpanded, setIsSourcePanelExpanded] = useState(false);
     const [showExportMenu, setShowExportMenu] = useState(false);
+    const [searchMode, setSearchMode] = useState<'replace' | 'add' | null>(null);
+    const [deleteConfirmPending, setDeleteConfirmPending] = useState(false);
+    const [showEditMenu, setShowEditMenu] = useState(false);
 
     // ydkExported 变为 false 时关闭菜单
     useEffect(() => {
@@ -99,6 +109,22 @@ export default function Sidebar({
 
     return (
         <div className="w-[400px] h-full border-l border-[var(--card-border)] bg-[var(--card-bg)] flex flex-col shrink-0 overflow-hidden">
+            {/* Search panel */}
+            {searchMode && (
+                <CardSearchPanel
+                    mode={searchMode}
+                    onReplace={(r) => {
+                        if (selectedCardIndex !== -1) onReplaceCard?.(selectedCardIndex, r);
+                        setSearchMode(null);
+                    }}
+                    onAdd={(r) => {
+                        onAddCard?.(r);
+                        setSearchMode(null);
+                    }}
+                    onClose={() => setSearchMode(null)}
+                />
+            )}
+
             {/* 处理中状态 - 简化显示 */}
             {(processingStage === 'detecting' || processingStage === 'identifying') && (
                 <div className="h-full flex flex-col items-center justify-center p-8 text-center">
@@ -108,7 +134,7 @@ export default function Sidebar({
             )}
 
             {/* 卡片详情 */}
-            {processingStage === 'done' && selectedCardIndex !== -1 && selectedCard && (
+            {processingStage === 'done' && selectedCardIndex !== -1 && selectedCard && !searchMode && (
                 <div className="flex flex-col h-full animate-scale-in">
                     {/* 头部 */}
                     <div className="p-6 border-b border-[var(--card-border)] bg-gradient-card">
@@ -123,7 +149,49 @@ export default function Sidebar({
                             >
                                 {currentMatch ? getLocalizedCardName(selectedCardInfo, currentMatch.name, locale) : ''}
                             </h2>
-                            {/* 识别源按钮(图片模式) / 关闭按钮(YDK模式) */}
+                            <div className="flex items-center gap-1.5 shrink-0">
+                                {/* Edit menu button */}
+                                <div className="relative">
+                                    <button
+                                        onClick={() => setShowEditMenu(!showEditMenu)}
+                                        className={`p-1.5 rounded-lg transition-colors shrink-0 ${showEditMenu ? 'bg-[var(--primary)] text-white' : 'bg-[var(--background-secondary)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]'}`}
+                                        title={t('sidebar.replaceCard')}
+                                    >
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                        </svg>
+                                    </button>
+                                    {showEditMenu && (
+                                        <>
+                                            <div className="fixed inset-0 z-10" onClick={() => { setShowEditMenu(false); setDeleteConfirmPending(false); }} />
+                                            <div className="absolute right-0 top-full mt-1 z-20 rounded-lg shadow-lg bg-[var(--card-bg)] border border-[var(--card-border)] min-w-[100px]">
+                                                <button
+                                                    onClick={() => { setSearchMode('replace'); setShowEditMenu(false); }}
+                                                    className="w-full px-3 py-2 text-sm text-left text-[var(--foreground)] hover:bg-[var(--background-secondary)] transition-colors flex items-center gap-2"
+                                                >
+                                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                                                    {t('sidebar.replaceCard')}
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        if (deleteConfirmPending) {
+                                                            onDeleteCard?.(selectedCardIndex);
+                                                            setShowEditMenu(false);
+                                                            setDeleteConfirmPending(false);
+                                                        } else {
+                                                            setDeleteConfirmPending(true);
+                                                        }
+                                                    }}
+                                                    className="w-full px-3 py-2 text-sm text-left text-red-500 hover:bg-red-500/10 transition-colors flex items-center gap-2"
+                                                >
+                                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                    {deleteConfirmPending ? t('sidebar.confirmDelete') : t('sidebar.deleteCard')}
+                                                </button>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                                {/* 识别源按钮(图片模式) / 关闭按钮(YDK模式) */}
                             {sourceType === 'ydk' ? (
                                 <button
                                     onClick={() => onSelectCard(-1)}
@@ -149,6 +217,7 @@ export default function Sidebar({
                                     </svg>
                                 </button>
                             )}
+                            </div>
                         </div>
                         {selectedCardInfo && (
                             <div className="flex flex-wrap gap-2">
@@ -298,9 +367,9 @@ export default function Sidebar({
             )}
 
             {/* 空状态 - 显示卡片列表 */}
-            {processingStage === 'done' && selectedCardIndex === -1 && (() => {
+            {processingStage === 'done' && selectedCardIndex === -1 && !searchMode && (() => {
                 // 合并相同卡片
-                const cardGroups: { name: string; count: number; indices: number[]; cardType: string }[] = [];
+                const cardGroups: { name: string; count: number; indices: number[]; cardType: string; isEdited: boolean }[] = [];
                 recognizedCards.forEach((card, index) => {
                     const match = card.matches[card.selectedMatchIndex];
                     if (!match) return;
@@ -310,12 +379,14 @@ export default function Sidebar({
                     if (existing) {
                         existing.count++;
                         existing.indices.push(index);
+                        if (card.isEdited) existing.isEdited = true;
                     } else {
                         cardGroups.push({
                             name: displayName,
                             count: 1,
                             indices: [index],
-                            cardType: match.cardType
+                            cardType: match.cardType,
+                            isEdited: !!card.isEdited
                         });
                     }
                 });
@@ -434,7 +505,7 @@ export default function Sidebar({
                                     <button
                                         key={groupIndex}
                                         onClick={() => onSelectCard(group.indices[0])}
-                                        className="w-full text-left px-3 py-2 rounded-lg bg-[var(--background-secondary)] hover:bg-[var(--card-border)] border border-transparent hover:border-[var(--primary)]/30 transition-all duration-150 group"
+                                        className={`w-full text-left px-3 py-2 rounded-lg bg-[var(--background-secondary)] hover:bg-[var(--card-border)] border border-transparent hover:border-[var(--primary)]/30 transition-all duration-150 group ${group.isEdited ? 'border-l-2 !border-l-[var(--primary)]' : ''}`}
                                     >
                                         <div className="flex items-center gap-2">
                                             {/* 数量 */}
@@ -459,6 +530,16 @@ export default function Sidebar({
                                     </button>
                                 ))}
                             </div>
+                            {/* Add Card button */}
+                            <button
+                                onClick={() => setSearchMode('add')}
+                                className="w-full mt-2 px-3 py-2.5 rounded-lg border border-dashed border-[var(--card-border)] hover:border-[var(--primary)] text-[var(--foreground-muted)] hover:text-[var(--primary)] transition-all duration-150 flex items-center justify-center gap-2"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                </svg>
+                                <span className="text-sm font-medium">{t('sidebar.addCard')}</span>
+                            </button>
                         </div>
                     </div>
                 );

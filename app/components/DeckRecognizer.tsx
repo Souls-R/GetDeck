@@ -9,6 +9,7 @@ import { extractArtwork, STANDARD_CARD, PENDULUM_CARD } from '../utils/recogniti
 import { saveHistory, saveYdkHistory, updateHistory, getHistoryCount, DeckHistory } from '../utils/historyDb';
 import { apiUrl } from '../config';
 import { RecognizedCard } from '../types';
+import { SearchResult } from './ui/CardSearchPanel';
 import Header from './ui/Header';
 import UploadArea from './ui/UploadArea';
 import CardCanvas from './ui/CardCanvas';
@@ -162,6 +163,7 @@ export default function DeckRecognizer() {
         }
 
         const card = recognizedCards[index];
+        if (card.box.x1 === 0 && card.box.y1 === 0 && card.box.x2 === 0 && card.box.y2 === 0) return null;
         const currentMatch = card.matches[card.selectedMatchIndex];
         const isPendulum = currentMatch?.cardType === 'pendulum';
 
@@ -503,6 +505,11 @@ export default function DeckRecognizer() {
         if (!originalImage || index === -1) return;
         const card = recognizedCards[index];
         if (!card) return;
+        // Skip artwork for edited/added cards with no canvas position
+        if (card.box.x1 === 0 && card.box.y1 === 0 && card.box.x2 === 0 && card.box.y2 === 0) {
+            setSelectedCardArtwork(null);
+            return;
+        }
 
         const canvas = document.createElement('canvas');
         canvas.width = originalImage.width;
@@ -575,6 +582,7 @@ export default function DeckRecognizer() {
             e.preventDefault();
 
             const currentCard = recognizedCards[selectedCardIndex];
+            if (currentCard.box.x1 === 0 && currentCard.box.y1 === 0 && currentCard.box.x2 === 0 && currentCard.box.y2 === 0) return;
             const currentCenterX = (currentCard.box.x1 + currentCard.box.x2) / 2;
             const currentCenterY = (currentCard.box.y1 + currentCard.box.y2) / 2;
             const cardHeight = currentCard.box.y2 - currentCard.box.y1;
@@ -586,9 +594,11 @@ export default function DeckRecognizer() {
             let nextRowY = Infinity;  // 下一行的 Y 坐标
             let prevRowY = -Infinity; // 上一行的 Y 坐标
 
+            const isZeroBox = (b: typeof currentCard.box) => b.x1 === 0 && b.y1 === 0 && b.x2 === 0 && b.y2 === 0;
+
             // 第一遍：找到最近的下一行和上一行的 Y 坐标
             recognizedCards.forEach((card, index) => {
-                if (index === selectedCardIndex) return;
+                if (index === selectedCardIndex || isZeroBox(card.box)) return;
                 const centerY = (card.box.y1 + card.box.y2) / 2;
                 const dy = centerY - currentCenterY;
 
@@ -603,7 +613,7 @@ export default function DeckRecognizer() {
             });
 
             recognizedCards.forEach((card, index) => {
-                if (index === selectedCardIndex) return;
+                if (index === selectedCardIndex || isZeroBox(card.box)) return;
 
                 const centerX = (card.box.x1 + card.box.x2) / 2;
                 const centerY = (card.box.y1 + card.box.y2) / 2;
@@ -739,6 +749,69 @@ export default function DeckRecognizer() {
 
         reprocessCard(selectedCardIndex, forcePendulumMode, newBox);
     }, [selectedCardIndex, recognizedCards, updateCardBox, originalImage, forcePendulumMode, reprocessCard]);
+
+    // Deck editing handlers
+    const buildMonsterTypeLine = (type: number): string | undefined => {
+        if (!(type & 0x1)) return undefined; // not a monster
+        const parts: string[] = [];
+        if (type & 0x40) parts.push('Fusion');
+        if (type & 0x2000) parts.push('Synchro');
+        if (type & 0x800000) parts.push('Xyz');
+        if (type & 0x4000000) parts.push('Link');
+        if (type & 0x200) parts.push('Ritual');
+        if (type & 0x1000000) parts.push('Pendulum');
+        if (type & 0x20) parts.push('Effect');
+        if (type & 0x10) parts.push('Normal');
+        return parts.join(' / ') || 'Effect';
+    };
+
+    const buildCardInfo = (searchResult: SearchResult) => {
+        const name = searchResult.cn_name || searchResult.sc_name;
+        const type = searchResult.data.type;
+        return {
+            password: searchResult.id,
+            card_type: (type & 0x1) ? 'Monster' : (type & 0x2) ? 'Spell' : 'Trap' as string,
+            monster_type_line: buildMonsterTypeLine(type),
+            name: { zh: name, ja: searchResult.jp_name, en: searchResult.en_name },
+            text: { zh: searchResult.text?.desc },
+            atk: searchResult.data.atk,
+            def: searchResult.data.def,
+            level: searchResult.data.level,
+        };
+    };
+
+    const handleReplaceCard = useCallback((cardIndex: number, searchResult: SearchResult) => {
+        const newCards = [...recognizedCards];
+        const card = newCards[cardIndex];
+        if (!card) return;
+        const name = searchResult.cn_name || searchResult.sc_name;
+        card.matches = [{ id: searchResult.cid, name, distance: 0, cardType: 'standard', dbHash: '' }];
+        card.selectedMatchIndex = 0;
+        card.isEdited = true;
+        globalCardInfoCache[name] = buildCardInfo(searchResult) as any;
+        recognition.setRecognizedCards(newCards);
+    }, [recognizedCards, recognition]);
+
+    const handleDeleteCard = useCallback((cardIndex: number) => {
+        const newCards = recognizedCards.filter((_, i) => i !== cardIndex).map((c, i) => ({ ...c, index: i }));
+        recognition.setRecognizedCards(newCards);
+        setSelectedCardIndex(-1);
+    }, [recognizedCards, recognition, setSelectedCardIndex]);
+
+    const handleAddCard = useCallback((searchResult: SearchResult) => {
+        const name = searchResult.cn_name || searchResult.sc_name;
+        const newCard: RecognizedCard = {
+            box: { x1: 0, y1: 0, x2: 0, y2: 0, conf: 0 },
+            index: recognizedCards.length,
+            matches: [{ id: searchResult.cid, name, distance: 0, cardType: 'standard', dbHash: '' }],
+            selectedMatchIndex: 0,
+            hashStandard: '',
+            hashPendulum: '',
+            isEdited: true,
+        };
+        globalCardInfoCache[name] = buildCardInfo(searchResult) as any;
+        recognition.setRecognizedCards([...recognizedCards, newCard]);
+    }, [recognizedCards, recognition]);
 
     // 生成卡组码
     const handleGenerateDeckCode = useCallback(async () => {
@@ -1168,6 +1241,9 @@ export default function DeckRecognizer() {
                             isExportingYdk={isExportingYdk}
                             ydkExported={ydkExported}
                             sourceType={sourceType}
+                            onReplaceCard={handleReplaceCard}
+                            onDeleteCard={handleDeleteCard}
+                            onAddCard={handleAddCard}
                         />
                     </div>
                 )}
@@ -1201,6 +1277,9 @@ export default function DeckRecognizer() {
                         onMoveCardBox={handleMoveCardBox}
                         initialViewMode={mobileDrawerViewMode}
                         entryPoint={mobileDrawerEntryPoint}
+                        onReplaceCard={handleReplaceCard}
+                        onDeleteCard={handleDeleteCard}
+                        onAddCard={handleAddCard}
                     />
                 )}
             </div>
