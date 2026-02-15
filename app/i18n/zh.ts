@@ -155,7 +155,7 @@ const zh = {
   deckCodeModal: {
     generateFailed: '生成失败',
     generateSuccess: '卡组码生成成功',
-    thankSharer: '如果觉得好用，不妨去评论区感谢一下分享构筑的人吧~',
+    thankSharer: '评论感谢一下分享构筑的人吧~',
     unknownError: '未知错误',
     networkError: '网络错误，请重试',
     mainDeckTooFew: '主卡组不足40张，游戏内可能搜索不到该卡组。可以使用卡组列表的编辑功能补充卡片',
