@@ -84,6 +84,7 @@ const ja: Translations = {
     noSource: 'なし',
     replaceCard: '置換',
     deleteCard: '削除',
+    duplicateCard: '1枚追加',
     addCard: 'カードを追加',
     searchPlaceholder: 'カード名を検索...',
     noResults: 'カードが見つかりません',

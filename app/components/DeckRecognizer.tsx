@@ -801,6 +801,24 @@ export default function DeckRecognizer() {
         setSelectedCardIndex(-1);
     }, [recognizedCards, recognition, setSelectedCardIndex]);
 
+    const handleDuplicateCard = useCallback((cardIndex: number) => {
+        const source = recognizedCards[cardIndex];
+        if (!source) return;
+        const copy: RecognizedCard = {
+            ...source,
+            box: { x1: 0, y1: 0, x2: 0, y2: 0, conf: 0 },
+            index: 0,
+            isEdited: true,
+        };
+        const newCards = [
+            ...recognizedCards.slice(0, cardIndex + 1),
+            copy,
+            ...recognizedCards.slice(cardIndex + 1),
+        ].map((c, i) => ({ ...c, index: i }));
+        recognition.setRecognizedCards(newCards);
+        setSelectedCardIndex(cardIndex + 1);
+    }, [recognizedCards, recognition, setSelectedCardIndex]);
+
     const handleAddCard = useCallback((searchResult: SearchResult) => {
         const name = searchResult.cn_name || searchResult.sc_name;
         const newCard: RecognizedCard = {
@@ -1246,7 +1264,7 @@ export default function DeckRecognizer() {
                             sourceType={sourceType}
                             onReplaceCard={handleReplaceCard}
                             onDeleteCard={handleDeleteCard}
-                            onAddCard={handleAddCard}
+                            onDuplicateCard={handleDuplicateCard}                            onAddCard={handleAddCard}
                         />
                     </div>
                 )}
@@ -1282,6 +1300,7 @@ export default function DeckRecognizer() {
                         entryPoint={mobileDrawerEntryPoint}
                         onReplaceCard={handleReplaceCard}
                         onDeleteCard={handleDeleteCard}
+                        onDuplicateCard={handleDuplicateCard}
                         onAddCard={handleAddCard}
                     />
                 )}

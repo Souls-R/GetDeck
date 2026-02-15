@@ -82,6 +82,7 @@ const zh = {
     noSource: '无',
     replaceCard: '替换',
     deleteCard: '删除',
+    duplicateCard: '加一张',
     addCard: '添加卡片',
     searchPlaceholder: '搜索卡片名称...',
     noResults: '未找到卡片',

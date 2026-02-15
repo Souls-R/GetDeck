@@ -84,6 +84,7 @@ const en: Translations = {
     noSource: 'None',
     replaceCard: 'Replace',
     deleteCard: 'Delete',
+    duplicateCard: 'Add copy',
     addCard: 'Add Card',
     searchPlaceholder: 'Search card name...',
     noResults: 'No cards found',
