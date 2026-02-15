@@ -27,4 +27,4 @@ type CardImageLang = 'zh' | 'ja' | 'en';
 const CARD_IMAGE_LANG_FALLBACK: Record<string, CardImageLang> = { zh: 'zh', ja: 'ja', en: 'en' };
 
 export const getCardImageUrl = (id: number, locale: string) =>
-  `${apiUrl}/img-v2/${CARD_IMAGE_LANG_FALLBACK[locale] ?? 'zh'}/${id}`;
+  `https://img.get-deck.com/${CARD_IMAGE_LANG_FALLBACK[locale] ?? 'zh'}/${id}`;
