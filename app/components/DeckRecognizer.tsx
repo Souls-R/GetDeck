@@ -1336,6 +1336,7 @@ export default function DeckRecognizer() {
                                 {deckCodeModal.warning && (
                                     <p className="text-xs text-yellow-500 mb-4">{deckCodeModal.warning}</p>
                                 )}
+                                <p className="text-xs text-(--foreground-muted) mb-4">{t('deckCodeModal.thankSharer')}</p>
                                 <div className="flex gap-3">
                                     <button
                                         onClick={() => {

@@ -157,9 +157,10 @@ const en: Translations = {
   deckCodeModal: {
     generateFailed: 'Generation failed',
     generateSuccess: 'Deck code generated successfully',
+    thankSharer: 'If you find this useful, consider leaving a comment to thank the deck builder~',
     unknownError: 'Unknown error',
     networkError: 'Network error, please retry',
-    mainDeckTooFew: 'Main deck has fewer than 40 cards, the deck may not be searchable in-game',
+    mainDeckTooFew: 'Main deck has fewer than 40 cards, the deck may not be searchable in-game. You can use the deck list edit feature to add more cards',
   },
   notFound: {
     title: 'Page Not Found',

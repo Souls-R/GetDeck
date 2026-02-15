@@ -157,9 +157,10 @@ const ja: Translations = {
   deckCodeModal: {
     generateFailed: '生成失敗',
     generateSuccess: 'デッキコード生成成功',
+    thankSharer: 'よければ、コメント欄でデッキ構築者に感謝を伝えてみてください~',
     unknownError: '不明なエラー',
     networkError: 'ネットワークエラー、再試行してください',
-    mainDeckTooFew: 'メインデッキが40枚未満のため、ゲーム内でデッキが検索できない場合があります',
+    mainDeckTooFew: 'メインデッキが40枚未満のため、ゲーム内でデッキが検索できない場合があります。デッキリストの編集機能でカードを追加できます',
   },
   notFound: {
     title: 'ページが見つかりません',
