@@ -75,18 +75,13 @@ export default function DeckRecognizer() {
     const recognition = useRecognition();
     const {
         isInitializing,
-        statusText,
         processingStage,
-        progress,
-        processingVisual,
         recognizedCards,
         selectedCardIndex,
         selectedCardInfo,
         isDetailLoading,
         originalImage,
         modelDownloadProgress,
-        session,
-        wasmDb,
         processImage,
         selectCard,
         reprocessCard,
@@ -149,6 +144,11 @@ export default function DeckRecognizer() {
 
     // Artwork 缓存（避免重复绘制 canvas）
     const artworkCacheRef = useRef<Map<string, string>>(new Map());
+
+    useEffect(() => {
+        const cache = artworkCacheRef.current;
+        return () => { cache.clear(); };
+    }, []);
 
     // 使用 ref 存储 processImage 的最新引用，解决闭包陷阱
     const processImageRef = useRef(processImage);
@@ -230,6 +230,7 @@ export default function DeckRecognizer() {
     } = canvasInteraction;
 
     const handleFile = useCallback(async (file: File) => {
+        artworkCacheRef.current.clear();
         resetState();
         setSourceType('image');
         setForcePendulumMode(false);
@@ -528,7 +529,7 @@ export default function DeckRecognizer() {
         setSelectedCardArtwork(artworkCanvas.toDataURL());
     }, [originalImage, recognizedCards]);
 
-    const handleCardSelect = useCallback(async (index: number, fromList?: boolean) => {
+    const handleCardSelect = useCallback(async (index: number, _fromList?: boolean) => {
         if (index === -1) {
             setSelectedCardIndex(-1);
             return;
@@ -707,7 +708,7 @@ export default function DeckRecognizer() {
         const { box } = card;
         const step = 1;
 
-        let newBox = { ...box };
+        const newBox = { ...box };
         switch (direction) {
             case 'up':
                 newBox.y1 -= step;
@@ -1097,8 +1098,6 @@ export default function DeckRecognizer() {
     };
 
     const isProcessing = processingStage === 'detecting' || processingStage === 'identifying';
-
-    const selectedCard = selectedCardIndex !== -1 ? recognizedCards[selectedCardIndex] : null;
 
     return (
         <div className="flex flex-col h-dvh bg-background text-foreground overflow-hidden">

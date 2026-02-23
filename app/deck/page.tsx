@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { Suspense } from 'react';
 import BottomDrawer from '../components/ui/BottomDrawer';
 import HoloCard from '../components/ui/HoloCard';
@@ -49,12 +50,6 @@ async function loadCardData(): Promise<CardData[]> {
     return cardDataPromise;
 }
 
-// 通过游戏ID获取卡片名称
-async function getCardNameById(gameId: string): Promise<string | null> {
-    const cardData = await loadCardData();
-    const card = cardData.find(c => String(c.id) === gameId);
-    return card?.name || null;
-}
 
 // 通过游戏ID获取卡片数据条目
 async function getCardDataById(gameId: string): Promise<CardData | null> {
@@ -234,82 +229,19 @@ function DeckContent() {
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    // PC端卡片高度状态（用于自适应布局）
-    const [cardHeight, setCardHeight] = useState<number | null>(null);
-    const [baseCardHeight, setBaseCardHeight] = useState<number | null>(null); // 基准高度，用于计算百分比
-    const [autoSizeCalculated, setAutoSizeCalculated] = useState(false);
+    // PC端卡片宽度状态（用于网格自适应布局和缩放）
+    const [cardWidth, setCardWidth] = useState<number>(70);
     const cardGridRef = useRef<HTMLDivElement>(null);
 
-    // 计算卡片高度，使所有卡片在一屏内显示（仅 PC 端）
-    useEffect(() => {
-        if (!deckData || autoSizeCalculated || isMobile) return;
-
-        const calculateCardHeight = () => {
-            const container = cardGridRef.current;
-            if (!container) return false;
-
-            // 获取容器可用高度（减去 padding）
-            const containerHeight = container.clientHeight - 32; // p-4 = 16px * 2
-
-            // 容器尺寸还没准备好，返回 false 表示需要重试
-            if (containerHeight <= 0) return false;
-
-            // 计算卡片数量
-            const mainCount = (deckData.deck.monsters?.length || 0) +
-                             (deckData.deck.spells?.length || 0) +
-                             (deckData.deck.traps?.length || 0);
-            const extraCount = deckData.deck.extra?.length || 0;
-
-            const mainCardsPerRow = mainCount <= 50 ? 10 : mainCount >= 60 ? 12 : 11;
-            const mainRows = Math.ceil(mainCount / mainCardsPerRow);
-            const extraRows = Math.ceil(extraCount / 10);
-
-            const gap = 4;
-            const headerHeight = 28;
-            const sectionGap = 16;
-
-            // 计算可用于卡片的总高度
-            const totalRows = mainRows + extraRows;
-            const fixedHeight = headerHeight + (extraCount > 0 ? sectionGap + headerHeight : 0);
-            const totalGaps = Math.max(0, mainRows - 1) * gap + (extraCount > 0 ? Math.max(0, extraRows - 1) * gap : 0);
-            const availableHeight = containerHeight - fixedHeight - totalGaps;
-
-            // 计算每张卡片的高度
-            const calculatedCardHeight = availableHeight / totalRows * 0.95; // 留一点边距
-            const finalHeight = Math.max(60, calculatedCardHeight);
-            setCardHeight(finalHeight); // 最小高度 60px
-            setBaseCardHeight(finalHeight); // 保存基准高度
-
-            return true; // 计算成功
-        };
-
-        // 使用 requestAnimationFrame 确保 DOM 已渲染，并重试直到成功
-        let retryCount = 0;
-        const maxRetries = 10;
-
-        const tryCalculate = () => {
-            if (calculateCardHeight()) {
-                setAutoSizeCalculated(true);
-            } else if (retryCount < maxRetries) {
-                retryCount++;
-                requestAnimationFrame(tryCalculate);
-            }
-        };
-
-        // 首次延迟一帧后开始尝试
-        const frameId = requestAnimationFrame(tryCalculate);
-        return () => cancelAnimationFrame(frameId);
-    }, [deckData, autoSizeCalculated, isMobile]);
-
-    // 缩放按钮处理（调整卡片高度）- 仅 PC 端
+    // 缩放按钮处理（调整卡片网格列宽）- 仅 PC 端
     const handleZoomIn = useCallback(() => {
         if (isMobile) return;
-        setCardHeight(prev => prev ? Math.min(200, prev + 10) : 100);
+        setCardWidth(prev => Math.min(150, prev + 10));
     }, [isMobile]);
 
     const handleZoomOut = useCallback(() => {
         if (isMobile) return;
-        setCardHeight(prev => prev ? Math.max(40, prev - 10) : 80);
+        setCardWidth(prev => Math.max(40, prev - 10));
     }, [isMobile]);
 
     // 滚轮缩放处理 - 仅 PC 端
@@ -320,13 +252,7 @@ function DeckContent() {
 
         const handleWheel = (e: WheelEvent) => {
             e.preventDefault();
-            if (e.deltaY < 0) {
-                // 向上滚动 = 放大
-                setCardHeight(prev => prev ? Math.min(200, prev + 5) : 100);
-            } else {
-                // 向下滚动 = 缩小
-                setCardHeight(prev => prev ? Math.max(40, prev - 5) : 80);
-            }
+            setCardWidth(prev => e.deltaY < 0 ? Math.min(150, prev + 5) : Math.max(40, prev - 5));
         };
 
         container.addEventListener('wheel', handleWheel, { passive: false });
@@ -481,11 +407,6 @@ function DeckContent() {
 
     const selectedGameId = selectedCardIndex >= 0 ? allCards[selectedCardIndex] : null;
 
-    // 计算主卡组每行数量（移动端固定 5 张，PC 端根据数量调整）
-    const mainCardsPerRow = isMobile ? 5 : (mainDeck.length <= 50 ? 10 : mainDeck.length >= 60 ? 12 : 11);
-    // 额外卡组每行数量（移动端固定 5 张，PC 端 10 张）
-    const extraCardsPerRow = isMobile ? 5 : 10;
-
     // 加载卡片名称 + 批量获取卡片信息
     useEffect(() => {
         if (allCards.length === 0) return;
@@ -543,14 +464,14 @@ function DeckContent() {
             {/* Header */}
             <header className="h-14 border-b border-[var(--card-border)] bg-[var(--card-bg)] flex items-center justify-between px-4 shrink-0">
                 <div className="flex items-center gap-4">
-                    <a href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                    <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                         <div className="w-8 h-8 rounded-lg bg-[var(--primary)] flex items-center justify-center">
                             <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                             </svg>
                         </div>
                         <span className="font-semibold text-[var(--foreground)]">GetDeck</span>
-                    </a>
+                    </Link>
 
                     {deckData && (
                         <>
@@ -584,7 +505,7 @@ function DeckContent() {
                                 </svg>
                             </button>
                             <span className="text-xs text-[var(--foreground-muted)] bg-[var(--background-secondary)] px-2 py-1 rounded min-w-[48px] text-center">
-                                {cardHeight && baseCardHeight ? `${Math.round(cardHeight / baseCardHeight * 100)}%` : 'auto'}
+                                {Math.round((cardWidth / 70) * 100)}%
                             </span>
                             <button
                                 onClick={handleZoomIn}
@@ -634,9 +555,9 @@ function DeckContent() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <p className="text-[var(--foreground)] font-medium mb-2">{error}</p>
-                        <a href="/" className="text-sm text-[var(--primary)] hover:underline">
+                        <Link href="/" className="text-sm text-[var(--primary)] hover:underline">
                             {t('deck.backToHome')}
-                        </a>
+                        </Link>
                     </div>
                 ) : deckData ? (
                     <>
@@ -668,12 +589,10 @@ function DeckContent() {
                                             </div>
                                             <div
                                                 className="grid gap-0.5"
-                                                style={isMobile ? {
-                                                    gridTemplateColumns: `repeat(${mainCardsPerRow}, 1fr)`
-                                                } : {
-                                                    gridTemplateColumns: cardHeight
-                                                        ? `repeat(${mainCardsPerRow}, ${Math.round(cardHeight * 59 / 86)}px)`
-                                                        : `repeat(${mainCardsPerRow}, minmax(0, 1fr))`
+                                                style={{
+                                                    gridTemplateColumns: isMobile 
+                                                        ? 'repeat(5, minmax(0, 1fr))' 
+                                                        : `repeat(auto-fill, minmax(${cardWidth}px, 1fr))`
                                                 }}
                                             >
                                                 {mainDeck.map((cid, i) => (
@@ -703,12 +622,10 @@ function DeckContent() {
                                             </div>
                                             <div
                                                 className="grid gap-0.5"
-                                                style={isMobile ? {
-                                                    gridTemplateColumns: `repeat(${extraCardsPerRow}, 1fr)`
-                                                } : {
-                                                    gridTemplateColumns: cardHeight
-                                                        ? `repeat(10, ${Math.round(cardHeight * 59 / 86)}px)`
-                                                        : 'repeat(10, minmax(0, 1fr))'
+                                                style={{
+                                                    gridTemplateColumns: isMobile 
+                                                        ? 'repeat(5, minmax(0, 1fr))' 
+                                                        : `repeat(auto-fill, minmax(${cardWidth}px, 1fr))`
                                                 }}
                                             >
                                                 {extraDeck.map((cid, i) => (
@@ -822,7 +739,7 @@ function DeckContent() {
 
                                     {/* 引导到主页 - 识别自己的卡组 */}
                                     <div className="p-3 border-t border-[var(--card-border)]">
-                                        <a
+                                        <Link
                                             href="/"
                                             className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-[var(--primary)]/10 to-[var(--accent)]/10 border border-[var(--primary)]/20 hover:border-[var(--primary)]/40 transition-all group"
                                         >
@@ -839,7 +756,7 @@ function DeckContent() {
                                             <svg className="w-5 h-5 text-[var(--foreground-muted)] group-hover:text-[var(--primary)] group-hover:translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                             </svg>
-                                        </a>
+                                        </Link>
                                     </div>
                                     {/* 卡片列表 */}
                                     <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
@@ -971,7 +888,7 @@ function DeckContent() {
 
                     {/* 引导到主页 - 识别自己的卡组 */}
                     <div className="p-3 border-t border-[var(--card-border)]">
-                        <a
+                        <Link
                             href="/"
                             className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-[var(--primary)]/10 to-[var(--accent)]/10 border border-[var(--primary)]/20 hover:border-[var(--primary)]/40 transition-all group"
                         >
@@ -988,7 +905,7 @@ function DeckContent() {
                             <svg className="w-5 h-5 text-[var(--foreground-muted)] group-hover:text-[var(--primary)] group-hover:translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                             </svg>
-                        </a>
+                        </Link>
                     </div>
                     {/* 卡片列表 */}
                     <div className="p-2 space-y-1 overflow-y-auto">
