@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useRecognition } from '../hooks/useRecognition';
+import { usePreventSwipeBack } from '../hooks/usePreventSwipeBack';
 import { globalCardInfoCache, fetchCardInfoBatch, fetchCardInfoByPasswords, isExtraDeck } from '../utils/cardApi';
 import { useCanvasInteraction } from '../hooks/useCanvasInteraction';
 import { useMobile } from '../hooks/useMobile';
@@ -72,6 +73,7 @@ const shouldAutoCrop = (img: HTMLImageElement, isMobile: boolean): boolean => {
 export default function DeckRecognizer() {
     const { t } = useTranslation();
     const isMobile = useMobile();
+    usePreventSwipeBack();
     const recognition = useRecognition();
     const {
         isInitializing,
