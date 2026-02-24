@@ -101,7 +101,7 @@ export default function HoloCard({ src, alt, className = '' }: HoloCardProps) {
                         alt={alt}
                         crossOrigin="anonymous"
                         draggable={false}
-                        className={`pointer-events-none transition-opacity duration-200 ${isImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                        className={`pointer-events-none transition-opacity duration-500 ease-out ${isImageLoaded ? 'opacity-100' : 'opacity-0'}`}
                     />
                 </div>
             </div>

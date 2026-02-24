@@ -72,6 +72,7 @@ body[data-i18n-hide] {
     --primary-hover: #3b82f6;
     --primary-light: #1e3a5f;
     --accent-light: #1e3a5f;
+    --success: #4ade80;
   }
 }
 
