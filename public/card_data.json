@@ -81127,7 +81127,7 @@
   },
   {
     "id": 21341,
-    "name": "\t阿斯比库尔",
+    "name": "阿斯比库尔",
     "phash": "4f1b8b3f5c1a1c278de38d6918ccb9dc1bf55fccd529e563e40cf2b876f206cb",
     "card_type": "standard"
   },
@@ -82050,6 +82050,12 @@
     "card_type": "standard"
   },
   {
+    "id": 21783,
+    "name": "绚岚豪火 凤尼克斯",
+    "phash": "1f2e1f264fe448f5596a5f7a7752e81acc1c9e9c7d36f458dab476256f6e2f4d",
+    "card_type": "standard"
+  },
+  {
     "id": 21786,
     "name": "音服和弦・索露菲基娅",
     "phash": "312d28ed2961a5b07c992cd924cb6cedb4c1b2e1b3f0b3f4c966e505b635d293",
@@ -82098,6 +82104,12 @@
     "card_type": "pendulum"
   },
   {
+    "id": 21802,
+    "name": "刚鬼 暴君食人魔",
+    "phash": "4c4f4c5a489b0ba58e29046584558c18b93a082a0a9386734aadcaecc226c996",
+    "card_type": "standard"
+  },
+  {
     "id": 21803,
     "name": "超能者神谕",
     "phash": "1ae78e2e8e4e360bd66ccb3cd37226619725539545011305161d969892367238",
@@ -82119,6 +82131,18 @@
     "id": 21809,
     "name": "DDD 智慧王索罗门",
     "phash": "c45cd50d7f329d3612132217112931a964e73433146294c28e66d074d7c45ed0",
+    "card_type": "standard"
+  },
+  {
+    "id": 21810,
+    "name": "坏狱神 朱庇特",
+    "phash": "59d959e4d93649746cdda39955177436e866b84f294f698ed39c14d9112a5b2e",
+    "card_type": "standard"
+  },
+  {
+    "id": 21811,
+    "name": "终刻狱龙机ⅩⅡ－德拉斯特琉斯",
+    "phash": "b14ca36d321872a22ceb4d629935969ce6862cb7ccd0c43cc539e5f037c4a72d",
     "card_type": "standard"
   },
   {
@@ -82287,6 +82311,12 @@
     "id": 22109,
     "name": "枪弹导爆者",
     "phash": "f6d0e350ca39868da4cdda73632be3680afb48b34cf29cd233b73334b6388d1f",
+    "card_type": "standard"
+  },
+  {
+    "id": 22114,
+    "name": "深红剑士／爆裂",
+    "phash": "62f9199a998cd9ac70f2689164c911675b6c496e08768d64856cc55c2de294b2",
     "card_type": "standard"
   },
   {

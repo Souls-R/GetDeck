@@ -1,6 +1,36 @@
 {
   "updates": [
     {
+      "version": "202602241659",
+      "sync_date": "2026-03-02T14:13:17Z",
+      "added_cards": [
+        {
+          "id": 21783,
+          "name": "绚岚豪火 凤尼克斯"
+        },
+        {
+          "id": 21802,
+          "name": "刚鬼 暴君食人魔"
+        },
+        {
+          "id": 21810,
+          "name": "坏狱神 朱庇特"
+        },
+        {
+          "id": 21811,
+          "name": "终刻狱龙机ⅩⅡ－德拉斯特琉斯"
+        },
+        {
+          "id": 22114,
+          "name": "深红剑士／爆裂"
+        }
+      ],
+      "updated_cards": [],
+      "total_cards": 13733,
+      "added_count": 5,
+      "updated_count": 0
+    },
+    {
       "version": "20260205",
       "sync_date": "2026-02-05T08:52:39Z",
       "added_cards": [
