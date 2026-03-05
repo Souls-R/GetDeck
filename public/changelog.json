@@ -1,6 +1,20 @@
 {
   "updates": [
     {
+      "version": "20260305",
+      "sync_date": "2026-03-05T14:07:42Z",
+      "added_cards": [
+        {
+          "id": 22141,
+          "name": "夜翼祭司"
+        }
+      ],
+      "updated_cards": [],
+      "total_cards": 13734,
+      "added_count": 1,
+      "updated_count": 0
+    },
+    {
       "version": "202602241659",
       "sync_date": "2026-03-02T14:13:17Z",
       "added_cards": [
