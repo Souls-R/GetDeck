@@ -82020,6 +82020,24 @@
     "card_type": "standard"
   },
   {
+    "id": 21746,
+    "name": "阳炎殿的君主",
+    "phash": "d3b8d2b8f299923187f5c7f575e1b5e995e9c5e98d7d957b651b861f1853c249",
+    "card_type": "standard"
+  },
+  {
+    "id": 21747,
+    "name": "斗龙门",
+    "phash": "0b6f8f0e8f8e0e8f8b6ae3484f19db44e969f970e972696bed089fa079203914",
+    "card_type": "standard"
+  },
+  {
+    "id": 21748,
+    "name": "机器牧者",
+    "phash": "063807921f4c9bdc5c9e67026742cecc5da39156599a607976584fcfcab39a30",
+    "card_type": "standard"
+  },
+  {
     "id": 21749,
     "name": "黑魔术之护符",
     "phash": "7d07cd1ef339fb699966e84864d9a4d4a49224dbe8c995667b3b53304f1c9f25",
@@ -82044,9 +82062,69 @@
     "card_type": "pendulum"
   },
   {
+    "id": 21772,
+    "name": "刚鬼 魔神・过肩摔霸王龙",
+    "phash": "b86be98a678e636dc325dde63dc6b11f994f98c4cde4cfcaa83269a69b86b9b2",
+    "card_type": "standard"
+  },
+  {
     "id": 21773,
     "name": "拟声蜥蜴",
     "phash": "8c6cadcc97c9dfc339837d38fe09cf550b1e0939e3017487761d6e0266003d90",
+    "card_type": "standard"
+  },
+  {
+    "id": 21774,
+    "name": "终刻龙机ⅩⅡ－德拉斯提亚",
+    "phash": "f54a2470e62aaf264d268b2dad49b6598b198a996f5aeb72ee30f345930c972e",
+    "card_type": "standard"
+  },
+  {
+    "id": 21775,
+    "name": "终刻龙机Ⅴ－阿玛耳忒",
+    "phash": "9eac8fad625958cecc84c81d453fb319a3196753d4115c39aced896ca33183b6",
+    "card_type": "standard"
+  },
+  {
+    "id": 21776,
+    "name": "终刻龙机Ⅶ－伊拉拉",
+    "phash": "02ce21db99749dd9a639b1316db2675893f9c7cc674ec7336713b32813821b63",
+    "card_type": "standard"
+  },
+  {
+    "id": 21777,
+    "name": "狱神机 终刻",
+    "phash": "f962ce886b9977342a6bb5459269968d99056e5366d193e5cc2c6699e2b8b0b8",
+    "card_type": "standard"
+  },
+  {
+    "id": 21778,
+    "name": "绚岚之米葛拉",
+    "phash": "0f372d16a71c5933d944bc659e070f422dcf394f3b033965b36d93155b0f670a",
+    "card_type": "standard"
+  },
+  {
+    "id": 21779,
+    "name": "绚岚之达象",
+    "phash": "7b82dd246d0e1d8d952c9db8a3adee6627668344a77c854d8f39ad7139c3239b",
+    "card_type": "standard"
+  },
+  {
+    "id": 21780,
+    "name": "绚岚之狲",
+    "phash": "1d4e671123532def3637dc66c936cf5e93decb74c1cecc9ee834e234c4eccde4",
+    "card_type": "standard"
+  },
+  {
+    "id": 21781,
+    "name": "绚岚之鹤罗莎",
+    "phash": "79ce332a02451298d332e3202246e741b3b1c81d324133d77767b6cd650dd479",
+    "card_type": "standard"
+  },
+  {
+    "id": 21782,
+    "name": "绚岚涡丽 伐楼仑",
+    "phash": "33933969fd417e40709b31861b4e8cde1cdd6e44cc669a273907539b511af824",
     "card_type": "standard"
   },
   {
@@ -82122,6 +82200,12 @@
     "card_type": "standard"
   },
   {
+    "id": 21807,
+    "name": "刚鬼 龙食人魔",
+    "phash": "c653d653d91d59525a676832e5b993c646a34ea78eda429b33773b577c4ead0c",
+    "card_type": "standard"
+  },
+  {
     "id": 21808,
     "name": "静寂的念力女术士",
     "phash": "3b03bb54f72c6d426662662694f007d9c74f4e6a1e610d659dc096e453e47b2d",
@@ -82146,15 +82230,33 @@
     "card_type": "standard"
   },
   {
+    "id": 21812,
+    "name": "终刻狱徒 迪亚克特罗斯",
+    "phash": "711865184b946c53cd2d9b54974e960c9606331a3bb39a159e475ca6598fd30e",
+    "card_type": "standard"
+  },
+  {
     "id": 21813,
     "name": "K9－666号 “结克”",
     "phash": "6ec98f61cd34ed34cb1acf0c9f2ccd668d29c831d5d34d534c130ead9b2f839d",
     "card_type": "standard"
   },
   {
+    "id": 21814,
+    "name": "漆梏之喰兽 凯尔泽布斯",
+    "phash": "669e677241ce310638763a7de4a4ca324e348b668372037223f724c73cc629c6",
+    "card_type": "standard"
+  },
+  {
     "id": 21815,
     "name": "DDD 天空王宙斯诸神黄昏",
     "phash": "dd89770b2d2bcbac55992b95bace994ed98ccc1c6719ab0cbb2a8fd8cf065796",
+    "card_type": "standard"
+  },
+  {
+    "id": 21816,
+    "name": "刚鬼 酋长食人魔",
+    "phash": "c435f172196398c5a9c4cdc983cda533ccd2c4b54c358d381e322c2ea72c672c",
     "card_type": "standard"
   },
   {
@@ -82170,6 +82272,24 @@
     "card_type": "standard"
   },
   {
+    "id": 21822,
+    "name": "刚鬼斗魂",
+    "phash": "f5c4c7dd9ca1d360c963a9632126e934594e38e3ded2c7d9b1cbfeb64ce637e7",
+    "card_type": "standard"
+  },
+  {
+    "id": 21823,
+    "name": "终刻击针",
+    "phash": "b19bd31690273c637d3a71fcd23ce657e4c5e949b38aa78acf06f73cdcd8ddd9",
+    "card_type": "standard"
+  },
+  {
+    "id": 21824,
+    "name": "终刻起动《D.O.O.M.D.U.R.G.》",
+    "phash": "db1efb16efcedb6756377d9aa9ee749334c93ebe3a4eab8d4d6468ce4999da6a",
+    "card_type": "standard"
+  },
+  {
     "id": 21825,
     "name": "破灭预幻视",
     "phash": "30f9906e642371f1e390b680da998c0c673e979ecbdf9a4d9b37e72543ce6dc2",
@@ -82179,6 +82299,24 @@
     "id": 21826,
     "name": "神艺时势－血统－",
     "phash": "16497c429b128b006c8e8c0ea50ee587e36167c1cfc3cf90cf88d7c6dab65873",
+    "card_type": "standard"
+  },
+  {
+    "id": 21827,
+    "name": "绚岚之献咏",
+    "phash": "26879e25a6464fc23788f398b31996b1566372f272ea87b88f614f4986668d1e",
+    "card_type": "standard"
+  },
+  {
+    "id": 21828,
+    "name": "绚岚之显现",
+    "phash": "38213ca375a26366bef2fed1fdd07d11333966b2e6128649b9673f714e3c0dbf",
+    "card_type": "standard"
+  },
+  {
+    "id": 21829,
+    "name": "绚岚之见神",
+    "phash": "cb0fcb26b1bc758b611deb3c612c15fb32f79a9fcc9a257e52a5592c29412543",
     "card_type": "standard"
   },
   {
@@ -82200,15 +82338,45 @@
     "card_type": "standard"
   },
   {
+    "id": 21837,
+    "name": "哀哉玉绳双魂缱绻",
+    "phash": "72324f21678133c1e370e7f9564c0c07ac1db4185f38d733f7167f01cf2839a1",
+    "card_type": "standard"
+  },
+  {
     "id": 21839,
     "name": "异次元的契约书",
     "phash": "e499f28aa688be585619261176187758770a774847293da41d031f147f9229d3",
     "card_type": "standard"
   },
   {
+    "id": 21840,
+    "name": "终刻决坏",
+    "phash": "09cdccc6c4b69b71db64dfa2930236c6cca3b5946848de91dd98b389ae8c5a66",
+    "card_type": "standard"
+  },
+  {
+    "id": 21841,
+    "name": "神艺逆转－动荡－",
+    "phash": "19c62fc32e9a3f1b5d05dbc416145412f643b353c933cf2bcf13ee106f01ad11",
+    "card_type": "standard"
+  },
+  {
+    "id": 21842,
+    "name": "绚岚之权能",
+    "phash": "ee21ef01bf05b901bf20f784ff44f92439b48d510d3a7b18e1430073ca9bcf01",
+    "card_type": "standard"
+  },
+  {
     "id": 21843,
     "name": "星宿之刺毒",
     "phash": "ac6c6526692c66e926973a56d2369f329df3bd6d1a5b8cd359eb5d6d2cc72496",
+    "card_type": "standard"
+  },
+  {
+    "id": 21845,
+    "name": "命主王之螺旋",
+    "phash": "296b49e9eca668f26943ddcc7bc632e49a8cf192c813c9395bf8dc7898643155",
     "card_type": "standard"
   },
   {
@@ -82266,6 +82434,12 @@
     "card_type": "standard"
   },
   {
+    "id": 21966,
+    "name": "荧焅圣 亚雷库斯",
+    "phash": "07e66173694b305bb23b9679c464aa63d67258e36cb397338b738b723366f583",
+    "card_type": "standard"
+  },
+  {
     "id": 22081,
     "name": "魔导战士 破坏者",
     "phash": "0b1e091f1b5e5c3e693b3973b366312d519b4183a9872986b49db698faaae29a",
@@ -82314,9 +82488,27 @@
     "card_type": "standard"
   },
   {
+    "id": 22113,
+    "name": "废品战士／爆裂",
+    "phash": "3b49330e679c47ddc34ca42eb2f891a5240d323672266c316919431d35072603",
+    "card_type": "standard"
+  },
+  {
     "id": 22114,
     "name": "深红剑士／爆裂",
     "phash": "62f9199a998cd9ac70f2689164c911675b6c496e08768d64856cc55c2de294b2",
+    "card_type": "standard"
+  },
+  {
+    "id": 22115,
+    "name": "爆裂巫妖",
+    "phash": "4921f31238c3136d38698686b80f78e1ac89a92ca91a22b35455945ea9ae6c9b",
+    "card_type": "standard"
+  },
+  {
+    "id": 22130,
+    "name": "天雷之双风神 息那",
+    "phash": "4e0ee63cb334d53697238d838349f299b80a635d5e9d38297762327223076e47",
     "card_type": "standard"
   },
   {
@@ -82329,6 +82521,12 @@
     "id": 22136,
     "name": "DDD 圣贤王阿尔弗雷德",
     "phash": "97427686cd31cc66ce461bd3939c9634b346b9c26db34ca6460ccbcccf49a395",
+    "card_type": "standard"
+  },
+  {
+    "id": 22141,
+    "name": "夜翼祭司",
+    "phash": "37386c12986138e3716348986c94c40ca61b0317cf16923e921c8e395c336826",
     "card_type": "standard"
   },
   {
@@ -82350,9 +82548,33 @@
     "card_type": "standard"
   },
   {
+    "id": 22152,
+    "name": "绚岚之海灵 伐楼仑",
+    "phash": "0f1d27939641cb05c684929e53dee254b1a63943a9d1c4d9d9588fbc9f38eb58",
+    "card_type": "standard"
+  },
+  {
     "id": 22155,
     "name": "双重扳机",
     "phash": "6f78a3618c61c552a7b13d97fc46fe5276736d722735720ed86683259f39bf19",
+    "card_type": "standard"
+  },
+  {
+    "id": 22157,
+    "name": "决斗进化－爆裂领域",
+    "phash": "78d61ce636c71f9ecf0cca2f0e3e3f2cbb0d33451b4c1646b7307e986ce3cc77",
+    "card_type": "standard"
+  },
+  {
+    "id": 22158,
+    "name": "终刻变转",
+    "phash": "9d430e4e6733630f9213933d378e6ea636ae962cce60cf2849842a4e05359516",
+    "card_type": "standard"
+  },
+  {
+    "id": 22167,
+    "name": "绚岚之轩昂",
+    "phash": "b718dd00dda6bff17362e52ce718dd31ed65f8046f061b1e1b1a37e535741b74",
     "card_type": "standard"
   },
   {
@@ -82362,9 +82584,21 @@
     "card_type": "standard"
   },
   {
+    "id": 22302,
+    "name": "星尘龙／爆裂",
+    "phash": "3d749d6dc40458ce8c8e9a4c2bcb59dbb0f330fb32f318f68937981b1c49ae0d",
+    "card_type": "standard"
+  },
+  {
     "id": 22310,
     "name": "废品大师",
     "phash": "c924dd64fcd27a9269362d66e46cb4cdb6ddb299333993da1a036d02de02ce12",
+    "card_type": "standard"
+  },
+  {
+    "id": 22514,
+    "name": "爆裂音速战士",
+    "phash": "2c4134684823902d98418c25c54dab0f263d3f7999b7f171e9e4f7c1b799bf25",
     "card_type": "standard"
   },
   {
