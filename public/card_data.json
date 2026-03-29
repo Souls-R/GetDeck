@@ -18,6 +18,12 @@
     "card_type": "standard"
   },
   {
+    "id": 3413,
+    "name": "命运－英雄 血魔-D",
+    "phash": "792ce0cc918c5c269ea635b1bb78be5966c04e88499b8b1bb119d24dcb6db82d",
+    "card_type": "standard"
+  },
+  {
     "id": 3415,
     "name": "I：P百变莱娜",
     "phash": "f3e720679846944602171737271fe839e4f98dc991c148f450f059dd4bdd02b1",
@@ -15624,6 +15630,12 @@
     "card_type": "standard"
   },
   {
+    "id": 6786,
+    "name": "缔结契约的龙之战士",
+    "phash": "579ec7736550d766b74f67974327c72d8724b42b350bf1223023383199338e85",
+    "card_type": "standard"
+  },
+  {
     "id": 6788,
     "name": "铠龙－武装龙－",
     "phash": "e0b64137432e4a4e5acc468e649a5472335c630b9ba6da9cebd8c939cc68cdca",
@@ -15921,6 +15933,12 @@
     "id": 6848,
     "name": "电子小天使",
     "phash": "00c49030689f739c182c0f8b35a1b5305df073f03a3a3c1227d392d971fc6cfc",
+    "card_type": "standard"
+  },
+  {
+    "id": 6849,
+    "name": "首席之光",
+    "phash": "dd05ce01cf46efc8ef88ed00ce08d614069b36933713332b3f06033f3f01ffc0",
     "card_type": "standard"
   },
   {
@@ -26880,6 +26898,12 @@
     "card_type": "standard"
   },
   {
+    "id": 8886,
+    "name": "妖魔 涂壁",
+    "phash": "fce0b97239730d4b09f772d92479217b0949371e133719779c4e7111dbe4d8e4",
+    "card_type": "standard"
+  },
+  {
     "id": 8889,
     "name": "寒冰塑偶之镜",
     "phash": "5f89dfa87f2a4f6a3f738f9a6e1a6e3176347631e7286a46f257e611e6398735",
@@ -27813,6 +27837,12 @@
     "id": 9071,
     "name": "幻影－英雄 投毒者",
     "phash": "f61ae5507f70be689c14ae9dbd5dd830386c185950db4b8f6d0d644536cc33ae",
+    "card_type": "standard"
+  },
+  {
+    "id": 9072,
+    "name": "假面－英雄 暮鸦",
+    "phash": "f3561344076c8e6c8f3d07370b1d1b06850d0d0a671b27332f271f4f1f0e3369",
     "card_type": "standard"
   },
   {
@@ -28818,6 +28848,12 @@
     "card_type": "standard"
   },
   {
+    "id": 9270,
+    "name": "假面－英雄 喷泉",
+    "phash": "72b65bb24d6b981281461b46976c973db31ba9b6e336363aa56ce76c6e5167d3",
+    "card_type": "standard"
+  },
+  {
     "id": 9271,
     "name": "假面变换二型",
     "phash": "fd006f012313333bb306131f192bf0b40b672b496d396b09cf49cd48d908d368",
@@ -29607,6 +29643,12 @@
     "id": 9409,
     "name": "蔷薇恋人",
     "phash": "4ce09e31999e69f473d219d629637973f296f126d9116117f486b0853cc13ec7",
+    "card_type": "standard"
+  },
+  {
+    "id": 9412,
+    "name": "一号机人",
+    "phash": "8765d73257928e092f08c59693164b0a690a898aa9ca69ca7b625312e7027366",
     "card_type": "standard"
   },
   {
@@ -81894,6 +81936,12 @@
     "card_type": "standard"
   },
   {
+    "id": 21576,
+    "name": "黑暗库里波",
+    "phash": "533e2d3a2c39891ed99e768c7c647c70ce60de6037008f04d614d37273233f71",
+    "card_type": "standard"
+  },
+  {
     "id": 21577,
     "name": "召唤兽 伟魔瑟利昂",
     "phash": "bc663f472b39568d9e874cd74d77893d45d7615328466066e368c28bc4cee546",
@@ -81924,6 +81972,18 @@
     "card_type": "standard"
   },
   {
+    "id": 21613,
+    "name": "假面－英雄 焰炉",
+    "phash": "e6676563ab4acf6bc96c446c9b650bdb069b960f4e1e6634be38bc0c5d29ca14",
+    "card_type": "standard"
+  },
+  {
+    "id": 21614,
+    "name": "假面－英雄 原子",
+    "phash": "fd197e09661ccf4c4f69476bed2c8d1cc0195a3338379fa79ea14c6f6d2c3a3c",
+    "card_type": "standard"
+  },
+  {
     "id": 21615,
     "name": "御巫奉 纱鸣",
     "phash": "c7d665cdb3c4891c76dbb496385d2032d464b26770277036e01c18ce0f4ee77e",
@@ -81939,6 +81999,30 @@
     "id": 21617,
     "name": "御巫神舞－二贵子",
     "phash": "4fd2cd726b2016f08e64fde499600f313d332d376917da4a7909e117e324af6d",
+    "card_type": "standard"
+  },
+  {
+    "id": 21620,
+    "name": "抽牌面包",
+    "phash": "8ad439979c8ee7183331d63dcd98b496be225330e338633db292b9209cc59696",
+    "card_type": "standard"
+  },
+  {
+    "id": 21621,
+    "name": "元素－英雄 雷霆巨人－雷霆漩涡",
+    "phash": "1f0b1d020e5a0f960cb00df3155747678d6995e4284e597a139e3b9e2cce2736",
+    "card_type": "standard"
+  },
+  {
+    "id": 21622,
+    "name": "钻头武装龙",
+    "phash": "ae478d479d93ffda95d0b3dcb668f430b119534f7843b789679337d20fce0e67",
+    "card_type": "standard"
+  },
+  {
+    "id": 21623,
+    "name": "超轻水合龙",
+    "phash": "7f04ff2057278f2c695e3512cb12725a1a699a1034192dac3319b54dcb30db7c",
     "card_type": "standard"
   },
   {
@@ -82008,6 +82092,18 @@
     "card_type": "standard"
   },
   {
+    "id": 21730,
+    "name": "假面－英雄 暗法",
+    "phash": "db63cb2b2b9bb11a531223b22b461d1e8d31e4306228310ed9e04c381e0e39c0",
+    "card_type": "standard"
+  },
+  {
+    "id": 21731,
+    "name": "假面变换",
+    "phash": "9f145e7e37366d2f5b1e55c60fe60f061c977806e83a33270de546714a5a8d2e",
+    "card_type": "standard"
+  },
+  {
     "id": 21732,
     "name": "珠之御巫 狐里",
     "phash": "3301b7033f056b037f15371c6f0ecf161f1f4f19b6091636cd126432e706b607",
@@ -82041,6 +82137,60 @@
     "id": 21749,
     "name": "黑魔术之护符",
     "phash": "7d07cd1ef339fb699966e84864d9a4d4a49224dbe8c995667b3b53304f1c9f25",
+    "card_type": "standard"
+  },
+  {
+    "id": 21750,
+    "name": "恋爱少女",
+    "phash": "031b036f936ec76c476dc7fce579e05976377f23b930bbb09f1c530e73df6327",
+    "card_type": "standard"
+  },
+  {
+    "id": 21751,
+    "name": "超电导战士 线性麦格农±",
+    "phash": "0f388c39093b47a71ca72fec76c473cb79ab70d9e39993c9d9e24df23379d741",
+    "card_type": "standard"
+  },
+  {
+    "id": 21752,
+    "name": "桉树鼹鼠",
+    "phash": "e2c0624db371b335b11398139d13ee05ef87efa96e0d6f8674833183371a3798",
+    "card_type": "standard"
+  },
+  {
+    "id": 21753,
+    "name": "恶魔斗牛士",
+    "phash": "5f241b653224ec24799ce1d3c34a674fa40eb3096709c6048f8779037f037f02",
+    "card_type": "standard"
+  },
+  {
+    "id": 21754,
+    "name": "幻魔之扉",
+    "phash": "6d00bf003f030f274f044f0d6f08cf08cf09cf09cd09cf0ccf0dcf0c4f49ad0c",
+    "card_type": "standard"
+  },
+  {
+    "id": 21755,
+    "name": "斗牛士降临之仪式 黑暗游行",
+    "phash": "ef04cf177c71eec8ff0827199b36b57a3460b2eb35db397b0b2f86190dcf04f7",
+    "card_type": "standard"
+  },
+  {
+    "id": 21756,
+    "name": "炼金釜－混沌蒸馏",
+    "phash": "a0f2e172e338e798ef986f514d47c71ecb9f3b9f6713b349fb44d920992539af",
+    "card_type": "standard"
+  },
+  {
+    "id": 21757,
+    "name": "英雄法则1 五大自由",
+    "phash": "e325bc859fc847c863c931e199a49f6c99c9dd72cd72644de723eb836ca43860",
+    "card_type": "standard"
+  },
+  {
+    "id": 21758,
+    "name": "魂之团结－灵魂联合",
+    "phash": "be361b025f056f426f225e23ce8443861c03180ecc092429320bda0139886933",
     "card_type": "standard"
   },
   {
@@ -82338,6 +82488,12 @@
     "card_type": "standard"
   },
   {
+    "id": 21835,
+    "name": "地狱处刑者",
+    "phash": "e7257595b6b8176a3c54b499d649cf038981e4a7648710269277e365718f388f",
+    "card_type": "standard"
+  },
+  {
     "id": 21837,
     "name": "哀哉玉绳双魂缱绻",
     "phash": "72324f21678133c1e370e7f9564c0c07ac1db4185f38d733f7167f01cf2839a1",
@@ -82488,6 +82644,24 @@
     "card_type": "standard"
   },
   {
+    "id": 22110,
+    "name": "磁石之战士 大地机翁",
+    "phash": "b87ceeb4f7c47eba67c653ceb3cb476a08cd69afc9c7399f693eb864716ae32c",
+    "card_type": "standard"
+  },
+  {
+    "id": 22111,
+    "name": "磁石战士西格玛＋",
+    "phash": "7d38be309b06351e23963b253927391bb92719239b36c33c473a070b1d11f837",
+    "card_type": "standard"
+  },
+  {
+    "id": 22112,
+    "name": "磁石战士西格玛－",
+    "phash": "6c324c1e1b273a2fcf7877f271ebafa4830c282fc966cd44dd4a5dc95d895d8a",
+    "card_type": "standard"
+  },
+  {
     "id": 22113,
     "name": "废品战士／爆裂",
     "phash": "3b49330e679c47ddc34ca42eb2f891a5240d323672266c316919431d35072603",
@@ -82512,6 +82686,12 @@
     "card_type": "standard"
   },
   {
+    "id": 22131,
+    "name": "威慑武装龙",
+    "phash": "7c2c3c647c73593a416f631e499e223349e6c9cc1edc199d8f99bd119b2be924",
+    "card_type": "standard"
+  },
+  {
     "id": 22135,
     "name": "枪管上膛绝焰龙",
     "phash": "4ec79fb18d9425678563849225730d620fe3c5aca399433d260f24178d8ecf87",
@@ -82521,6 +82701,12 @@
     "id": 22136,
     "name": "DDD 圣贤王阿尔弗雷德",
     "phash": "97427686cd31cc66ce461bd3939c9634b346b9c26db34ca6460ccbcccf49a395",
+    "card_type": "standard"
+  },
+  {
+    "id": 22137,
+    "name": "超电导战骑 等离子麦格农",
+    "phash": "c7ecc32c8e6f8cf98cf9675f4a2ddb64c94c15f92ce65ccc3acd289d38342c74",
     "card_type": "standard"
   },
   {
@@ -82560,6 +82746,12 @@
     "card_type": "standard"
   },
   {
+    "id": 22156,
+    "name": "磁石键结",
+    "phash": "6ae233c59284b2267256741e3d163b8d3f8d3e47be4f73766362d25a5e466cd6",
+    "card_type": "standard"
+  },
+  {
     "id": 22157,
     "name": "决斗进化－爆裂领域",
     "phash": "78d61ce636c71f9ecf0cca2f0e3e3f2cbb0d33451b4c1646b7307e986ce3cc77",
@@ -82584,6 +82776,12 @@
     "card_type": "standard"
   },
   {
+    "id": 22301,
+    "name": "磁石战士欧米伽＋",
+    "phash": "d31687468f499d1bd28ca3f2c96a4b7647499534cd2fcb2e633632ddb2999019",
+    "card_type": "standard"
+  },
+  {
     "id": 22302,
     "name": "星尘龙／爆裂",
     "phash": "3d749d6dc40458ce8c8e9a4c2bcb59dbb0f330fb32f318f68937981b1c49ae0d",
@@ -82593,6 +82791,12 @@
     "id": 22310,
     "name": "废品大师",
     "phash": "c924dd64fcd27a9269362d66e46cb4cdb6ddb299333993da1a036d02de02ce12",
+    "card_type": "standard"
+  },
+  {
+    "id": 22333,
+    "name": "奥森菲尔德流体",
+    "phash": "394f2f032f038b058302c70a5301f266b86438ca394e5bce34ee2867b6430615",
     "card_type": "standard"
   },
   {
@@ -82611,6 +82815,12 @@
     "id": 22562,
     "name": "废品信号",
     "phash": "69696b296621ac326db9ce589f1a933bc07ac0b6e12e615e391e944394659a63",
+    "card_type": "standard"
+  },
+  {
+    "id": 22593,
+    "name": "奇迹除外士",
+    "phash": "9f0b2f2731a7339d892dd1169dd4baa64a29ce388cd39b9d52a7232323653389",
     "card_type": "standard"
   },
   {
