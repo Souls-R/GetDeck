@@ -81462,6 +81462,12 @@
     "card_type": "standard"
   },
   {
+    "id": 21409,
+    "name": "寄宿灵魂的暗黑骑士盖亚",
+    "phash": "b70e5727cfb1b631a62edf18bf308b785f68a724373722834ab369db994c7725",
+    "card_type": "standard"
+  },
+  {
     "id": 21411,
     "name": "战刀匠 网络",
     "phash": "bf86df99cf47a321a1c5e461cc38dac52265a29fd0cde04467d333c9d0ecca60",
@@ -82074,6 +82080,12 @@
     "card_type": "standard"
   },
   {
+    "id": 21637,
+    "name": "R.B.布鲁特・布鲁斯",
+    "phash": "f0c438a3ad089d2e960bab0b29cb1939982d586966e8dbf8c9f8cccc7ce429e0",
+    "card_type": "standard"
+  },
+  {
     "id": 21640,
     "name": "供品的祭品衍生物",
     "phash": "7cc074d07c926c8b6c986d726d62b930b930986438143304580ccc2873203324",
@@ -82284,6 +82296,12 @@
     "card_type": "standard"
   },
   {
+    "id": 21784,
+    "name": "真龙魔王 至尊行者 完灵",
+    "phash": "f3ca61635b221ba31ab30836066270e7a9cda4894e4e676b6c87ccd38ed13593",
+    "card_type": "standard"
+  },
+  {
     "id": 21786,
     "name": "音服和弦・索露菲基娅",
     "phash": "312d28ed2961a5b07c992cd924cb6cedb4c1b2e1b3f0b3f4c966e505b635d293",
@@ -82347,6 +82365,12 @@
     "id": 21804,
     "name": "DDD 创始王克洛维斯",
     "phash": "1a069b34bf389b52abe1ab6ba332850fa726932f89676336f234333a3b123307",
+    "card_type": "standard"
+  },
+  {
+    "id": 21805,
+    "name": "黑破灭蔷薇龙",
+    "phash": "5a196b242f13ce186c943dc67b663c33923b63819ad147c072e033f991791894",
     "card_type": "standard"
   },
   {
@@ -82581,6 +82605,12 @@
     "id": 21908,
     "name": "废铁战士",
     "phash": "b267ba664d324f3b0799e78dc328d36cc32b230d263b6c1e79b6db2c9b219d33",
+    "card_type": "standard"
+  },
+  {
+    "id": 21959,
+    "name": "杀手旋律・赤印",
+    "phash": "cd10e1c96fd91a6c526c915dabf12593cc9ccccc268d32a7b1e4796045314db1",
     "card_type": "standard"
   },
   {
