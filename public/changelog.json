@@ -1,6 +1,36 @@
 {
   "updates": [
     {
+      "version": "202603291002",
+      "sync_date": "2026-04-04T03:52:14Z",
+      "added_cards": [
+        {
+          "id": 21409,
+          "name": "寄宿灵魂的暗黑骑士盖亚"
+        },
+        {
+          "id": 21637,
+          "name": "R.B.布鲁特・布鲁斯"
+        },
+        {
+          "id": 21784,
+          "name": "真龙魔王 至尊行者 完灵"
+        },
+        {
+          "id": 21805,
+          "name": "黑破灭蔷薇龙"
+        },
+        {
+          "id": 21959,
+          "name": "杀手旋律・赤印"
+        }
+      ],
+      "updated_cards": [],
+      "total_cards": 13812,
+      "added_count": 5,
+      "updated_count": 0
+    },
+    {
       "version": "202603251727",
       "sync_date": "2026-03-29T14:26:30Z",
       "added_cards": [
