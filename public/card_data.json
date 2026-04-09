@@ -1,5 +1,29 @@
 [
   {
+    "id": 3191,
+    "name": "光与暗的战士 混沌士兵",
+    "phash": "f0e0b196d9a670d6e0d68c2d462f44a6509d4699d2ae0ae70dd583a587b62ea6",
+    "card_type": "pendulum"
+  },
+  {
+    "id": 3192,
+    "name": "混沌三幻魔",
+    "phash": "7b08e60cec9cacdacb52b2a7aac5a8c1b0b95834cc53cc899da9c360eca833a3",
+    "card_type": "pendulum"
+  },
+  {
+    "id": 3193,
+    "name": "威斯卡・雷盟",
+    "phash": "53764d662499a6da43e1d2ecb78cd98d9ac213cb4a4960db63f6c8d4b0248606",
+    "card_type": "standard"
+  },
+  {
+    "id": 3194,
+    "name": "追忆之阿莱斯特",
+    "phash": "6d002a019d0349136106ac16391539159f34d66457e8676233babbbd3b957713",
+    "card_type": "standard"
+  },
+  {
     "id": 3401,
     "name": "拉之翼神龙",
     "phash": "037cc776cc1bcbd826d93d59934de7c6c9e6f161b0b156b566e463ede939e31a",
@@ -5083,7 +5107,7 @@
   },
   {
     "id": 4744,
-    "name": "磁石战士α",
+    "name": "磁石战士阿尔法",
     "phash": "85070d37885a999ef1b6dbc63bce12c3a549ce9dde8d659b631213132b451764",
     "card_type": "standard"
   },
@@ -5197,7 +5221,7 @@
   },
   {
     "id": 4763,
-    "name": "磁石战士β",
+    "name": "磁石战士贝塔",
     "phash": "2c9b26b364b16712c724d654ef1ce7248f244b0ccd984fb949394813651d223b",
     "card_type": "standard"
   },
@@ -5335,7 +5359,7 @@
   },
   {
     "id": 4792,
-    "name": "磁石战士γ",
+    "name": "磁石战士伽玛",
     "phash": "9f013f0b3723c76c472c23662b723b1c1b269f3dc518cf025d02ed18f718ff18",
     "card_type": "standard"
   },
@@ -6499,7 +6523,7 @@
   },
   {
     "id": 5002,
-    "name": "磁石勇士磁铁女神",
+    "name": "磁石战士磁铁女神",
     "phash": "8f4e0f131716963494369531b569b374bbf2bbec33ae13939f973f36b32d4e73",
     "card_type": "standard"
   },
@@ -14059,7 +14083,7 @@
   },
   {
     "id": 6481,
-    "name": "水魔龙",
+    "name": "水合龙",
     "phash": "36c71994b931da32da32a425832d677293aa93a5858586a94a537a48c3cec6e4",
     "card_type": "standard"
   },
@@ -48013,25 +48037,25 @@
   },
   {
     "id": 12573,
-    "name": "电磁石战士α",
+    "name": "电磁石战士阿尔法",
     "phash": "e688b611bb322b16cd0ebc083ca32ca52d8daf9583145126d93671326c397c23",
     "card_type": "standard"
   },
   {
     "id": 12574,
-    "name": "电磁石战士β",
+    "name": "电磁石战士贝塔",
     "phash": "31917e919d218f219f318d13843b642b6893398fb54c77467706ff04fe12ee42",
     "card_type": "standard"
   },
   {
     "id": 12575,
-    "name": "电磁石战士γ",
+    "name": "电磁石战士伽玛",
     "phash": "7b337d533fc39bc6cf8ce74cf3353259e6346f1cd30b7118cf9465253f099e19",
     "card_type": "standard"
   },
   {
     "id": 12576,
-    "name": "电磁石勇士电磁战神",
+    "name": "电磁石战士电磁战神",
     "phash": "4d64c6709725c764c3a933b42d8c8c9a1873986aaa1ca331b163b781bdc1f790",
     "card_type": "standard"
   },
@@ -48061,7 +48085,7 @@
   },
   {
     "id": 12581,
-    "name": "超电导战机帝国强磁",
+    "name": "超电导战机 帝皇机翁麦格农",
     "phash": "9b6cd94c885c8c1d4979295394eb143641b641eb81fbcd7a7936b964b3cce796",
     "card_type": "standard"
   },
@@ -48949,7 +48973,7 @@
   },
   {
     "id": 12735,
-    "name": "磁石战士δ",
+    "name": "磁石战士德尔塔",
     "phash": "dc50dc18509a51d991f9d9d2579c6ffdac7b96f326ebb3ed198c8839a57190e5",
     "card_type": "standard"
   },
@@ -51649,7 +51673,7 @@
   },
   {
     "id": 13188,
-    "name": "水魔龙－团簇",
+    "name": "水合龙－团簇",
     "phash": "10d69dc69cc41a671ea31c9799865bc763636d634d1a4692ec90dc88d8f8c0d8",
     "card_type": "standard"
   },
@@ -69139,7 +69163,7 @@
   },
   {
     "id": 16825,
-    "name": "磁石战士ε",
+    "name": "磁石战士伊普西隆",
     "phash": "b12ca714f664a72ad338d318b50c390d732e37d32fc797cddb08cc987484360c",
     "card_type": "standard"
   },
@@ -81463,8 +81487,14 @@
   },
   {
     "id": 21409,
-    "name": "寄宿灵魂的暗黑骑士盖亚",
+    "name": "寄托于魂的暗黑骑士盖亚",
     "phash": "b70e5727cfb1b631a62edf18bf308b785f68a724373722834ab369db994c7725",
+    "card_type": "standard"
+  },
+  {
+    "id": 21410,
+    "name": "白煞鲨",
+    "phash": "5f804bc0cf7457324f0b5d463990bba1b1708d6c1ddbfb0669318b75236d7b0e",
     "card_type": "standard"
   },
   {
@@ -81894,6 +81924,12 @@
     "card_type": "standard"
   },
   {
+    "id": 21484,
+    "name": "春",
+    "phash": "048000c1004002800bcd20f20c20f89ed0bc8930003671387fd8ce5cec96b7f3",
+    "card_type": "standard"
+  },
+  {
     "id": 21485,
     "name": "超量不屈屏障",
     "phash": "d5ce30cb5169f329411912bb145ab486109e2373a7c9a7f23687322e224f32d5",
@@ -82068,6 +82104,12 @@
     "card_type": "standard"
   },
   {
+    "id": 21630,
+    "name": "铁弦之牺打工匠",
+    "phash": "5b19f3991c1a05399059cc53cc742d65342d754ca54cef1acd966535a57a3571",
+    "card_type": "standard"
+  },
+  {
     "id": 21631,
     "name": "超量射线",
     "phash": "3ded37113791730a71665d0e6d58f11c590ca51be5a87b901c95c630c36aa44d",
@@ -82080,9 +82122,45 @@
     "card_type": "standard"
   },
   {
+    "id": 21633,
+    "name": "R.B.GA10 钻机",
+    "phash": "25a14cb534a9e43199131f378f29345134103b03f901f60d330de93d943f6660",
+    "card_type": "standard"
+  },
+  {
+    "id": 21634,
+    "name": "R.B.GA10 切割机",
+    "phash": "00a170b50fa9445ab18189c78465c660ce4e0c2ec6c7e4e361ee3177821d00cb",
+    "card_type": "standard"
+  },
+  {
+    "id": 21635,
+    "name": "R.B.火神火箭",
+    "phash": "bacdf5c7d8c052e633a673c8b37877663035301b2c9dc6b0d86ea85f685f7237",
+    "card_type": "standard"
+  },
+  {
+    "id": 21636,
+    "name": "R.B.火神推进器",
+    "phash": "045e0c1e262ed2508c1d092c70ac656c49499396242a6d6c735c368a6d3a9b68",
+    "card_type": "standard"
+  },
+  {
     "id": 21637,
     "name": "R.B.布鲁特・布鲁斯",
     "phash": "f0c438a3ad089d2e960bab0b29cb1939982d586966e8dbf8c9f8cccc7ce429e0",
+    "card_type": "standard"
+  },
+  {
+    "id": 21638,
+    "name": "R.B.芬克・道克",
+    "phash": "9646ed549f316721df099f84c903c3073007990f590f141fdc0f4406cf06ae23",
+    "card_type": "standard"
+  },
+  {
+    "id": 21639,
+    "name": "R.B.跳跃数字",
+    "phash": "ebac8ec4d7c62d2b8f1b8f998e99cc9437b9316a7036733a316e284fccfcca6c",
     "card_type": "standard"
   },
   {
@@ -82206,6 +82284,12 @@
     "card_type": "standard"
   },
   {
+    "id": 21760,
+    "name": "加尔加尔德炼尸魔",
+    "phash": "36173607271ea73847318f119b95150d97259d658f510fdf0b9e9ad89758254c",
+    "card_type": "pendulum"
+  },
+  {
     "id": 21767,
     "name": "DD 持枪士兵",
     "phash": "cb41996c1c3978189c4d5c6b782dcd16491a39335131c97961dc33cf35b38793",
@@ -82222,6 +82306,18 @@
     "name": "DDD 零死王零降神",
     "phash": "37b393a19135d866ce966db3542dd44cce4dc64eb28da799a3b9537151edd23a",
     "card_type": "pendulum"
+  },
+  {
+    "id": 21770,
+    "name": "暴紫罗女巫",
+    "phash": "b3589598c9664c661492137e831a8c9a4f2e0a3d4d746c7981b3c3268364c58c",
+    "card_type": "standard"
+  },
+  {
+    "id": 21771,
+    "name": "夜蔷薇之黑骑士",
+    "phash": "fc72fe333e3a4f3d673ea33c493420c732cc31d330b1b071726860b01b661f4e",
+    "card_type": "standard"
   },
   {
     "id": 21772,
@@ -82302,6 +82398,12 @@
     "card_type": "standard"
   },
   {
+    "id": 21785,
+    "name": "真龙凰骑 慈育圣母 悖论",
+    "phash": "fed0dea2868907c78743afc48f906fc16e76b8965d464f5a0d5294d36cf759f2",
+    "card_type": "standard"
+  },
+  {
     "id": 21786,
     "name": "音服和弦・索露菲基娅",
     "phash": "312d28ed2961a5b07c992cd924cb6cedb4c1b2e1b3f0b3f4c966e505b635d293",
@@ -82371,6 +82473,12 @@
     "id": 21805,
     "name": "黑破灭蔷薇龙",
     "phash": "5a196b242f13ce186c943dc67b663c33923b63819ad147c072e033f991791894",
+    "card_type": "standard"
+  },
+  {
+    "id": 21806,
+    "name": "黑蔷薇与荆棘之魔女",
+    "phash": "3b0b350b4c0c083649cec77cc26cdab8b0584e9887940ff66cb60d330f359410",
     "card_type": "standard"
   },
   {
@@ -82446,6 +82554,12 @@
     "card_type": "standard"
   },
   {
+    "id": 21821,
+    "name": "黑蔷薇华园",
+    "phash": "cd48f6206f20ed46793231136913398997524d52ed08b9513b65ab11623806e2",
+    "card_type": "standard"
+  },
+  {
     "id": 21822,
     "name": "刚鬼斗魂",
     "phash": "f5c4c7dd9ca1d360c963a9632126e934594e38e3ded2c7d9b1cbfeb64ce637e7",
@@ -82491,6 +82605,12 @@
     "id": 21829,
     "name": "绚岚之见神",
     "phash": "cb0fcb26b1bc758b611deb3c612c15fb32f79a9fcc9a257e52a5592c29412543",
+    "card_type": "standard"
+  },
+  {
+    "id": 21830,
+    "name": "龙呼双搏",
+    "phash": "7e897e907e823e82f680f4c04e884e8d6e89a71aa73a10639ccccb3cd158d448",
     "card_type": "standard"
   },
   {
@@ -82608,9 +82728,69 @@
     "card_type": "standard"
   },
   {
+    "id": 21953,
+    "name": "杀手旋律・米可丝",
+    "phash": "3dd75966694f8dddcc89da085f0be50c7c7234e49aec7a18e3544b69096f8d72",
+    "card_type": "standard"
+  },
+  {
+    "id": 21954,
+    "name": "杀手旋律・酷莉普",
+    "phash": "daaecd4d2497969ee648e58c95cccccc66bb28936af17449d8cca974e570a679",
+    "card_type": "standard"
+  },
+  {
+    "id": 21955,
+    "name": "杀手旋律・乐蔻",
+    "phash": "dd4d535b3976b464e44cdc667c946e5cd61984198485764d69cdb0d1987bbe7a",
+    "card_type": "standard"
+  },
+  {
+    "id": 21956,
+    "name": "杀手旋律・绮悠",
+    "phash": "b945b5449b77593678765cd28e656e661ba71ea734b2c8b8516bf5deecd098d1",
+    "card_type": "standard"
+  },
+  {
+    "id": 21957,
+    "name": "杀手旋律・造轨者",
+    "phash": "65d433df96cdc7c9b66db6749c302dbb2139c34c8b49931d84791c8d350da671",
+    "card_type": "standard"
+  },
+  {
+    "id": 21958,
+    "name": "杀手旋律・重混",
+    "phash": "cd4869502989b18e714e0b65cb79c5bc96703a526c5acccc89d2ab3227792cc3",
+    "card_type": "standard"
+  },
+  {
     "id": 21959,
     "name": "杀手旋律・赤印",
     "phash": "cd10e1c96fd91a6c526c915dabf12593cc9ccccc268d32a7b1e4796045314db1",
+    "card_type": "standard"
+  },
+  {
+    "id": 21960,
+    "name": "杀手旋律・响度战争",
+    "phash": "ae0196051b33db25f1046506ceacbc157a93388b6599dd084eace7ab5fa86e84",
+    "card_type": "standard"
+  },
+  {
+    "id": 21961,
+    "name": "杀手旋律・同步",
+    "phash": "9379cbbc215a7278aa6e29362d7db757599721cf84fd8cf5d869c68e77539b31",
+    "card_type": "standard"
+  },
+  {
+    "id": 21962,
+    "name": "地下俱乐部『杀手旋律』",
+    "phash": "800fb00f933b8330c36cd34cd16ed066cb66c264e76ccf62ce03e123f3137b48",
+    "card_type": "standard"
+  },
+  {
+    "id": 21963,
+    "name": "杀手旋律・歌单",
+    "phash": "0f1fa23e379e339ff30bd232fa1075173c275e26e72cef2c6bf66976722bb3ac",
     "card_type": "standard"
   },
   {
@@ -82623,6 +82803,48 @@
     "id": 21966,
     "name": "荧焅圣 亚雷库斯",
     "phash": "07e66173694b305bb23b9679c464aa63d67258e36cb397338b738b723366f583",
+    "card_type": "standard"
+  },
+  {
+    "id": 22072,
+    "name": "R.B.拉姆达加农炮",
+    "phash": "6f3e3753d7dc37c7aecd2bf828f468dac3bd937723db3a799ce189559b356536",
+    "card_type": "standard"
+  },
+  {
+    "id": 22073,
+    "name": "R.B.拉姆达锋刃",
+    "phash": "044e9c09b8c068187406e1019341040380028045608f181a8374aba833d80070",
+    "card_type": "standard"
+  },
+  {
+    "id": 22074,
+    "name": "R.B.GA10 打桩机",
+    "phash": "60b699b68ec287e994611cb19d8c05e54de66a66a236c2b063cc8127c13769ae",
+    "card_type": "standard"
+  },
+  {
+    "id": 22075,
+    "name": "R.B.谢帕德·克鲁克",
+    "phash": "e14243136b7961ce999ecd8e4ccea4c6adc273e53138395b1fc9bb98df1cff39",
+    "card_type": "standard"
+  },
+  {
+    "id": 22076,
+    "name": "R.B.操作测试",
+    "phash": "3b02f5106339c7194f3f633325721776dbc4cd8cce0ccf094d094d4b3cc79ce9",
+    "card_type": "standard"
+  },
+  {
+    "id": 22077,
+    "name": "R.B.最终标准",
+    "phash": "9398e3747132322993edb36c696c295631ca18fd8c6688e6849c8ccec4e7e0e7",
+    "card_type": "standard"
+  },
+  {
+    "id": 22078,
+    "name": "R.B.后续屏障",
+    "phash": "3e4c2c4cbc5acde64d626ce728fb6a3a53721ce39cab982d180d1c269e261acc",
     "card_type": "standard"
   },
   {
@@ -82746,6 +82968,12 @@
     "card_type": "standard"
   },
   {
+    "id": 22145,
+    "name": "锁缚龙 扎连",
+    "phash": "360e9f392bb031f43367262336b232d133b3e018803fae2a2269134bc28c6c69",
+    "card_type": "standard"
+  },
+  {
     "id": 22149,
     "name": "拓扑逻辑冲击龙",
     "phash": "04070c879903635a67956721254b32fb8fc44bdc0b5a47ca61ed7232f1d8624e",
@@ -82824,6 +83052,12 @@
     "card_type": "standard"
   },
   {
+    "id": 22311,
+    "name": "超频协调",
+    "phash": "29b239b233c372535c330dec8ce386b34cca4cda4ff724f347c107e38b360c9c",
+    "card_type": "standard"
+  },
+  {
     "id": 22333,
     "name": "奥森菲尔德流体",
     "phash": "394f2f032f038b058302c70a5301f266b86438ca394e5bce34ee2867b6430615",
@@ -82833,6 +83067,24 @@
     "id": 22514,
     "name": "爆裂音速战士",
     "phash": "2c4134684823902d98418c25c54dab0f263d3f7999b7f171e9e4f7c1b799bf25",
+    "card_type": "standard"
+  },
+  {
+    "id": 22531,
+    "name": "杀手旋律・萝塔丽",
+    "phash": "c949e578364c1d6e3d4a9d6caccd68c731ef18339a93db37b69f26c73231b9f2",
+    "card_type": "standard"
+  },
+  {
+    "id": 22550,
+    "name": "杀手旋律・爆响",
+    "phash": "9948d94fcd28edd26ce449e8e44ee41cf9935183e9e0fad8d1e44966271f6ccd",
+    "card_type": "standard"
+  },
+  {
+    "id": 22551,
+    "name": "杀手旋律・背靠背",
+    "phash": "6b1b2b5b331a971ca91874994c19ee18f690d50b6613331b3531f213d36343e9",
     "card_type": "standard"
   },
   {
