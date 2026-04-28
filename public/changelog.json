@@ -1,6 +1,36 @@
 {
   "updates": [
     {
+      "version": "202604271456",
+      "sync_date": "2026-04-28T09:49:06Z",
+      "added_cards": [
+        {
+          "id": 21936,
+          "name": "百臂无形神 迦乌撒"
+        },
+        {
+          "id": 22142,
+          "name": "调狱神 朱诺拉"
+        },
+        {
+          "id": 22143,
+          "name": "狱花之大煌耀圣 斯特莉西亚"
+        },
+        {
+          "id": 22147,
+          "name": "驱魔姐妹・卡尔玛尔"
+        },
+        {
+          "id": 22199,
+          "name": "龙骑兵团领主－格奥鲁吉亚斯"
+        }
+      ],
+      "updated_cards": [],
+      "total_cards": 13859,
+      "added_count": 5,
+      "updated_count": 0
+    },
+    {
       "version": "202604090137",
       "sync_date": "2026-04-09T07:47:24Z",
       "added_cards": [

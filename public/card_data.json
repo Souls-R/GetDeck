@@ -82728,6 +82728,12 @@
     "card_type": "standard"
   },
   {
+    "id": 21936,
+    "name": "百臂无形神 迦乌撒",
+    "phash": "adaef690d5d4d32cf352b552d78c4a2531621b065c277e5b374a114e64a27429",
+    "card_type": "standard"
+  },
+  {
     "id": 21953,
     "name": "杀手旋律・米可丝",
     "phash": "3dd75966694f8dddcc89da085f0be50c7c7234e49aec7a18e3544b69096f8d72",
@@ -82968,9 +82974,27 @@
     "card_type": "standard"
   },
   {
+    "id": 22142,
+    "name": "调狱神 朱诺拉",
+    "phash": "8f739b39b3098f63ab246724d706de03ed46af141f108e84b02833124353c94c",
+    "card_type": "standard"
+  },
+  {
+    "id": 22143,
+    "name": "狱花之大煌耀圣 斯特莉西亚",
+    "phash": "fb343f3c3b1e371ced1c091c0b939b32c718c64e9d249a2cc31b6d1ad9229a46",
+    "card_type": "standard"
+  },
+  {
     "id": 22145,
     "name": "锁缚龙 扎连",
     "phash": "360e9f392bb031f43367262336b232d133b3e018803fae2a2269134bc28c6c69",
+    "card_type": "standard"
+  },
+  {
+    "id": 22147,
+    "name": "驱魔姐妹・卡尔玛尔",
+    "phash": "6499b4891383c23a84b2401bc3db09e71295929d161b6cdad8e3b5c53b419e16",
     "card_type": "standard"
   },
   {
@@ -83031,6 +83055,12 @@
     "id": 22172,
     "name": "枪管重启",
     "phash": "cf8106e304639c6198719ab992f9d1e9acc98fd3cf32941308654169c55d6c91",
+    "card_type": "standard"
+  },
+  {
+    "id": 22199,
+    "name": "龙骑兵团领主－格奥鲁吉亚斯",
+    "phash": "4c8e4f0d233959c61e079e059aa7380f0ec7af8de596660ab665f3783a2c8f64",
     "card_type": "standard"
   },
   {
