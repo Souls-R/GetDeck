@@ -1,5 +1,65 @@
 [
   {
+    "id": 3180,
+    "name": "红莲的王者",
+    "phash": "1e0e7b8e36a327198718c7a487c94e9a64b2304a991a3976736398778c735851",
+    "card_type": "standard"
+  },
+  {
+    "id": 3181,
+    "name": "霸王暴龙 凶饿猛毒透翼龙",
+    "phash": "31c3339ba69aa94731333d1b1046310b391b99b28d3287219b291b09db8b1b86",
+    "card_type": "pendulum"
+  },
+  {
+    "id": 3182,
+    "name": "混绝狱神 皮托里姆",
+    "phash": "e710ec8876b9533b7b33a732e738ecc8b690d3344b2c4d8e4dcf8c4d9cc7ac9d",
+    "card_type": "pendulum"
+  },
+  {
+    "id": 3183,
+    "name": "小丑戏帮 白脸",
+    "phash": "4a1bc38d61da72c266d9c491c4c49695468c4a9e4a936859ecd1680d381b5a1e",
+    "card_type": "standard"
+  },
+  {
+    "id": 3184,
+    "name": "四花缭乱之灵使",
+    "phash": "596b793e453957bbb4a6d2c5c924eca8e618393a596ce1f6e85ea91cb1b421b6",
+    "card_type": "standard"
+  },
+  {
+    "id": 3185,
+    "name": "水灵使 艾里雅",
+    "phash": "b942ba42bc463d52b55c17cfc4898db19d279ca1899b5b8d9fcd199c780cf329",
+    "card_type": "standard"
+  },
+  {
+    "id": 3186,
+    "name": "火灵使 希塔",
+    "phash": "bb03a7230723cf29b9369937535bba98c69967906391abcc879831593709a74a",
+    "card_type": "standard"
+  },
+  {
+    "id": 3187,
+    "name": "风灵使 薇茵",
+    "phash": "bb45b941f3446be44fa65f978d66ad2e7722c3b492b116a68c5c893b0b0aff42",
+    "card_type": "standard"
+  },
+  {
+    "id": 3188,
+    "name": "地灵使 奥丝",
+    "phash": "fb03bf424f63ce708e925c16663e4d2a1d2b3383738fc3a3678e686eea269724",
+    "card_type": "standard"
+  },
+  {
+    "id": 3189,
+    "name": "大轮之灵使",
+    "phash": "e068c4349c739075b24e47c658e238e790ed98f8b978798ce859e8c458d852c8",
+    "card_type": "standard"
+  },
+  {
     "id": 3191,
     "name": "光与暗的战士 混沌士兵",
     "phash": "f0e0b196d9a670d6e0d68c2d462f44a6509d4699d2ae0ae70dd583a587b62ea6",
@@ -82416,6 +82476,12 @@
     "card_type": "pendulum"
   },
   {
+    "id": 21788,
+    "name": "葬语再世神 德瓦利姆",
+    "phash": "f6b02ea396965d150b0fcaa49b2b97190f156f1bce8c6b8d6b326b62468fb72d",
+    "card_type": "standard"
+  },
+  {
     "id": 21789,
     "name": "星宿响手 普莉库露",
     "phash": "717b3883c9261ca6a4333153937391668bce857d9539eb0cd79836923c43f244",
@@ -82431,6 +82497,30 @@
     "id": 21791,
     "name": "K9－04号 咒",
     "phash": "f326b3b7794b6167437367e315c2db84912cb15995c4e18411cb9b710b0365c7",
+    "card_type": "standard"
+  },
+  {
+    "id": 21794,
+    "name": "转轮的斯芬克斯",
+    "phash": "19cf4dc75d06c5b4cc31a4a777e7cc656461a261a6f266b3a5db36939ac7929d",
+    "card_type": "standard"
+  },
+  {
+    "id": 21795,
+    "name": "多利多尔多拉",
+    "phash": "865bd31a603231a334d9ecdce5d6b434b01498969c9cd694d25d164b8e468e9f",
+    "card_type": "standard"
+  },
+  {
+    "id": 21796,
+    "name": "斋狭依姬",
+    "phash": "1f53a706370f87178b75c76c6645d1d3db9099ba5b4b9319b33069e2cd266c36",
+    "card_type": "standard"
+  },
+  {
+    "id": 21797,
+    "name": "阴阳师 道道",
+    "phash": "739879e193cf936fc766e72647a2c3dc0745264f7189870db326134ce94cb91c",
     "card_type": "standard"
   },
   {
@@ -82638,9 +82728,21 @@
     "card_type": "standard"
   },
   {
+    "id": 21836,
+    "name": "融合募兵",
+    "phash": "1d790979097d369a6d696439e772e53ecd7a3553312709b3e489a68d057f0066",
+    "card_type": "standard"
+  },
+  {
     "id": 21837,
     "name": "哀哉玉绳双魂缱绻",
     "phash": "72324f21678133c1e370e7f9564c0c07ac1db4185f38d733f7167f01cf2839a1",
+    "card_type": "standard"
+  },
+  {
+    "id": 21838,
+    "name": "默齿录",
+    "phash": "4c99119283f2c65c8cadc2e153dbe882a900b5d45167c321faf5d87c98a848b9",
     "card_type": "standard"
   },
   {
@@ -82728,9 +82830,69 @@
     "card_type": "standard"
   },
   {
+    "id": 21931,
+    "name": "百臂无形手 伊卜揶尔",
+    "phash": "8e79873483300319a10d854d8509330a6d922219661174107610b738a770e5a1",
+    "card_type": "standard"
+  },
+  {
+    "id": 21932,
+    "name": "百臂无形手 雅多揶尔",
+    "phash": "b58f7937f63e3c2d7c599dba8f56cb46f94e5966596a6319ad19dd2c53ac379a",
+    "card_type": "standard"
+  },
+  {
+    "id": 21933,
+    "name": "百臂无形手 格多撕",
+    "phash": "24733e635e225395162da36d66619250c8674fac7a4af252e65ccbdd5a8991c9",
+    "card_type": "standard"
+  },
+  {
+    "id": 21934,
+    "name": "百臂无形手 盖伽撕",
+    "phash": "9c6536638c932493243f823ec24c48d548d98cd6858f47d347692306b914d95a",
+    "card_type": "standard"
+  },
+  {
+    "id": 21935,
+    "name": "百臂无形手 布瑞撕",
+    "phash": "c249f24874967508983db295c95497ad846631c78936648e3adf0732a2e715f8",
+    "card_type": "standard"
+  },
+  {
     "id": 21936,
     "name": "百臂无形神 迦乌撒",
     "phash": "adaef690d5d4d32cf352b552d78c4a2531621b065c277e5b374a114e64a27429",
+    "card_type": "standard"
+  },
+  {
+    "id": 21937,
+    "name": "百臂无形神 慑挪",
+    "phash": "7f033f019e004f18a70ca719139f369e67869c6c5e4c56ae3326365612db6b9c",
+    "card_type": "standard"
+  },
+  {
+    "id": 21938,
+    "name": "神之百臂无形手",
+    "phash": "ff00df049f069726e71c4f2ccf1c97041b043b0f3307071f00ff80ff06c3718c",
+    "card_type": "standard"
+  },
+  {
+    "id": 21939,
+    "name": "百臂无形幽狱 塔尔塔洛撕",
+    "phash": "1724176224c065e06fb4cf66cf9fc71f430f090f1306d3b0c2340234061b002b",
+    "card_type": "standard"
+  },
+  {
+    "id": 21940,
+    "name": "百臂无形诱惑手",
+    "phash": "b7073f273d43364e731c191e8b3de334c176c97c1dd67d93fc997dcef626d431",
+    "card_type": "standard"
+  },
+  {
+    "id": 21941,
+    "name": "百臂无形招引手",
+    "phash": "6e66d926530b7f0e5f5c0e33b37195e04d226729f208e409d848d564f3c47748",
     "card_type": "standard"
   },
   {
@@ -82938,6 +83100,30 @@
     "card_type": "standard"
   },
   {
+    "id": 22116,
+    "name": "耀圣之花诗 露西娜",
+    "phash": "dd13df089f2ab75e8359c2b1225e3c8c181e181f183f8059d030e27060113081",
+    "card_type": "standard"
+  },
+  {
+    "id": 22117,
+    "name": "耀圣之波诗 蒂娜",
+    "phash": "1b9c1a644a926399174e164786d980f3984e1c6bbe3b6eb31e79dcf94738556a",
+    "card_type": "standard"
+  },
+  {
+    "id": 22118,
+    "name": "耀圣之月诗 福尔图娜",
+    "phash": "3b30133299b6b9da29e75b2ec70c5bf38c42844e335d273f8cd9da30b268f05c",
+    "card_type": "standard"
+  },
+  {
+    "id": 22119,
+    "name": "煌耀圣诗之狱神精",
+    "phash": "e970d330d6bc79389b199e0f168da334ad3e34731787011fa33cbb398f11b52d",
+    "card_type": "standard"
+  },
+  {
     "id": 22130,
     "name": "天雷之双风神 息那",
     "phash": "4e0ee63cb334d53697238d838349f299b80a635d5e9d38297762327223076e47",
@@ -82965,6 +83151,12 @@
     "id": 22137,
     "name": "超电导战骑 等离子麦格农",
     "phash": "c7ecc32c8e6f8cf98cf9675f4a2ddb64c94c15f92ce65ccc3acd289d38342c74",
+    "card_type": "standard"
+  },
+  {
+    "id": 22138,
+    "name": "未竟神艺 智慧之少女",
+    "phash": "5016e2ce6e8f4bfb36dba567952e836ec06ee08dc994663c371a9e11b9943b12",
     "card_type": "standard"
   },
   {
@@ -83046,9 +83238,39 @@
     "card_type": "standard"
   },
   {
+    "id": 22159,
+    "name": "耀圣诗章～归乡之排比句～",
+    "phash": "93035311554970acf8ccee48d802bd66af65896d8f85033b892d2733375b3b47",
+    "card_type": "standard"
+  },
+  {
+    "id": 22160,
+    "name": "耀圣诗章～再会的三重唱～",
+    "phash": "be0ab90a33c5b303321203321b1b2b1eda94d112b13335981348bb331c3303d8",
+    "card_type": "standard"
+  },
+  {
+    "id": 22161,
+    "name": "开辟预幻视",
+    "phash": "d14cb14b3b434b64cca264652d696c49648eac6bcc086d4926eb36e934c29906",
+    "card_type": "standard"
+  },
+  {
     "id": 22167,
     "name": "绚岚之轩昂",
     "phash": "b718dd00dda6bff17362e52ce718dd31ed65f8046f061b1e1b1a37e535741b74",
+    "card_type": "standard"
+  },
+  {
+    "id": 22168,
+    "name": "驱魔姐妹・圣母悼歌",
+    "phash": "5307902ec338493a2c6b4e5afadc72ce4ace109bf88fe9a379d2d3d313b393bf",
+    "card_type": "standard"
+  },
+  {
+    "id": 22170,
+    "name": "幻惑的操手",
+    "phash": "ca18e392f318633cc139e973f8929c967257576f3b1b623ef2919935d826ff11",
     "card_type": "standard"
   },
   {
@@ -83058,9 +83280,45 @@
     "card_type": "standard"
   },
   {
+    "id": 22173,
+    "name": "耀圣诗章～激奏之狂想曲～",
+    "phash": "d9699b2b970e9d4eae09efcbb4a3e832b9397037e334a51c3419850da52d8726",
+    "card_type": "standard"
+  },
+  {
+    "id": 22174,
+    "name": "耀圣诗章～托选之武功歌～",
+    "phash": "db20cf2ce71827333733d354f13862d85e6ccb249546b8d296a4b6933ac7838e",
+    "card_type": "standard"
+  },
+  {
+    "id": 22196,
+    "name": "龙骑兵团－奎里纳斯",
+    "phash": "2dcf0bdbeb4cf915ad33a4373427642b686a62665374737a330ca027cc03c803",
+    "card_type": "standard"
+  },
+  {
+    "id": 22197,
+    "name": "龙骑兵团－弯刃大刀",
+    "phash": "64cc4e74cdb85e914f932e0b5b431fc79f899f85f735cf2cd766b48ae1a1a32b",
+    "card_type": "standard"
+  },
+  {
+    "id": 22198,
+    "name": "龙骑兵团骑士－阿瑞斯",
+    "phash": "a64967d94c4d1ccc1a27536b4b5b2fcb9e9da39dc90dac64932c790e790af398",
+    "card_type": "standard"
+  },
+  {
     "id": 22199,
     "name": "龙骑兵团领主－格奥鲁吉亚斯",
     "phash": "4c8e4f0d233959c61e079e059aa7380f0ec7af8de596660ab665f3783a2c8f64",
+    "card_type": "standard"
+  },
+  {
+    "id": 22200,
+    "name": "神风之龙骑兵团",
+    "phash": "53366e32db96f69aedd9cff3b3d3e78bd68b7b367b3e72146c1ccd34cf7d8e53",
     "card_type": "standard"
   },
   {
@@ -83100,9 +83358,27 @@
     "card_type": "standard"
   },
   {
+    "id": 22523,
+    "name": "耀圣之风诗 蕾绮娜",
+    "phash": "5d1a5f09738f34037a85d6a61c96accfa92b87338d5a88cd4c8b25aff54cbd0d",
+    "card_type": "standard"
+  },
+  {
+    "id": 22528,
+    "name": "百臂无形手 马基卜揶尔",
+    "phash": "8b4cdb2c7b21f10875692c53194f4bc92d652c5b249330d31a473cc73c830ecb",
+    "card_type": "standard"
+  },
+  {
     "id": 22531,
     "name": "杀手旋律・萝塔丽",
     "phash": "c949e578364c1d6e3d4a9d6caccd68c731ef18339a93db37b69f26c73231b9f2",
+    "card_type": "standard"
+  },
+  {
+    "id": 22544,
+    "name": "百臂无形手 坦达洛撕",
+    "phash": "ca3364330c5b8e9fd356ca9c6e4ca66e123ec66cceccc8ecaaad49be59ce914c",
     "card_type": "standard"
   },
   {
@@ -83127,6 +83403,18 @@
     "id": 22562,
     "name": "废品信号",
     "phash": "69696b296621ac326db9ce589f1a933bc07ac0b6e12e615e391e944394659a63",
+    "card_type": "standard"
+  },
+  {
+    "id": 22581,
+    "name": "神艺厚涂－夺还－",
+    "phash": "938431c133cb608e782e4ccfcb6d685261987088b3187928dd6c97da3271e131",
+    "card_type": "standard"
+  },
+  {
+    "id": 22584,
+    "name": "百臂无形引导手",
+    "phash": "b7c8b760bc289d533d9e5f1edb0a3638371ea91ee3169b099f0b9719b2247b44",
     "card_type": "standard"
   },
   {
