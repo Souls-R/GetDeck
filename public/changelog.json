@@ -1,6 +1,36 @@
 {
   "updates": [
     {
+      "version": "202606231943",
+      "sync_date": "2026-07-08T10:47:05Z",
+      "added_cards": [
+        {
+          "id": 22533,
+          "name": "调和之天救龙"
+        },
+        {
+          "id": 22540,
+          "name": "霸王暴龙 凶饿猛毒透翼龙"
+        },
+        {
+          "id": 22543,
+          "name": "讲述妖精传姬之人"
+        },
+        {
+          "id": 22552,
+          "name": "超重型炮塔列车 古斯塔夫火箭炮"
+        },
+        {
+          "id": 22728,
+          "name": "四天之龙 凶饿猛毒结合龙"
+        }
+      ],
+      "updated_cards": [],
+      "total_cards": 13973,
+      "added_count": 5,
+      "updated_count": 0
+    },
+    {
       "version": "202606040957",
       "sync_date": "2026-06-08T01:06:48Z",
       "added_cards": [

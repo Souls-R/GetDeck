@@ -83706,6 +83706,12 @@
     "card_type": "standard"
   },
   {
+    "id": 22533,
+    "name": "调和之天救龙",
+    "phash": "6938e9701d151f253b0c332e7b63eb277342b7281cac19b15386d386da3c5349",
+    "card_type": "standard"
+  },
+  {
     "id": 22537,
     "name": "威咖杯！玉露",
     "phash": "4e05c61eca5e4c925a96de189b39c20c200aa8c9ac5dac178e8f8f1fcd0fe033",
@@ -83716,6 +83722,18 @@
     "name": "死亡女后恶魔",
     "phash": "e128e52ab3663304a984d725d7346996c9166a327b32d9326917cb1bc9194928",
     "card_type": "pendulum"
+  },
+  {
+    "id": 22540,
+    "name": "霸王暴龙 凶饿猛毒透翼龙",
+    "phash": "31c3339ba69aa94731333d1b1046310b391b99b28d3287219b291b09db8b1b86",
+    "card_type": "pendulum"
+  },
+  {
+    "id": 22543,
+    "name": "讲述妖精传姬之人",
+    "phash": "4032603831183738dd88d9cef8e277c175b1ca71acf9ccfa986db8e511cf91e7",
+    "card_type": "standard"
   },
   {
     "id": 22544,
@@ -83733,6 +83751,12 @@
     "id": 22551,
     "name": "杀手旋律・背靠背",
     "phash": "6b1b2b5b331a971ca91874994c19ee18f690d50b6613331b3531f213d36343e9",
+    "card_type": "standard"
+  },
+  {
+    "id": 22552,
+    "name": "超重型炮塔列车 古斯塔夫火箭炮",
+    "phash": "31dd2db91c6334c160d22263a17c8dec4dce8cc108e7a6b327c012e1b071841f",
     "card_type": "standard"
   },
   {
@@ -83781,6 +83805,12 @@
     "id": 22715,
     "name": "W：P变幻舞夜",
     "phash": "0b3003a10b2941fb69650dd9745b5576c8b0a6e43cc83e912cc58db60717073e",
+    "card_type": "standard"
+  },
+  {
+    "id": 22728,
+    "name": "四天之龙 凶饿猛毒结合龙",
+    "phash": "9fa227e033715a38cc0cb42db21cd216ce15cc52022229ca614ce19971d129cd",
     "card_type": "standard"
   },
   {
