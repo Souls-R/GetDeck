@@ -30,6 +30,48 @@
     "card_type": "standard"
   },
   {
+    "id": 3105,
+    "name": "真红眼超越黑龙",
+    "phash": "7024a426761a56155399bba4598a8c59e6392f3331737061b261927454736c62",
+    "card_type": "pendulum"
+  },
+  {
+    "id": 3106,
+    "name": "天下独步之大义贼",
+    "phash": "3f9c8a4c9876b2aee59c985d4ada483c52bad0b8ce364e6258e31ac59298af3a",
+    "card_type": "pendulum"
+  },
+  {
+    "id": 3107,
+    "name": "真红眼超越黑龙",
+    "phash": "7893cc18cd50b74493b95b9b453365112c535d428d0b1f134b12079559293a28",
+    "card_type": "standard"
+  },
+  {
+    "id": 3108,
+    "name": "金神之战艮鬼 赤沙",
+    "phash": "9b09a343239353d6e1958de54c9244cf8dc465d66dd49b5ad14cd40a588a68cf",
+    "card_type": "standard"
+  },
+  {
+    "id": 3109,
+    "name": "苍海龙神－超代达罗斯・狂怒",
+    "phash": "8c898f25cf259f0d4e257325c72dcf2a2b9a9b129825b980f144314c06e3a0b3",
+    "card_type": "standard"
+  },
+  {
+    "id": 3110,
+    "name": "命运－英雄 无惧魔侠",
+    "phash": "381760234972b136d5b8d4f39039a66c027a1b7c1b5a1e538469d0998199e219",
+    "card_type": "standard"
+  },
+  {
+    "id": 3111,
+    "name": "天下独步之大义贼",
+    "phash": "9436a4f2860c942d4cecd159d1184fb25361b4cc9c8b1e37de33197b1d4e956c",
+    "card_type": "standard"
+  },
+  {
     "id": 3180,
     "name": "红莲的王者",
     "phash": "1e0e7b8e36a327198718c7a487c94e9a64b2304a991a3976736398778c735851",
@@ -7831,25 +7873,25 @@
   },
   {
     "id": 5271,
-    "name": "死之信息“Ｅ”",
+    "name": "死之信息“I”",
     "phash": "6f0e97081f63df20de51ab5963686d186b066f702b5bb372b237cb23cbc75543",
     "card_type": "standard"
   },
   {
     "id": 5272,
-    "name": "死之信息“Ａ”",
+    "name": "死之信息“N”",
     "phash": "6f0e97081f63df20de518b595768651cc706d7303b7bb3b6b2774b274fc35543",
     "card_type": "standard"
   },
   {
     "id": 5273,
-    "name": "死之信息“Ｔ”",
+    "name": "死之信息“A”",
     "phash": "6f0e97081f63df20de51ab59676865186706d7301b33333632374b23cbc35543",
     "card_type": "standard"
   },
   {
     "id": 5274,
-    "name": "死之信息“Ｈ”",
+    "name": "死之信息“L”",
     "phash": "6f0e97081f63df20de51ab5933687518b706e7303b39b337b23f4b230bc75543",
     "card_type": "standard"
   },
@@ -81282,6 +81324,36 @@
     "card_type": "standard"
   },
   {
+    "id": 21238,
+    "name": "庆典气球",
+    "phash": "86b153de22fc72ce5bcee38c38877825582d642c4c76b464e0e1d430cd3863d8",
+    "card_type": "standard"
+  },
+  {
+    "id": 21239,
+    "name": "粗心藏果松鼠",
+    "phash": "d3aed327d70cd60cd78df58444ce461f0d1d8f35163917b30ee318ef11fe20fe",
+    "card_type": "standard"
+  },
+  {
+    "id": 21240,
+    "name": "魂喰魔兽 巴祖",
+    "phash": "55cabd307d955625e4307419ce166e2c763873286d424d028f2a6f0de7859691",
+    "card_type": "standard"
+  },
+  {
+    "id": 21241,
+    "name": "射敌",
+    "phash": "51eb15e362d272847304630d0b09cc08cd98998999d9db52d9128c560c539555",
+    "card_type": "standard"
+  },
+  {
+    "id": 21242,
+    "name": "影之灾祸",
+    "phash": "a9522b42dd85e8857a235343995bb909f2a1b7667f5a9e179e8bddc276db3ed9",
+    "card_type": "standard"
+  },
+  {
     "id": 21249,
     "name": "吟幽狮神 佩桑塔",
     "phash": "dbcd99c5bb553bcd73ae77b424f838dca23b446b332f5b2cd64c16467d2379b1",
@@ -82578,6 +82650,12 @@
     "card_type": "standard"
   },
   {
+    "id": 21793,
+    "name": "蹴神－VARefar",
+    "phash": "af368c199c9109c90bfac67884cc994d25cd2ccd2625268d26ad3c4c23fc6fb9",
+    "card_type": "standard"
+  },
+  {
     "id": 21794,
     "name": "转轮的斯芬克斯",
     "phash": "19cf4dc75d06c5b4cc31a4a777e7cc656461a261a6f266b3a5db36939ac7929d",
@@ -83148,6 +83226,18 @@
     "card_type": "standard"
   },
   {
+    "id": 22069,
+    "name": "红镰华",
+    "phash": "f618567956634c64ccc0ce4d4e8789c2873b1e0f99a4859be69387b19f61df09",
+    "card_type": "standard"
+  },
+  {
+    "id": 22070,
+    "name": "丝绸炸弹蛾",
+    "phash": "e7706ceb6fa8c619844969e65b0e2c15a405c660868ca665e275c339969c674c",
+    "card_type": "standard"
+  },
+  {
     "id": 22072,
     "name": "R.B.拉姆达加农炮",
     "phash": "6f3e3753d7dc37c7aecd2bf828f468dac3bd937723db3a799ce189559b356536",
@@ -83592,6 +83682,36 @@
     "card_type": "standard"
   },
   {
+    "id": 22191,
+    "name": "X－军刀 佩利那",
+    "phash": "75ea5bc2cb7892fcd0f2a975949c5a9c8899949312f729f849ca0eb11caed96e",
+    "card_type": "standard"
+  },
+  {
+    "id": 22192,
+    "name": "X－军刀 布鲁诺",
+    "phash": "79069432dafc52db0449a635dab85b2f533209f509cf814e85f4aded39fb3bd7",
+    "card_type": "standard"
+  },
+  {
+    "id": 22193,
+    "name": "总剑司令 索扎",
+    "phash": "237b39332e8ec79c4d2c6662e381f380a73557345c36b36033d619c318370e57",
+    "card_type": "standard"
+  },
+  {
+    "id": 22194,
+    "name": "X－军刀 加特姆士",
+    "phash": "4dda2e6311616958e11ec19ee1c3c9c3cb436bc3cbcae89dd545dce69cc33c9f",
+    "card_type": "standard"
+  },
+  {
+    "id": 22195,
+    "name": "军刀合击",
+    "phash": "25392f7353aec39c40cc24f641b621dd993d67075e021e0b9f05df2276613143",
+    "card_type": "standard"
+  },
+  {
     "id": 22196,
     "name": "龙骑兵团－奎里纳斯",
     "phash": "2dcf0bdbeb4cf915ad33a4373427642b686a62665374737a330ca027cc03c803",
@@ -83622,6 +83742,36 @@
     "card_type": "standard"
   },
   {
+    "id": 22201,
+    "name": "星圣 双子卡斯托尔",
+    "phash": "7f195e911c926533267232b6166eb40ca538c9748dc58e61c7334a3427b8270c",
+    "card_type": "standard"
+  },
+  {
+    "id": 22202,
+    "name": "星骑士 天鹅丘格尼",
+    "phash": "a630c9a8d34836850f87a60c8e1969235d6acf6c072f0b1d276367e151715e68",
+    "card_type": "standard"
+  },
+  {
+    "id": 22203,
+    "name": "超神辉星骑士 星圣 托勒密星团欧米伽7",
+    "phash": "fd007f072f8fab91ab929346bb287b3e47363736dc46cd40db639e23be41be41",
+    "card_type": "standard"
+  },
+  {
+    "id": 22204,
+    "name": "星骑士 星圣 德塔特洛斯",
+    "phash": "1db635d26539552b650b910c191c2e8d4917ad3735875cc3964246299c098e36",
+    "card_type": "standard"
+  },
+  {
+    "id": 22205,
+    "name": "神星之系束",
+    "phash": "9a84b431dc1fc9166d867b85c58ce58c6489e80fc99b613968cd626926333813",
+    "card_type": "standard"
+  },
+  {
     "id": 22301,
     "name": "磁石战士欧米伽＋",
     "phash": "d31687468f499d1bd28ca3f2c96a4b7647499534cd2fcb2e633632ddb2999019",
@@ -83643,6 +83793,30 @@
     "id": 22311,
     "name": "超频协调",
     "phash": "29b239b233c372535c330dec8ce386b34cca4cda4ff724f347c107e38b360c9c",
+    "card_type": "standard"
+  },
+  {
+    "id": 22316,
+    "name": "紫毒之茨牙",
+    "phash": "b298330a8eb4a8ccbb1d0f1a55223466fd42ef926f036749ec49d212b62334ab",
+    "card_type": "standard"
+  },
+  {
+    "id": 22317,
+    "name": "贯穿结合",
+    "phash": "cfc52e469acb9a0f767d3dea8df867f1a3e3b2e633e6315129726972e938c919",
+    "card_type": "standard"
+  },
+  {
+    "id": 22318,
+    "name": "惊喜结合",
+    "phash": "c331e308333f1df19df28964edc0f5b0f520f5703763c751e6d236f38ef18759",
+    "card_type": "standard"
+  },
+  {
+    "id": 22323,
+    "name": "惊喜衍生物",
+    "phash": "c331e308333f1df19df28964edc0f5b0f520f5703763c751e6d236f38ef18759",
     "card_type": "standard"
   },
   {
@@ -83670,9 +83844,39 @@
     "card_type": "standard"
   },
   {
+    "id": 22515,
+    "name": "重装骑士 巴别双层列车",
+    "phash": "9c106019e119b78ca796294337239da5db54b9549d8047819b000380c0440d8e",
+    "card_type": "standard"
+  },
+  {
+    "id": 22516,
+    "name": "夜光列车 蓝色旅人",
+    "phash": "6f0bff227f20db806f8a2712a719b325a527fa047a38f738723c6b966b9df498",
+    "card_type": "standard"
+  },
+  {
+    "id": 22517,
+    "name": "捕食植物 铁炮瓜蜥蜴",
+    "phash": "acdbdc145c4c56634a33e226ba2c98645c51d9c04f947dcc1ec18d55b5e7339a",
+    "card_type": "standard"
+  },
+  {
+    "id": 22518,
+    "name": "捕食植物 长叶狸藻新妇蛛",
+    "phash": "671b46d8626367125d8af49697129b136f35264fd2949a9c5c3a4cb5adada46d",
+    "card_type": "standard"
+  },
+  {
     "id": 22523,
     "name": "耀圣之风诗 蕾绮娜",
     "phash": "5d1a5f09738f34037a85d6a61c96accfa92b87338d5a88cd4c8b25aff54cbd0d",
+    "card_type": "standard"
+  },
+  {
+    "id": 22525,
+    "name": "妖精传姬－火柴莉儿",
+    "phash": "74095b048f654f2e0f2669ac641bb4d636363b1e31c633f5d7dc6d6e6f9be634",
     "card_type": "standard"
   },
   {
@@ -83712,6 +83916,12 @@
     "card_type": "standard"
   },
   {
+    "id": 22536,
+    "name": "血树龙姬 朵拉塞蕾尔",
+    "phash": "2e326b904be18cc1ced2c62a8fc589d347b16fb62bd32dd7b7b6b1b39f830f8f",
+    "card_type": "standard"
+  },
+  {
     "id": 22537,
     "name": "威咖杯！玉露",
     "phash": "4e05c61eca5e4c925a96de189b39c20c200aa8c9ac5dac178e8f8f1fcd0fe033",
@@ -83730,6 +83940,12 @@
     "card_type": "pendulum"
   },
   {
+    "id": 22542,
+    "name": "编织妖精传姬之人",
+    "phash": "c29fca3b836bc374c86df265cd26cc36cc16c694a23d83db93d3529b23f2b3d9",
+    "card_type": "standard"
+  },
+  {
     "id": 22543,
     "name": "讲述妖精传姬之人",
     "phash": "4032603831183738dd88d9cef8e277c175b1ca71acf9ccfa986db8e511cf91e7",
@@ -83739,6 +83955,12 @@
     "id": 22544,
     "name": "百臂无形手 坦达洛撕",
     "phash": "ca3364330c5b8e9fd356ca9c6e4ca66e123ec66cceccc8ecaaad49be59ce914c",
+    "card_type": "standard"
+  },
+  {
+    "id": 22548,
+    "name": "捕食植物 羊角麻蝇王",
+    "phash": "cc18a939712d6936a9323b11131a671e4f6c5c62762f333a1b219cc934ed7830",
     "card_type": "standard"
   },
   {
@@ -83760,6 +83982,18 @@
     "card_type": "standard"
   },
   {
+    "id": 22553,
+    "name": "超重型炮塔列车 飞行发射器",
+    "phash": "b0fdf1ee66d726d9ad2c6e87a6e346b6ce98ccd1b891733ed3be9877183c603c",
+    "card_type": "standard"
+  },
+  {
+    "id": 22556,
+    "name": "妖精传姬－猫巫婆",
+    "phash": "a89c66b10b6b2ccd2de9374da7148738373467e46732f3d86399636696da83e9",
+    "card_type": "standard"
+  },
+  {
     "id": 22558,
     "name": "违犯枪管龙",
     "phash": "0bc276c82dc41d738d31769a30ebedf131d21cdb9e8cdb4e63d071221b2b3b40",
@@ -83769,6 +84003,36 @@
     "id": 22562,
     "name": "废品信号",
     "phash": "69696b296621ac326db9ce589f1a933bc07ac0b6e12e615e391e944394659a63",
+    "card_type": "standard"
+  },
+  {
+    "id": 22563,
+    "name": "特别时刻表",
+    "phash": "26a2136cc9c82d4b9469a46d6466cd3399387216c51d33351fb41cc7876db164",
+    "card_type": "standard"
+  },
+  {
+    "id": 22564,
+    "name": "捕食原生",
+    "phash": "0771b3eaa843cc951b26cbceccc6cd1c6c2fce4cd2f64b6de22cc2accab4d5b4",
+    "card_type": "standard"
+  },
+  {
+    "id": 22571,
+    "name": "妖精传姬要开始啰要开始啰",
+    "phash": "fcfc9cb194f1d4ecf49072262da76363e3118399471b4d3b13f083718e598e4d",
+    "card_type": "standard"
+  },
+  {
+    "id": 22572,
+    "name": "妖精传姬的舞会",
+    "phash": "9d10a760e251c750c7664f67058b25ebc9c40d172c367630319309588dd81bc7",
+    "card_type": "standard"
+  },
+  {
+    "id": 22573,
+    "name": "妖精传姬之尾",
+    "phash": "6263c5cd234f2219e029669b328bb04967186d8b3099310b0ce78d7cab3ce61c",
     "card_type": "standard"
   },
   {
@@ -83784,6 +84048,12 @@
     "card_type": "standard"
   },
   {
+    "id": 22578,
+    "name": "超逸融合",
+    "phash": "e91d7c29cde7e7cc7398d982fe106e997b81ed48cc48d642322adbd05bc321cb",
+    "card_type": "standard"
+  },
+  {
     "id": 22581,
     "name": "神艺厚涂－夺还－",
     "phash": "938431c133cb608e782e4ccfcb6d685261987088b3187928dd6c97da3271e131",
@@ -83793,6 +84063,18 @@
     "id": 22584,
     "name": "百臂无形引导手",
     "phash": "b7c8b760bc289d533d9e5f1edb0a3638371ea91ee3169b099f0b9719b2247b44",
+    "card_type": "standard"
+  },
+  {
+    "id": 22585,
+    "name": "北十字炮击",
+    "phash": "e1d8e234a215cc03ece5d9e47dcc3fcc0fbc07340b700fc086c01d003d967006",
+    "card_type": "standard"
+  },
+  {
+    "id": 22590,
+    "name": "时刻表衍生物",
+    "phash": "26a2136cc9c82d4b9469a46d6466cd3399387216c51d33351fb41cc7876db164",
     "card_type": "standard"
   },
   {
@@ -83811,6 +84093,12 @@
     "id": 22728,
     "name": "四天之龙 凶饿猛毒结合龙",
     "phash": "9fa227e033715a38cc0cb42db21cd216ce15cc52022229ca614ce19971d129cd",
+    "card_type": "standard"
+  },
+  {
+    "id": 22729,
+    "name": "四天之龙 清透翼同步龙",
+    "phash": "ab30b338927a9d329a378a4be70b674d6d37c135c3706378b77ce8d49c1dbc99",
     "card_type": "standard"
   },
   {
@@ -83836,5 +84124,17 @@
     "name": "灵主王之波动",
     "phash": "3a84c2a6069e76998ed2aca298a6acac98a6a88730874cd5cc31aea397b4dada",
     "card_type": "pendulum"
+  },
+  {
+    "id": 22922,
+    "name": "捕食植物 无畏魔鬼树",
+    "phash": "816d99051f2b8f2bef26cd3da927b337db555cd3b173ab2d671ad265294b2f93",
+    "card_type": "standard"
+  },
+  {
+    "id": 23013,
+    "name": "夏",
+    "phash": "1d029f302f301f391e31ba2cf13467321f605cd00d191b6135c933431b0c0f7c",
+    "card_type": "standard"
   }
 ]
