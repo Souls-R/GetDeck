@@ -210,6 +210,14 @@ export class Database {
         const ret = wasm.database_find_best_match(this.__wbg_ptr, ptr0, len0, ptr1, len1);
         return ret;
     }
+    /**
+     * @param {Uint8Array} bytes
+     */
+    load_database_from_buffer(bytes) {
+        const ptr0 = passArray8ToWasm0(bytes, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        wasm.database_load_database_from_buffer(this.__wbg_ptr, ptr0, len0);
+    }
     constructor() {
         const ret = wasm.database_new();
         this.__wbg_ptr = ret >>> 0;

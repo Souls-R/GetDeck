@@ -2,13 +2,15 @@ use wasm_bindgen::prelude::*;
 use img_hash::{HasherConfig, ImageHash};
 use serde::Deserialize;
 use js_sys::{Array, Object, Reflect};
+use bincode::{decode_from_slice, Decode, Encode, config::{standard, Configuration}};
 
-#[derive(Deserialize)]
-struct CardHashEntry {
-    id: u32,
-    name: String,
-    phash: String,
-    card_type: String,
+static CONFIG : Configuration = standard();
+#[derive(Decode, Encode, Deserialize)]
+pub struct CardHashEntry {
+    pub id: u32,
+    pub name: String,
+    pub phash: String,
+    pub card_type: String,
 }
 
 #[wasm_bindgen]
@@ -35,6 +37,21 @@ impl Database {
     pub fn load_database(&mut self, json: &str) {
         console_error_panic_hook::set_once();
         let data: Vec<CardHashEntry> = serde_json::from_str(json).unwrap();
+        for entry in data {
+            let bytes = hex::decode(&entry.phash).unwrap();
+            let hash = ImageHash::<[u8; 32]>::from_bytes(&bytes).unwrap();
+            self.hashes.push(hash);
+            self.ids.push(entry.id.to_string());
+            self.names.push(entry.name);
+            self.types.push(entry.card_type);
+        }
+    }
+
+    #[wasm_bindgen]
+    pub fn load_database_from_buffer(&mut self, bytes: Vec<u8>) {
+        console_error_panic_hook::set_once();
+        let (data, _) = decode_from_slice::<Vec<CardHashEntry>, Configuration>(&bytes, CONFIG)
+            .unwrap_or((Vec::new(), 0));
         for entry in data {
             let bytes = hex::decode(&entry.phash).unwrap();
             let hash = ImageHash::<[u8; 32]>::from_bytes(&bytes).unwrap();
