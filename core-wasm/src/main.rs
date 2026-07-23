@@ -38,7 +38,7 @@ async fn main() -> Result<(), Error> {
 		let args: Vec<String> = env::args().collect();
 		let mut tasks: Vec<JoinHandle<Result<(u32, String, bool), Error>>> = Vec::new();
 		if args.len() < 4 {
-			return Err(anyhow!("需要启动参数 <卡图文件夹路径> <cdb路径> <输入路径>"));
+			return Err(anyhow!("需要启动参数 <卡图文件夹路径> <cdb路径> <输出路径>"));
 		}
 		let db: BTreeMap<u32, String> = read_cdb(&args[2]).await?;
 		let output: &String = &args[3];
