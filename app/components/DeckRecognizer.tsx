@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import * as bincode from 'bincode-ts';
 import { useRecognition } from '../hooks/useRecognition';
 import { usePreventSwipeBack } from '../hooks/usePreventSwipeBack';
 import { globalCardInfoCache, fetchCardInfoBatch, fetchCardInfoByPasswords, isExtraDeck } from '../utils/cardApi';
@@ -273,8 +274,13 @@ export default function DeckRecognizer() {
     const cardDataRef = useRef<{ id: number; name: string }[] | null>(null);
     const loadCardData = useCallback(async () => {
         if (cardDataRef.current) return cardDataRef.current;
-        const res = await fetch('/card_data.json');
-        const data = await res.json();
+        const res = await fetch('/card_data');
+        const data = bincode.decode(bincode.Collection(bincode.Struct({
+            id : bincode.u32,
+            name : bincode.String,
+            phash: bincode.String,
+            card_type: bincode.String
+        })), await res.arrayBuffer()).value;
         cardDataRef.current = data;
         return data;
     }, []);

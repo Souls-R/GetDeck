@@ -14,12 +14,12 @@ import {
     EARLY_EXIT_DISTANCE
 } from '../utils/recognition';
 import { modelPath, getCardImageUrl } from '../config';
-import { globalCardInfoCache, fetchCardInfo as apiFetchCardInfo } from '../utils/cardApi';
+import { globalCardInfoCache, fetchCardInfo as apiFetchCardInfo, fetchCardInfoByPasswords } from '../utils/cardApi';
 
 export { globalCardInfoCache };
 
 const MODEL_PATH = modelPath;
-const HASH_DB_PATH = '/card_data.json';
+const HASH_DB_PATH = '/card_data';
 
 export type ProcessingStage = 'idle' | 'detecting' | 'identifying' | 'done';
 
@@ -73,7 +73,7 @@ export function useRecognition(): UseRecognitionReturn {
     const { t, locale } = useTranslation();
     // 会话状态
     const [session, setSession] = useState<ort.InferenceSession | null>(null);
-    const [hashDatabase, setHashDatabase] = useState<CardHashEntry[] | null>(null);
+    const [hashDatabase, setHashDatabase] = useState<Uint8Array | null>(null);
     const [wasmDb, setWasmDb] = useState<Database | null>(null);
     const [isInitializing, setIsInitializing] = useState(true);
     const [statusText, setStatusText] = useState('');
@@ -82,7 +82,7 @@ export function useRecognition(): UseRecognitionReturn {
     // 使用 ref 存储最新值，解决闭包陷阱问题
     // 在初始化完成时直接更新 ref（同步），确保 processImage 能立即访问到最新值
     const sessionRef = useRef<ort.InferenceSession | null>(null);
-    const hashDatabaseRef = useRef<CardHashEntry[] | null>(null);
+    const hashDatabaseRef = useRef<Uint8Array | null>(null);
     const wasmDbRef = useRef<Database | null>(null);
     const localeRef = useRef(locale);
     localeRef.current = locale;
@@ -218,7 +218,7 @@ export function useRecognition(): UseRecognitionReturn {
                 // 下载哈希数据库
                 const hashDbPromise = fetch(HASH_DB_PATH).then(r => {
                     if (!r.ok) throw new Error(`数据库加载失败: ${r.statusText}`);
-                    return r.json();
+                    return r.arrayBuffer();
                 });
 
                 // 初始化 core-wasm
@@ -231,6 +231,7 @@ export function useRecognition(): UseRecognitionReturn {
                     hashDbPromise,
                     wasmWarmupPromise // 不需要结果，只是确保 WASM 开始下载
                 ]);
+                const dbUint8Result = new Uint8Array(dbResult);
 
                 // 创建 ONNX Session（此时 WASM 应该已经缓存了）
                 const sessionResult = await ort.InferenceSession.create(modelBuffer, {
@@ -244,16 +245,16 @@ export function useRecognition(): UseRecognitionReturn {
                 }
 
                 const db = new Database();
-                db.load_database(JSON.stringify(dbResult));
+                db.load_database_from_buffer(dbUint8Result);
 
                 // 先更新 ref（同步），确保 processImage 能立即访问到最新值
                 sessionRef.current = sessionResult;
-                hashDatabaseRef.current = dbResult;
+                hashDatabaseRef.current = dbUint8Result;
                 wasmDbRef.current = db;
 
                 // 再更新 state（异步）
                 setSession(sessionResult);
-                setHashDatabase(dbResult);
+                setHashDatabase(dbUint8Result);
                 setWasmDb(db);
                 setIsInitializing(false);
                 setModelDownloadProgress(null);
@@ -457,16 +458,25 @@ export function useRecognition(): UseRecognitionReturn {
             setProcessingVisual(null);
 
             // 预加载卡片信息 — batch fetch (all matches including alternates)
-            const uniqueEntries = new Map<string, { id: number; name: string }>();
+            const uniquePasswords = new Set<string>();
             for (const c of finalResults) {
                 for (const m of c.matches) {
-                    if (m && !uniqueEntries.has(m.name)) {
-                        uniqueEntries.set(m.name, { id: m.id, name: m.name });
-                    }
+                    if (m) uniquePasswords.add(String(m.id));
                 }
             }
-            const { fetchCardInfoBatch } = await import('../utils/cardApi');
-            await fetchCardInfoBatch(Array.from(uniqueEntries.values()));
+            const passwordInfoMap = await fetchCardInfoByPasswords(Array.from(uniquePasswords));
+            for (const c of finalResults) {
+                for (const m of c.matches) {
+                    const info = passwordInfoMap.get(String(m.id));
+                    if (!info) continue;
+                    globalCardInfoCache[m.name] = {
+                        ...info.cardInfo,
+                        name: { ...info.cardInfo.name, zh: m.name },
+                    };
+                    m.id = info.konamiId;
+                }
+            }
+            setRecognizedCards([...finalResults]);
 
             // 预加载首选匹配的卡图（不含备选）
             const seenIds = new Set<number>();
@@ -572,9 +582,22 @@ export function useRecognition(): UseRecognitionReturn {
 
         // console.log(`[Reprocess Card ${index}] Processed with ${sampleCount} samples, best distance: ${bestMatchResult.distance}. Time: ${(performance.now() - startTime).toFixed(1)}ms`);
 
-        const matches = bestMatchResult.matches;
+        let matches = bestMatchResult.matches;
         const hashStandard = bestMatchResult.hashStandard;
         const hashPendulum = bestMatchResult.hashPendulum;
+
+        if (matches.length > 0) {
+            const passwordInfoMap = await fetchCardInfoByPasswords(matches.map(m => String(m.id)));
+            matches = matches.map(m => {
+                const info = passwordInfoMap.get(String(m.id));
+                if (!info) return m;
+                globalCardInfoCache[m.name] = {
+                    ...info.cardInfo,
+                    name: { ...info.cardInfo.name, zh: m.name },
+                };
+                return { ...m, id: info.konamiId };
+            });
+        }
 
         setRecognizedCards(prev => {
             const next = [...prev];
