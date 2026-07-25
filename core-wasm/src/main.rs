@@ -3,6 +3,7 @@ use lib::CardHashEntry;
 
 use bincode::{encode_to_vec, config::standard};
 use image::GenericImageView;
+use img_hash::HasherConfig;
 
 #[cfg(not(target_family = "wasm"))]
 use anyhow::{Result, Error, anyhow};
@@ -17,11 +18,27 @@ const STMT: &str = "SELECT
 	FROM datas, texts WHERE datas.id = texts.id";
 
 #[cfg(not(target_family = "wasm"))]
-fn is_pendulum_artwork(bytes: &[u8]) -> Result<bool, Error> {
-	let img = image::load_from_memory(bytes)?;
-	let ratio = img.width() as f32 / img.height() as f32;
+fn calc_phash(img: &image::DynamicImage) -> String {
+	let hasher = HasherConfig::new().hash_size(16, 16).to_hasher();
+	let hash = hasher.hash_image(img);
+	hex::encode(hash.as_bytes())
+}
 
-	Ok(ratio != 1.0)
+#[cfg(not(target_family = "wasm"))]
+fn get_card_phash_and_type(bytes: &[u8]) -> Result<(String, bool), Error> {
+	let img = image::load_from_memory(bytes)?;
+	let (w, h) = img.dimensions();
+	let is_pendulum = w as f32 / h as f32 != 1.0;
+
+	if is_pendulum {
+		if w < 712 || h < 526 {
+			return Err(anyhow!("灵摆卡图尺寸不足，无法截取 712x526: {}x{}", w, h));
+		}
+		let cropped = img.crop_imm(0, 0, 712, 526);
+		return Ok((calc_phash(&cropped), true));
+	}
+
+	Ok((calc_phash(&img), false))
 }
 
 #[tokio::main]
@@ -57,8 +74,8 @@ async fn main() -> Result<(), Error> {
 								let p = path.to_path_buf();
 								tasks.push(spawn(async move {
 									let content= read(p).await?;
-									let is_pendulum = is_pendulum_artwork(&content)?;
-									Ok((code, lib::get_phash(&content), is_pendulum))
+									let (phash, is_pendulum) = get_card_phash_and_type(&content)?;
+									Ok((code, phash, is_pendulum))
 								}));
 							}
 						}
