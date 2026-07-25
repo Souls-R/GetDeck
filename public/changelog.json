@@ -1,6 +1,36 @@
 {
   "updates": [
     {
+      "version": "202607122340",
+      "sync_date": "2026-07-25T14:06:20Z",
+      "added_cards": [
+        {
+          "id": 22088,
+          "name": "魔弹邪魔 卡斯帕"
+        },
+        {
+          "id": 22123,
+          "name": "空牙团的疾风 雷克斯"
+        },
+        {
+          "id": 22154,
+          "name": "救援王牌 裁焰者"
+        },
+        {
+          "id": 22348,
+          "name": "鬼魂大王－南瓜王－"
+        },
+        {
+          "id": 22687,
+          "name": "亚空间战斗"
+        }
+      ],
+      "updated_cards": [],
+      "total_cards": 14028,
+      "added_count": 5,
+      "updated_count": 0
+    },
+    {
       "version": "20260709",
       "sync_date": "2026-07-09T18:03:36Z",
       "added_cards": [
