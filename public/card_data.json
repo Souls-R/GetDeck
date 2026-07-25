@@ -78,6 +78,12 @@
     "card_type": "standard"
   },
   {
+    "id": 3181,
+    "name": "霸王暴龙 凶饿猛毒透翼龙",
+    "phash": "31c3339ba69aa94731333d1b1046310b391b99b28d3287219b291b09db8b1b86",
+    "card_type": "pendulum"
+  },
+  {
     "id": 3182,
     "name": "混绝狱神 皮托里姆",
     "phash": "e710ec8876b9533b7b33a732e738ecc8b690d3344b2c4d8e4dcf8c4d9cc7ac9d",
@@ -83310,6 +83316,12 @@
     "card_type": "standard"
   },
   {
+    "id": 22088,
+    "name": "魔弹邪魔 卡斯帕",
+    "phash": "c6d0ff64376537e24dcfef6dc7cc90e6dfe6c0f3a6f533e5337cf934992534ad",
+    "card_type": "standard"
+  },
+  {
     "id": 22089,
     "name": "落胤与圣女",
     "phash": "ffb6efcccfd9c949e573c576c522a67bab1ec91da7798c59ccf1d2adec8b86c9",
@@ -83415,6 +83427,12 @@
     "id": 22122,
     "name": "殿下恶魔",
     "phash": "f904e705670eaa0c7a05e995cb198d549e15c92cc3709321cf45c725a385baa6",
+    "card_type": "standard"
+  },
+  {
+    "id": 22123,
+    "name": "空牙团的疾风 雷克斯",
+    "phash": "2769f68ce28931239c4eb42658273cf364cac87ae970f1e9b4d8f101d906a40d",
     "card_type": "standard"
   },
   {
@@ -83541,6 +83559,12 @@
     "id": 22152,
     "name": "绚岚之海灵 伐楼仑",
     "phash": "0f1d27939641cb05c684929e53dee254b1a63943a9d1c4d9d9588fbc9f38eb58",
+    "card_type": "standard"
+  },
+  {
+    "id": 22154,
+    "name": "救援王牌 裁焰者",
+    "phash": "217528b5b831b13c498ddbf53394516bc44cd8ce348eb2441be795e3d3a7c9ce",
     "card_type": "standard"
   },
   {
@@ -83826,6 +83850,12 @@
     "card_type": "standard"
   },
   {
+    "id": 22348,
+    "name": "鬼魂大王－南瓜王－",
+    "phash": "be349e97165a700c398c5ab1e9d039f091dc712c3125033e52b646b59cd6044c",
+    "card_type": "standard"
+  },
+  {
     "id": 22356,
     "name": "三英的相剑师",
     "phash": "d1e2b6b28c364c888d42c53c0a9a889be464356409bbc9f632660d833927a2c7",
@@ -84075,6 +84105,12 @@
     "id": 22593,
     "name": "奇迹除外士",
     "phash": "9f0b2f2731a7339d892dd1169dd4baa64a29ce388cd39b9d52a7232323653389",
+    "card_type": "standard"
+  },
+  {
+    "id": 22687,
+    "name": "亚空间战斗",
+    "phash": "8b1b990bdc04fd08f8b67c36433b821b2a0b1f9333636e265e25dd644fc367c3",
     "card_type": "standard"
   },
   {
