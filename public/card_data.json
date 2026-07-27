@@ -52591,7 +52591,7 @@
   },
   {
     "id": 13315,
-    "name": "魔弹射手 卡斯帕尔",
+    "name": "魔弹射手 卡斯帕",
     "phash": "770c7b30e9319931d32824676b66c9c691c4788c8db1adb26c9a72999b14e585",
     "card_type": "standard"
   },
@@ -64867,7 +64867,7 @@
   },
   {
     "id": 15544,
-    "name": "新风之空牙团",
+    "name": "新风的空牙团",
     "phash": "c7718f238857494360dd32cdb17dc235416bc67bd39ef3bfe4b3ecf3cbf161db",
     "card_type": "standard"
   },
@@ -82800,6 +82800,12 @@
     "card_type": "standard"
   },
   {
+    "id": 21819,
+    "name": "炎魔刃 雷瓦汀",
+    "phash": "cb235a439d839da37d0c6d269b669bc4d3d4ad51d91c97349f3917273f037f06",
+    "card_type": "standard"
+  },
+  {
     "id": 21820,
     "name": "零王的契约书",
     "phash": "e83098c2195ba71ba69de8746574b17db878e93858ba0e9265366b667dc89864",
@@ -83220,6 +83226,24 @@
     "card_type": "standard"
   },
   {
+    "id": 22066,
+    "name": "密林狩猎者弗赞",
+    "phash": "be611e239e4b9e1626468917d99669942d1ba519a719c71dcf4dcf047b506d98",
+    "card_type": "standard"
+  },
+  {
+    "id": 22067,
+    "name": "密林狩猎者修弗鲁依由",
+    "phash": "37ce3d395e663346906e145b6d633c3c3c88143d19162d139d299405ce85ed06",
+    "card_type": "standard"
+  },
+  {
+    "id": 22068,
+    "name": "狩猎笛",
+    "phash": "7fb656934f854c4d864bb6c21f61cd60dca51894302c3126232387254c249eb1",
+    "card_type": "standard"
+  },
+  {
     "id": 22069,
     "name": "红镰华",
     "phash": "f618567956634c64ccc0ce4d4e8789c2873b1e0f99a4859be69387b19f61df09",
@@ -83430,6 +83454,12 @@
     "card_type": "standard"
   },
   {
+    "id": 22126,
+    "name": "救援王牌 迅猛攻击机",
+    "phash": "5626c526e169d8f4ea8e4b720749e6d966930d27d806900e703ee17cc839a173",
+    "card_type": "standard"
+  },
+  {
     "id": 22127,
     "name": "白之落胤",
     "phash": "7fb33b622723e2106820d808c405e561b468bd09db0dda8b1b23c7764f4e1d5e",
@@ -83490,6 +83520,12 @@
     "card_type": "standard"
   },
   {
+    "id": 22140,
+    "name": "星宿钳龙 夏乌拉斯",
+    "phash": "2b4ad84ab18a69ba6336cf641be917b757263730244c8d94bab235a673681f67",
+    "card_type": "standard"
+  },
+  {
     "id": 22141,
     "name": "夜翼祭司",
     "phash": "37386c12986138e3716348986c94c40ca61b0317cf16923e921c8e395c336826",
@@ -83517,6 +83553,12 @@
     "id": 22145,
     "name": "锁缚龙 扎连",
     "phash": "360e9f392bb031f43367262336b232d133b3e018803fae2a2269134bc28c6c69",
+    "card_type": "standard"
+  },
+  {
+    "id": 22146,
+    "name": "K9－EX “割裂者／千”",
+    "phash": "69736527c5c9ccd5e85a6a686aa4b25cd39e43166313a599e98839071026136e",
     "card_type": "standard"
   },
   {
@@ -83553,6 +83595,12 @@
     "id": 22152,
     "name": "绚岚之海灵 伐楼仑",
     "phash": "0f1d27939641cb05c684929e53dee254b1a63943a9d1c4d9d9588fbc9f38eb58",
+    "card_type": "standard"
+  },
+  {
+    "id": 22153,
+    "name": "空牙团的船匠 基尔",
+    "phash": "49f348f3a9c10de5944444cc69cc59d139bf637b653a049c14cc32f9e41ccdd1",
     "card_type": "standard"
   },
   {
@@ -83616,6 +83664,18 @@
     "card_type": "standard"
   },
   {
+    "id": 22164,
+    "name": "飞龙战艇－帆朵拉",
+    "phash": "06ee78bcf3706df3c38fe60f5c8d30d9e04f87078bcd802c085d89d9cdf14dd8",
+    "card_type": "standard"
+  },
+  {
+    "id": 22165,
+    "name": "飙风的空牙团",
+    "phash": "311bbfbebe296f636c646c4698c3d859495b4f4bcbab852d84b50c529f7e1bff",
+    "card_type": "standard"
+  },
+  {
     "id": 22167,
     "name": "绚岚之轩昂",
     "phash": "b718dd00dda6bff17362e52ce718dd31ed65f8046f061b1e1b1a37e535741b74",
@@ -83661,6 +83721,18 @@
     "id": 22176,
     "name": "恶魔的气魄",
     "phash": "18cb334bc68c3c831e8717b7d8847aa15711b71a23cb65e9de44d4b4b270d951",
+    "card_type": "standard"
+  },
+  {
+    "id": 22177,
+    "name": "空牙团的奥义",
+    "phash": "497d1c6e8ef8e5e8b2c4f1d079e8f0f070f178ed98ed506e40bac06c7332179c",
+    "card_type": "standard"
+  },
+  {
+    "id": 22178,
+    "name": "协助★黯蜜！",
+    "phash": "eb2a93720553b961d94b6e4236a476e5e5198dcd2cc5d2139224accc3c8e9d17",
     "card_type": "standard"
   },
   {
@@ -83832,6 +83904,24 @@
     "card_type": "standard"
   },
   {
+    "id": 22330,
+    "name": "生命之汞 墨丘利姆",
+    "phash": "3ee9ede0a7c19241b1462987e135a11feb39e339b629c3c843d666c6649cb40c",
+    "card_type": "standard"
+  },
+  {
+    "id": 22331,
+    "name": "还流之精 旺多尼卡",
+    "phash": "6a88e498213b331682ae007fc57c64d992d6cbcde799c71a4718471dd374470d",
+    "card_type": "standard"
+  },
+  {
+    "id": 22332,
+    "name": "恶怪死之雨",
+    "phash": "63a8e22cd4e9d689948d33f7b546b5099a63be326cb86c644ae494a5acad10e7",
+    "card_type": "standard"
+  },
+  {
     "id": 22333,
     "name": "奥森菲尔德流体",
     "phash": "394f2f032f038b058302c70a5301f266b86438ca394e5bce34ee2867b6430615",
@@ -83844,9 +83934,63 @@
     "card_type": "standard"
   },
   {
+    "id": 22344,
+    "name": "墓场的鬼魂王－南瓜王－",
+    "phash": "1b6e9b989a999559d468dac8cb08ed08d95a535a55756f043b056305225a2b5b",
+    "card_type": "standard"
+  },
+  {
+    "id": 22345,
+    "name": "活死人军团",
+    "phash": "8259c0d6c4d6c8d269c7d3c2a8f4a4b6c2a652ea18fa48f6ccf2843389339477",
+    "card_type": "standard"
+  },
+  {
+    "id": 22346,
+    "name": "石化凝视之美杜莎",
+    "phash": "7f981b538f274e076c9e6d5c8c2d0bad2d95249b331b731e313333310dec8feb",
+    "card_type": "standard"
+  },
+  {
+    "id": 22347,
+    "name": "冥界魔象",
+    "phash": "389459356f259e24e704ce36444d335f0c379cb99c9acb96cb3167496795a3d4",
+    "card_type": "standard"
+  },
+  {
     "id": 22348,
     "name": "鬼魂大王－南瓜王－",
     "phash": "be349e97165a700c398c5ab1e9d039f091dc712c3125033e52b646b59cd6044c",
+    "card_type": "standard"
+  },
+  {
+    "id": 22349,
+    "name": "不死大军团",
+    "phash": "9969641c633e43be66e64462d99092984b89131b6b3a49a59065b039f3316169",
+    "card_type": "standard"
+  },
+  {
+    "id": 22350,
+    "name": "活尸的呼唤",
+    "phash": "b31833c95a947d286722574bdf222a251be14ba949066f35b64cda4ac964f890",
+    "card_type": "standard"
+  },
+  {
+    "id": 22351,
+    "name": "灵魂等离子",
+    "phash": "ddc84f038936d174d8248172ca756a643c66ba86adca8ec90397f132a1b2641a",
+    "card_type": "standard"
+  },
+  {
+    "id": 22352,
+    "name": "时光漩涡",
+    "phash": "c067894fa0b381b449385ab571a8e9b8217173ca62ce76cf4f6b8d1a5902c9e8",
+    "card_type": "standard"
+  },
+  {
+    "id": 22353,
+    "name": "尸气腐朽吐息",
+    "phash": "9f341b3533392c2a6d349b1b74cc64846148ecc2cbc2c7907fd20f56875a9f61",
     "card_type": "standard"
   },
   {
@@ -83931,6 +84075,12 @@
     "id": 22533,
     "name": "调和之天救龙",
     "phash": "6938e9701d151f253b0c332e7b63eb277342b7281cac19b15386d386da3c5349",
+    "card_type": "standard"
+  },
+  {
+    "id": 22534,
+    "name": "妖光之迪亚布罗肯",
+    "phash": "4bc34533130e436b6439b35cb32c93268623d51a5b8a4c82569a5f1b5bcb3991",
     "card_type": "standard"
   },
   {
