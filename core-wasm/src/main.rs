@@ -90,7 +90,7 @@ async fn main() -> Result<(), Error> {
 					phash: phash,
 					name: String::from(name),
 					id: code,
-					card_type: String::from(if is_pendulum { "pendulum" } else { "standard" })
+					card_type: if is_pendulum { 1 } else { 0 }
 				});
 			} else {
 				println!("无法找到卡号：{}对应的卡名", code);

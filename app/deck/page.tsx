@@ -48,7 +48,7 @@ async function loadCardData(): Promise<CardData[]> {
                 id : bincode.u32,
                 name : bincode.String,
                 phash: bincode.String,
-                card_type: bincode.String
+                card_type: bincode.u8
             })), data).value;
             cardDataCache = result;
             return result;

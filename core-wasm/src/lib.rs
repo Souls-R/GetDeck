@@ -10,7 +10,7 @@ pub struct CardHashEntry {
     pub id: u32,
     pub name: String,
     pub phash: String,
-    pub card_type: String,
+    pub card_type: u8,
 }
 
 #[wasm_bindgen]
@@ -18,7 +18,7 @@ pub struct Database {
     hashes: Vec<ImageHash<[u8; 32]>>,
     ids: Vec<String>,
     names: Vec<String>,
-    types: Vec<String>,
+    types: Vec<u8>,
 }
 
 #[wasm_bindgen]
@@ -63,12 +63,12 @@ impl Database {
     }
 
     #[wasm_bindgen]
-    pub fn find_best_match(&self, hash_str: &str, card_type: &str) -> Array {
+    pub fn find_best_match(&self, hash_str: &str, card_type: u8) -> Array {
         let bytes = hex::decode(hash_str).unwrap();
         let query_hash = ImageHash::<[u8; 32]>::from_bytes(&bytes).unwrap();
         let mut matches: Vec<(u32, usize)> = Vec::new();
         for (i, h) in self.hashes.iter().enumerate() {
-            if &self.types[i] == card_type {
+            if self.types[i] == card_type {
                 let dist = query_hash.dist(h);
                 matches.push((dist, i));
             }

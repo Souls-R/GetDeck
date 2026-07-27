@@ -21,6 +21,11 @@ export { globalCardInfoCache };
 const MODEL_PATH = modelPath;
 const HASH_DB_PATH = '/card_data';
 
+enum CARD_TYPE {
+    STANDARD = 0,
+    PENDULUM = 1
+};
+
 export type ProcessingStage = 'idle' | 'detecting' | 'identifying' | 'done';
 
 export interface ProcessingVisual {
@@ -390,8 +395,8 @@ export function useRecognition(): UseRecognitionReturn {
                     const hashStandard = get_phash_raw(dataStandard, 128, 128);
                     const hashPendulum = get_phash_raw(dataPendulum, 128, 128);
 
-                    const matchesStandard = currentWasmDb.find_best_match(hashStandard, 'standard');
-                    const matchesPendulum = currentWasmDb.find_best_match(hashPendulum, 'pendulum');
+                    const matchesStandard = currentWasmDb.find_best_match(hashStandard, CARD_TYPE.STANDARD);
+                    const matchesPendulum = currentWasmDb.find_best_match(hashPendulum, CARD_TYPE.PENDULUM);
                     const allMatches = [...matchesStandard, ...matchesPendulum].sort(
                         (a: any, b: any) => a.distance - b.distance
                     );
@@ -551,8 +556,8 @@ export function useRecognition(): UseRecognitionReturn {
             const hashStandard = get_phash_raw(dataStandard, 128, 128);
             const hashPendulum = get_phash_raw(dataPendulum, 128, 128);
 
-            const matchesStandard = currentWasmDb.find_best_match(hashStandard, 'standard');
-            const matchesPendulum = currentWasmDb.find_best_match(hashPendulum, 'pendulum');
+            const matchesStandard = currentWasmDb.find_best_match(hashStandard, CARD_TYPE.STANDARD);
+            const matchesPendulum = currentWasmDb.find_best_match(hashPendulum, CARD_TYPE.PENDULUM);
             const allMatches = [...matchesStandard, ...matchesPendulum].sort(
                 (a: any, b: any) => a.distance - b.distance
             );

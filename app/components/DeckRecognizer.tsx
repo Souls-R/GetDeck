@@ -279,7 +279,7 @@ export default function DeckRecognizer() {
             id : bincode.u32,
             name : bincode.String,
             phash: bincode.String,
-            card_type: bincode.String
+            card_type: bincode.u8
         })), await res.arrayBuffer()).value;
         cardDataRef.current = data;
         return data;
