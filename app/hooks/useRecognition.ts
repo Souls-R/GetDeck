@@ -319,6 +319,44 @@ export function useRecognition(): UseRecognitionReturn {
         }
     }, []);
 
+    const fetchCardInfoByPassword = useCallback(async (name: string, password: number, updateUI: boolean = true) => {
+        if (globalCardInfoCache[name]) {
+            if (updateUI && name === latestRequestedNameRef.current) {
+                setSelectedCardInfo(globalCardInfoCache[name]);
+            }
+            return globalCardInfoCache[name];
+        }
+
+        if (updateUI) setIsDetailLoading(true);
+
+        try {
+            const passwordInfoMap = await fetchCardInfoByPasswords([password.toString()]);
+            const info = passwordInfoMap.get(password.toString());
+            if (!info) return null;
+
+            const cardInfo: CardInfo = {
+                ...info.cardInfo,
+                name: { ...info.cardInfo.name, zh: name },
+            };
+            globalCardInfoCache[name] = cardInfo;
+
+            if (updateUI && name === latestRequestedNameRef.current) {
+                setSelectedCardInfo(cardInfo);
+            }
+            return cardInfo;
+        } catch (error) {
+            console.error(error);
+            if (updateUI && name === latestRequestedNameRef.current) {
+                setSelectedCardInfo(null);
+            }
+            return null;
+        } finally {
+            if (updateUI && name === latestRequestedNameRef.current) {
+                setIsDetailLoading(false);
+            }
+        }
+    }, []);
+
     // 处理图像管道
     const processImage = useCallback(async (img: HTMLImageElement) => {
         // 使用 ref 获取最新值，避免闭包陷阱
@@ -408,7 +446,7 @@ export function useRecognition(): UseRecognitionReturn {
                         bestMatchResult = {
                             distance: bestDist,
                             matches: allMatches.slice(0, 3).map((m: any) => ({
-                                id: m.id,
+                                password: m.id,
                                 name: m.name,
                                 distance: m.distance,
                                 cardType: m.cardType,
@@ -466,13 +504,15 @@ export function useRecognition(): UseRecognitionReturn {
             const uniquePasswords = new Set<string>();
             for (const c of finalResults) {
                 for (const m of c.matches) {
-                    if (m) uniquePasswords.add(String(m.id));
+                    const password = m.password ?? m.id;
+                    if (password) uniquePasswords.add(String(password));
                 }
             }
             const passwordInfoMap = await fetchCardInfoByPasswords(Array.from(uniquePasswords));
             for (const c of finalResults) {
                 for (const m of c.matches) {
-                    const info = passwordInfoMap.get(String(m.id));
+                    const password = m.password ?? m.id;
+                    const info = password ? passwordInfoMap.get(String(password)) : undefined;
                     if (!info) continue;
                     globalCardInfoCache[m.name] = {
                         ...info.cardInfo,
@@ -515,7 +555,10 @@ export function useRecognition(): UseRecognitionReturn {
         if (card.matches.length > 0) {
             const currentMatch = card.matches[card.selectedMatchIndex];
             latestRequestedNameRef.current = currentMatch.name;
-            await fetchCardInfo(currentMatch.name, currentMatch.id, true);
+            if (currentMatch.id)
+                await fetchCardInfo(currentMatch.name, currentMatch.id, true);
+            else if (currentMatch.password)
+                await fetchCardInfoByPassword(currentMatch.name, currentMatch.password, true);
         }
     }, [recognizedCards, fetchCardInfo]);
 
@@ -568,7 +611,7 @@ export function useRecognition(): UseRecognitionReturn {
                 bestMatchResult = {
                     distance: bestDist,
                     matches: allMatches.slice(0, 3).map((m: any) => ({
-                        id: m.id,
+                        password: m.id,
                         name: m.name,
                         distance: m.distance,
                         cardType: m.cardType,
@@ -592,9 +635,14 @@ export function useRecognition(): UseRecognitionReturn {
         const hashPendulum = bestMatchResult.hashPendulum;
 
         if (matches.length > 0) {
-            const passwordInfoMap = await fetchCardInfoByPasswords(matches.map(m => String(m.id)));
+            const passwords = matches
+                .map(m => m.password ?? m.id)
+                .filter((password): password is number => Boolean(password))
+                .map(String);
+            const passwordInfoMap = await fetchCardInfoByPasswords(passwords);
             matches = matches.map(m => {
-                const info = passwordInfoMap.get(String(m.id));
+                const password = m.password ?? m.id;
+                const info = password ? passwordInfoMap.get(String(password)) : undefined;
                 if (!info) return m;
                 globalCardInfoCache[m.name] = {
                     ...info.cardInfo,
@@ -618,9 +666,12 @@ export function useRecognition(): UseRecognitionReturn {
 
         if (matches.length > 0) {
             latestRequestedNameRef.current = matches[0].name;
-            await fetchCardInfo(matches[0].name, matches[0].id, true);
+            if (matches[0].id)
+                await fetchCardInfo(matches[0].name, matches[0].id, true);
+            else if (matches[0].password)
+                await fetchCardInfoByPassword(matches[0].name, matches[0].password, true);
         }
-    }, [originalImage, recognizedCards, fetchCardInfo]);
+    }, [originalImage, recognizedCards, fetchCardInfo, fetchCardInfoByPassword]);
 
     // 选择备选匹配
     const handleSelectAltMatch = useCallback((matchIndex: number) => {
@@ -635,9 +686,12 @@ export function useRecognition(): UseRecognitionReturn {
         const newMatch = card.matches[matchIndex];
         if (newMatch) {
             latestRequestedNameRef.current = newMatch.name;
-            fetchCardInfo(newMatch.name, newMatch.id, true);
+            if (newMatch.id)
+                fetchCardInfo(newMatch.name, newMatch.id, true);
+            else if (newMatch.password)
+                fetchCardInfoByPassword(newMatch.name, newMatch.password, true);
         }
-    }, [selectedCardIndex, recognizedCards, fetchCardInfo]);
+    }, [selectedCardIndex, recognizedCards, fetchCardInfo, fetchCardInfoByPassword]);
 
     // 更新卡片框位置
     const updateCardBox = useCallback((index: number, box: Box) => {

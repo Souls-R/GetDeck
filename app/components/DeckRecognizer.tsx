@@ -452,17 +452,30 @@ export default function DeckRecognizer() {
 
         // 加载缺失的卡片信息到缓存
         const missingEntries: { id: number; name: string }[] = [];
+        const passwordEntries: { password: string; name: string }[] = [];
         for (const c of history.recognizedCards) {
             const m = c.matches[c.selectedMatchIndex];
             if (m && !globalCardInfoCache[m.name]) {
-                missingEntries.push({ id: m.id, name: m.name });
+                m.id ? missingEntries.push({ id: m.id, name: m.name })
+                    : passwordEntries.push({ password: m.password!.toString(), name: m.name });
             }
         }
-        if (missingEntries.length > 0) {
-            fetchCardInfoBatch(missingEntries).then(() => {
+        if (missingEntries.length + passwordEntries.length)
+            Promise.all([
+                missingEntries.length > 0 ? fetchCardInfoBatch(missingEntries) : Promise.resolve(),
+                passwordEntries.length > 0 ? fetchCardInfoByPasswords(passwordEntries.map((e) => e.password)) : Promise.resolve(new Map()),
+            ]).then(([, passwordInfoMap]) => {
+                passwordEntries.forEach(({ password, name }) => {
+                    const info = passwordInfoMap.get(password);
+                    if (info) {
+                        globalCardInfoCache[name] = {
+                            ...info.cardInfo,
+                            name: { ...info.cardInfo.name, zh: name },
+                        };
+                    }
+                });
                 recognition.setRecognizedCards([...history.recognizedCards]);
             });
-        }
 
         // 设置处理阶段为完成
         setProcessingStage('done');
@@ -851,13 +864,18 @@ export default function DeckRecognizer() {
         try {
             // Batch fetch missing card info
             const missingEntries: { id: number; name: string }[] = [];
+            const missingEntries2: string[] = [];
             for (const c of recognizedCards) {
                 const m = c.matches[c.selectedMatchIndex];
                 if (m && !globalCardInfoCache[m.name]) {
-                    missingEntries.push({ id: m.id, name: m.name });
+                    m.id ? missingEntries.push({ id: m.id, name: m.name })
+                        : missingEntries2.push(m.password!.toString());
                 }
             }
-            if (missingEntries.length > 0) await fetchCardInfoBatch(missingEntries);
+            await Promise.all([
+                missingEntries.length > 0 ? fetchCardInfoBatch(missingEntries) : Promise.resolve(),
+                missingEntries2.length > 0 ? fetchCardInfoByPasswords(missingEntries2) : Promise.resolve(),
+            ]);
 
             const deck: { monsters: string[]; spells: string[]; traps: string[]; extra: string[] } = {
                 monsters: [], spells: [], traps: [], extra: []
@@ -930,13 +948,18 @@ export default function DeckRecognizer() {
         try {
             // Batch fetch missing card info
             const missingEntries: { id: number; name: string }[] = [];
+            const missingEntries2: string[] = [];
             for (const c of recognizedCards) {
                 const m = c.matches[c.selectedMatchIndex];
                 if (m && !globalCardInfoCache[m.name]) {
-                    missingEntries.push({ id: m.id, name: m.name });
+                    m.id ? missingEntries.push({ id: m.id, name: m.name })
+                        : missingEntries2.push(m.password!.toString());
                 }
             }
-            if (missingEntries.length > 0) await fetchCardInfoBatch(missingEntries);
+            await Promise.all([
+                missingEntries.length > 0 ? fetchCardInfoBatch(missingEntries) : Promise.resolve(),
+                missingEntries2.length > 0 ? fetchCardInfoByPasswords(missingEntries2) : Promise.resolve(),
+            ]);
 
             const deck: { monsters: string[]; spells: string[]; traps: string[]; extra: string[] } = {
                 monsters: [], spells: [], traps: [], extra: []
@@ -999,13 +1022,18 @@ export default function DeckRecognizer() {
         try {
             // Batch fetch missing card info
             const missingEntries: { id: number; name: string }[] = [];
+            const missingEntries2: string[] = [];
             for (const c of recognizedCards) {
                 const m = c.matches[c.selectedMatchIndex];
                 if (m && !globalCardInfoCache[m.name]) {
-                    missingEntries.push({ id: m.id, name: m.name });
+                    m.id ? missingEntries.push({ id: m.id, name: m.name })
+                        : missingEntries2.push(m.password!.toString());
                 }
             }
-            if (missingEntries.length > 0) await fetchCardInfoBatch(missingEntries);
+            await Promise.all([
+                missingEntries.length > 0 ? fetchCardInfoBatch(missingEntries) : Promise.resolve(),
+                missingEntries2.length > 0 ? fetchCardInfoByPasswords(missingEntries2) : Promise.resolve(),
+            ]);
 
             const mainDeck: number[] = [];
             const extraDeck: number[] = [];
