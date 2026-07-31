@@ -2,6 +2,24 @@
   "updates": [
     {
       "version": "20260727",
+      "sync_date": "2026-07-31T11:43:25Z",
+      "added_cards": [],
+      "updated_cards": [
+        {
+          "id": 22811,
+          "name": "冰剑龙 镜翠幻种"
+        },
+        {
+          "id": 22823,
+          "name": "灵主王之波动"
+        }
+      ],
+      "total_cards": 14052,
+      "added_count": 0,
+      "updated_count": 2
+    },
+    {
+      "version": "20260727",
       "sync_date": "2026-07-27T12:13:06Z",
       "added_cards": [
         {
