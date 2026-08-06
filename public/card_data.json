@@ -1,5 +1,11 @@
 [
   {
+    "id": 3002,
+    "name": "WCS2026",
+    "phash": "000000004002b004cc20dc22bd06d8803b6127307332f0d0c10c200200000000",
+    "card_type": "standard"
+  },
+  {
     "id": 3100,
     "name": "墓场的鬼魂王－南瓜王－",
     "phash": "1b6e9b989a999559d468dac8cb08ed08d95a535a55756f043b054305225a2b5b",
@@ -70,6 +76,30 @@
     "name": "天下独步之大义贼",
     "phash": "9436a4f2860c942d4cecd159d1184fb25361b4cc9c8b1e37de33197b1d4e956c",
     "card_type": "standard"
+  },
+  {
+    "id": 3113,
+    "name": "神圣心护罩－心灵之力－",
+    "phash": "f494f6ac84f89c99948f366398f194e849f62eb238a8bcb09ed99eea1c625270",
+    "card_type": "pendulum"
+  },
+  {
+    "id": 3114,
+    "name": "来自冥府的使者",
+    "phash": "d99c651dd29933da6a7a5ff12cf2c4fa60717032b062d834483c4c114c191a4d",
+    "card_type": "pendulum"
+  },
+  {
+    "id": 3115,
+    "name": "暗黑武装龙・湮灭",
+    "phash": "f20c809b5892a4916061165066c2c0a58ca7ccaed2ceca8e9a9cbed686e3ceb3",
+    "card_type": "pendulum"
+  },
+  {
+    "id": 3116,
+    "name": "冰结界之龙胤 千枪龙",
+    "phash": "3dd33cc336d337a326c9c254cb6642594629519bd8f6cd46b6d9e4f8e41864a8",
+    "card_type": "pendulum"
   },
   {
     "id": 3180,
@@ -186,6 +216,12 @@
     "card_type": "standard"
   },
   {
+    "id": 3407,
+    "name": "元素－英雄 大气人",
+    "phash": "09456471ec90eb2ac2fbcae04bf34f2accae03a7a727212d6131e5525951c2f0",
+    "card_type": "standard"
+  },
+  {
     "id": 3409,
     "name": "召唤师 阿莱斯特",
     "phash": "0d9d8b054d81151d1b8d491b6317331b1d0f3f4f1f070f0f0f1fc718633e1f33",
@@ -207,6 +243,12 @@
     "id": 3415,
     "name": "I：P百变莱娜",
     "phash": "f3e720679846944602171737271fe839e4f98dc991c148f450f059dd4bdd02b1",
+    "card_type": "standard"
+  },
+  {
+    "id": 3416,
+    "name": "朔夜时雨",
+    "phash": "34205920ce1007c09380a3082118910d8907c703e221f235fd7ff87dfc1ff31f",
     "card_type": "standard"
   },
   {
@@ -24357,6 +24399,12 @@
     "id": 8380,
     "name": "狂怒",
     "phash": "dd43bb61be135f07cf8e270b7331773b4b2a4e66deb69887b0c5d026fc9461c9",
+    "card_type": "standard"
+  },
+  {
+    "id": 8381,
+    "name": "堕入黑暗的天使",
+    "phash": "d6397e393f159dc58fc1878047c05d607d30590ff9007308630079803c103fa0",
     "card_type": "standard"
   },
   {
@@ -78714,6 +78762,12 @@
     "card_type": "standard"
   },
   {
+    "id": 20386,
+    "name": "融合",
+    "phash": "e52de91b5a1bd792b49a9c067032c69696c68bc76273e4f3cd43d36f67a60fe6",
+    "card_type": "standard"
+  },
+  {
     "id": 20388,
     "name": "叹息石版",
     "phash": "fc6277365706374aa712c319f73077357130687659417d496e46e52bd179f15e",
@@ -83454,6 +83508,18 @@
     "card_type": "standard"
   },
   {
+    "id": 22124,
+    "name": "堕天使 骨尔加尔塔",
+    "phash": "7e043c833ca730abb849c479a07492e143c6678d459d43bc63fc68cc647a637a",
+    "card_type": "standard"
+  },
+  {
+    "id": 22125,
+    "name": "堕天使 杰夫提",
+    "phash": "d849bce2e6f387f198fa54f354d69cb1b1a3134b1b479f4e0f3e069e074e870d",
+    "card_type": "standard"
+  },
+  {
     "id": 22126,
     "name": "救援王牌 迅猛攻击机",
     "phash": "5626c526e169d8f4ea8e4b720749e6d966930d27d806900e703ee17cc839a173",
@@ -83472,6 +83538,12 @@
     "card_type": "standard"
   },
   {
+    "id": 22129,
+    "name": "凝视苍穹的蠕龙",
+    "phash": "ec6972c37c863e8d64266319a69466e6f6c4367d246524b129c9696d029e0d5e",
+    "card_type": "standard"
+  },
+  {
     "id": 22130,
     "name": "天雷之双风神 息那",
     "phash": "4e0ee63cb334d53697238d838349f299b80a635d5e9d38297762327223076e47",
@@ -83487,6 +83559,12 @@
     "id": 22132,
     "name": "威咖杯！格雷",
     "phash": "39982d2b03cb85ca65d3376514f4d8ee1cce12e40ca5129b889309b6c1b3c17d",
+    "card_type": "standard"
+  },
+  {
+    "id": 22133,
+    "name": "先驱企鹅",
+    "phash": "5caad15e20a9daa13ec32787553764f5e4583238382c3cb9f99afbdb1cd9388c",
     "card_type": "standard"
   },
   {
@@ -83517,6 +83595,12 @@
     "id": 22138,
     "name": "未竟神艺 智慧之少女",
     "phash": "5016e2ce6e8f4bfb36dba567952e836ec06ee08dc994663c371a9e11b9943b12",
+    "card_type": "standard"
+  },
+  {
+    "id": 22139,
+    "name": "黄昏的堕天使 路西法",
+    "phash": "c9630b732f336d3e1f4e8b0e6d0e7c3e3f2d8f893f491d393b375b66536b4349",
     "card_type": "standard"
   },
   {
@@ -83676,6 +83760,12 @@
     "card_type": "standard"
   },
   {
+    "id": 22166,
+    "name": "佚乐的堕天使",
+    "phash": "0d2fe31ff3389761cf46dc44d4ced0d9b8948c0eac6d1c353936b33ae25727c4",
+    "card_type": "standard"
+  },
+  {
     "id": 22167,
     "name": "绚岚之轩昂",
     "phash": "b718dd00dda6bff17362e52ce718dd31ed65f8046f061b1e1b1a37e535741b74",
@@ -83685,6 +83775,12 @@
     "id": 22168,
     "name": "驱魔姐妹・圣母悼歌",
     "phash": "5307902ec338493a2c6b4e5afadc72ce4ace109bf88fe9a379d2d3d313b393bf",
+    "card_type": "standard"
+  },
+  {
+    "id": 22169,
+    "name": "禁忌的圣冠",
+    "phash": "b224b864f970e9d8b241f821e231dd19553135195589ef8c67845bb69b321f03",
     "card_type": "standard"
   },
   {
@@ -83739,6 +83835,12 @@
     "id": 22179,
     "name": "禁断仪式术",
     "phash": "1f071f453d433d42394279623b22d949e769af09cd99ccd9e8587346e4d900fe",
+    "card_type": "standard"
+  },
+  {
+    "id": 22183,
+    "name": "堕天使衍生物",
+    "phash": "7e043c833ca730abb849c479a07492e143c6678d459d43bc63fc68cc647a637a",
     "card_type": "standard"
   },
   {
@@ -83856,6 +83958,36 @@
     "card_type": "standard"
   },
   {
+    "id": 22206,
+    "name": "英雄之烬影依 古利水晶",
+    "phash": "451fd11f953591997989f36693749b2c9c5239632a2bc99b870c870c858c5f82",
+    "card_type": "standard"
+  },
+  {
+    "id": 22207,
+    "name": "神影依・弥赛芙蕾尔",
+    "phash": "6941f9c0f540fe11661364d2ce24cc38593913b173b36e1b3513b598b891f9c2",
+    "card_type": "standard"
+  },
+  {
+    "id": 22208,
+    "name": "翼影依灵骑 温蒂玖琉布",
+    "phash": "bb07b70c5f609d719d391ddbccda64aa77a2a7c4e574137232f3e6f0f4b82063",
+    "card_type": "standard"
+  },
+  {
+    "id": 22209,
+    "name": "心影依结合",
+    "phash": "4781f361b21c392633175a1dc36dc3da22069b8617934c6b9c5cd6198731ef35",
+    "card_type": "standard"
+  },
+  {
+    "id": 22210,
+    "name": "炼狱的乖放",
+    "phash": "3f4b7f73dfe9cfe80fda99eab8da19b33a7b32752c2f849fe09cba1726cbdc44",
+    "card_type": "standard"
+  },
+  {
     "id": 22301,
     "name": "磁石战士欧米伽＋",
     "phash": "d31687468f499d1bd28ca3f2c96a4b7647499534cd2fcb2e633632ddb2999019",
@@ -83898,6 +84030,24 @@
     "card_type": "standard"
   },
   {
+    "id": 22320,
+    "name": "恩底弥翁的侍女 杰妮",
+    "phash": "b9493166d55a13f193d6cbff63f9dbda95721266102633b626b382d18a60ca66",
+    "card_type": "standard"
+  },
+  {
+    "id": 22321,
+    "name": "恩底弥翁皇国",
+    "phash": "325472407b1c7f3cdf2c7b1cdb1ac565e519861586d18e61966186c3c7d39e27",
+    "card_type": "standard"
+  },
+  {
+    "id": 22322,
+    "name": "雷格鲁斯之箭",
+    "phash": "34220318033c0978097023cc684ec006900102c7226345ab82810ac314c7398c",
+    "card_type": "standard"
+  },
+  {
     "id": 22323,
     "name": "惊喜衍生物",
     "phash": "c331e308333f1df19df28964edc0f5b0f520f5703763c751e6d236f38ef18759",
@@ -83931,6 +84081,48 @@
     "id": 22334,
     "name": "配对恶魔",
     "phash": "e6366726262cc511ed36d934f1316179a249154b19371b16af28a71ab2b54aeb",
+    "card_type": "standard"
+  },
+  {
+    "id": 22336,
+    "name": "GMX研究员 塞兰",
+    "phash": "cb846b801b709b08d334c326c386514659160b331f234e3b3c3878186b319531",
+    "card_type": "standard"
+  },
+  {
+    "id": 22337,
+    "name": "GMX主任教授 金里奇",
+    "phash": "cfc041d33353b7c7cf9caf04ff04e90ce310f15071105926542e1e2d1b2c8b3d",
+    "card_type": "standard"
+  },
+  {
+    "id": 22338,
+    "name": "GMX准教授 诺玛",
+    "phash": "9119c783a6c5c78e8f914e990c1b3532333613951bbd9b393b39338cb3093311",
+    "card_type": "standard"
+  },
+  {
+    "id": 22339,
+    "name": "新世龙 达尼安",
+    "phash": "9f313b40cd44876094381d6965367790f650ec039413a607269d6d16e394f024",
+    "card_type": "standard"
+  },
+  {
+    "id": 22340,
+    "name": "GMX－异特种ALLOS",
+    "phash": "7c73304e9e8c9399de12d61434adb33370232067e960ec40ee86eb01e80d388f",
+    "card_type": "standard"
+  },
+  {
+    "id": 22341,
+    "name": "GMX－伶盗种VELOX",
+    "phash": "3ee2bb8c57199c493b99b3a5ef8c2b1cb3199819d525afa58f4d247966f1a7c1",
+    "card_type": "standard"
+  },
+  {
+    "id": 22342,
+    "name": "第55次GMX应用实验",
+    "phash": "d399d75a365b474a646cc9afccc3e645cb2ce52a330f22228e660924411e490e",
     "card_type": "standard"
   },
   {
@@ -83997,6 +84189,18 @@
     "id": 22356,
     "name": "三英的相剑师",
     "phash": "d1e2b6b28c364c888d42c53c0a9a889be464356409bbc9f632660d833927a2c7",
+    "card_type": "standard"
+  },
+  {
+    "id": 22498,
+    "name": "恩底弥翁之圣月皇太子 雷格鲁斯",
+    "phash": "f730d304370caf3c8f0c9f0c3d0c790d631fa314be389cc20c44861c87158731",
+    "card_type": "standard"
+  },
+  {
+    "id": 22499,
+    "name": "恩底弥翁的侍女 薇儿",
+    "phash": "26031733df768f64813d413b19373815ed19e519991d0d172f4f474a8f541f62",
     "card_type": "standard"
   },
   {
@@ -84084,6 +84288,12 @@
     "card_type": "standard"
   },
   {
+    "id": 22535,
+    "name": "卷尺骑士",
+    "phash": "d39dc0cac1f9a6e58bd5c4ddb3cd19e995c8193ecbdc82a77966097aa3f3e841",
+    "card_type": "standard"
+  },
+  {
     "id": 22536,
     "name": "血树龙姬 朵拉塞蕾尔",
     "phash": "2e326b904be18cc1ced2c62a8fc589d347b16fb62bd32dd7b7b6b1b39f830f8f",
@@ -84168,6 +84378,12 @@
     "card_type": "standard"
   },
   {
+    "id": 22560,
+    "name": "神书之使 拉哈姆",
+    "phash": "84ff8dfdcbdcdcfcdb6ea4e6b4d8d0b6cc3d203563468c71b878726e8a6e8873",
+    "card_type": "standard"
+  },
+  {
     "id": 22562,
     "name": "废品信号",
     "phash": "69696b296621ac326db9ce589f1a933bc07ac0b6e12e615e391e944394659a63",
@@ -84216,6 +84432,12 @@
     "card_type": "standard"
   },
   {
+    "id": 22577,
+    "name": "H・E・R・O 闪光！",
+    "phash": "175981a36bb32b90eb9ad2c8cfd94de95c49d3489e498d49793969517a715972",
+    "card_type": "standard"
+  },
+  {
     "id": 22578,
     "name": "超逸融合",
     "phash": "e91d7c29cde7e7cc7398d982fe106e997b81ed48cc48d642322adbd05bc321cb",
@@ -84240,6 +84462,18 @@
     "card_type": "standard"
   },
   {
+    "id": 22586,
+    "name": "霆主王之闪光",
+    "phash": "6d0f8e479a17ab470a3616d795ebb1796d6aec61cc314d7155db8c4b2c4fe92a",
+    "card_type": "standard"
+  },
+  {
+    "id": 22588,
+    "name": "神之密告",
+    "phash": "f860fc28e36366677666cb264b39d731d375d361cb4dc96dcb63e9737935621c",
+    "card_type": "standard"
+  },
+  {
     "id": 22590,
     "name": "时刻表衍生物",
     "phash": "26a2136cc9c82d4b9469a46d6466cd3399387216c51d33351fb41cc7876db164",
@@ -84252,9 +84486,33 @@
     "card_type": "standard"
   },
   {
+    "id": 22617,
+    "name": "潜行天使-摇篮",
+    "phash": "1993948c6a1cb636c60666cba34b9bc58b238961458d61a539695e6e76265624",
+    "card_type": "standard"
+  },
+  {
     "id": 22687,
     "name": "亚空间战斗",
     "phash": "8b1b990bdc04fd08f8b67c36433b821b2a0b1f9333636e265e25dd644fc367c3",
+    "card_type": "standard"
+  },
+  {
+    "id": 22693,
+    "name": "至爱－英雄 闪耀光焰翼人",
+    "phash": "a359177863989664d6b4ce9e8d16b50da229680c710c363293741b5818401930",
+    "card_type": "standard"
+  },
+  {
+    "id": 22694,
+    "name": "至爱－英雄 火焰翼人",
+    "phash": "9732354c6d376b33306bc878cf341277203f005ec43c4d3e13165b0e2d0e360e",
+    "card_type": "standard"
+  },
+  {
+    "id": 22695,
+    "name": "羽翼库里波・萨巴希尔 LV10",
+    "phash": "abb4239726db255a022ec9aca9b19b7b9e651e5c9e6afc247fa85a99de8693a2",
     "card_type": "standard"
   },
   {
@@ -84288,9 +84546,27 @@
     "card_type": "standard"
   },
   {
+    "id": 22771,
+    "name": "至爱－英雄 闪耀光焰翼人",
+    "phash": "29388bcccb6cc35cc2368a0c9931b55966994495381b2b62cd4cd8383cb29c20",
+    "card_type": "standard"
+  },
+  {
+    "id": 22805,
+    "name": "唤醒你的元素－英雄",
+    "phash": "e38392e76667ee60da90d258225a12d331930c4b16d339b12cb11563b165aa82",
+    "card_type": "standard"
+  },
+  {
     "id": 22811,
     "name": "冰剑龙 镜翠幻种",
     "phash": "8316a51c29924bcf2f63b9619945ce696a84ba8d36491ce54dcd57195033d1f2",
+    "card_type": "standard"
+  },
+  {
+    "id": 22812,
+    "name": "超融合",
+    "phash": "271d290d5ac666b258a2dd44fd707f01be627601b828ce96e936f446f2d49ea6",
     "card_type": "standard"
   },
   {
@@ -84303,6 +84579,72 @@
     "id": 22922,
     "name": "捕食植物 无畏魔鬼树",
     "phash": "816d99051f2b8f2bef26cd3da927b337db555cd3b173ab2d671ad265294b2f93",
+    "card_type": "standard"
+  },
+  {
+    "id": 22924,
+    "name": "蜃欺龙",
+    "phash": "60694ce69cec2c25e6d8c7d895c727ab67b0cb989bd996a996d192f346ed0a6d",
+    "card_type": "standard"
+  },
+  {
+    "id": 22927,
+    "name": "指环精灵 吉尼娅",
+    "phash": "19331917c60dc3554379e064e1a261b3097394e5cbd97372791b39273f0f7f06",
+    "card_type": "standard"
+  },
+  {
+    "id": 22930,
+    "name": "祭司 蕾瓦莉",
+    "phash": "3f2a3f265f161a064e25272723058614c71c654036503b187732ab321ad11c1b",
+    "card_type": "standard"
+  },
+  {
+    "id": 22931,
+    "name": "死宰 萨姆艾尔",
+    "phash": "986fb0d8e0d840e149870e96e5336432925c194d49d34647ccc6c3ceef26bb32",
+    "card_type": "standard"
+  },
+  {
+    "id": 22932,
+    "name": "GMX同绊者 塞兰迪安",
+    "phash": "67f2e6c0e3e1b3f123677316f28ea94ea166516fe76c6635484b102db22de134",
+    "card_type": "standard"
+  },
+  {
+    "id": 22933,
+    "name": "GMX镇压部队 阿普特",
+    "phash": "2f0b8b5e24d73c27d968b9b1e7e2cdcaf48e742e74a63686ef8c4d90ce90de86",
+    "card_type": "standard"
+  },
+  {
+    "id": 22934,
+    "name": "GMX－混霸种COMPREX",
+    "phash": "1fdb0ec3e2cbdf9e9e94865cc9a58ca48c2c8c8c8dcdcf8ece9ecb8e8dcf26cf",
+    "card_type": "standard"
+  },
+  {
+    "id": 22935,
+    "name": "晓世龙 达尼安",
+    "phash": "731b694d745c721ab8ba8c79ce3446b6c3d239f839ebb4265d0c490c69246b9c",
+    "card_type": "standard"
+  },
+  {
+    "id": 22936,
+    "name": "第55次GMX实验报告",
+    "phash": "1ba1df854c5c543a4be6a9979cc18ce41ed2964eba4cb35cb722a7048eab4cc5",
+    "card_type": "standard"
+  },
+  {
+    "id": 22937,
+    "name": "旧GMX第5研究所",
+    "phash": "20f334bb246714d61fa9ebb0e9ea7cc6e4c9c8c1c8ce8f879b949e44d8e8c8ce",
+    "card_type": "standard"
+  },
+  {
+    "id": 22938,
+    "name": "反GMX最终验证",
+    "phash": "c54e05470792672ca96586249a3c4989cc25c7e263c963e2f77276714c6cd62e",
     "card_type": "standard"
   },
   {
