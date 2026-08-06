@@ -2,6 +2,40 @@
   "updates": [
     {
       "version": "202608051311",
+      "sync_date": "2026-08-06T05:25:38Z",
+      "added_cards": [],
+      "updated_cards": [
+        {
+          "id": 3105,
+          "name": "真红眼超越黑龙"
+        },
+        {
+          "id": 3106,
+          "name": "天下独步之大义贼"
+        },
+        {
+          "id": 3113,
+          "name": "神圣心护罩－心灵之力－"
+        },
+        {
+          "id": 3114,
+          "name": "来自冥府的使者"
+        },
+        {
+          "id": 3115,
+          "name": "暗黑武装龙・湮灭"
+        },
+        {
+          "id": 3116,
+          "name": "冰结界之龙胤 千枪龙"
+        }
+      ],
+      "total_cards": 14109,
+      "added_count": 0,
+      "updated_count": 6
+    },
+    {
+      "version": "202608051311",
       "sync_date": "2026-08-06T03:21:35Z",
       "added_cards": [
         {

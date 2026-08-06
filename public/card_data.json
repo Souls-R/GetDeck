@@ -38,14 +38,14 @@
   {
     "id": 3105,
     "name": "真红眼超越黑龙",
-    "phash": "7024a426761a56155399bba4598a8c59e6392f3331737061b261927454736c62",
-    "card_type": "pendulum"
+    "phash": "b6cc4e1aa7a153a333e3ab455a8378c3dac198cc6b6553475b324a6383db2797",
+    "card_type": "standard"
   },
   {
     "id": 3106,
     "name": "天下独步之大义贼",
-    "phash": "3f9c8a4c9876b2aee59c985d4ada483c52bad0b8ce364e6258e31ac59298af3a",
-    "card_type": "pendulum"
+    "phash": "ccf96232636964944c76cce0a7c663c666834c99c834b3d40f5d0fcf6395c6a6",
+    "card_type": "standard"
   },
   {
     "id": 3107,
@@ -80,26 +80,26 @@
   {
     "id": 3113,
     "name": "神圣心护罩－心灵之力－",
-    "phash": "f494f6ac84f89c99948f366398f194e849f62eb238a8bcb09ed99eea1c625270",
-    "card_type": "pendulum"
+    "phash": "09878ce1d9306aac26c437d054f09fc18c718ba42ec2ece48c990dfb16cd3a6d",
+    "card_type": "standard"
   },
   {
     "id": 3114,
     "name": "来自冥府的使者",
-    "phash": "d99c651dd29933da6a7a5ff12cf2c4fa60717032b062d834483c4c114c191a4d",
-    "card_type": "pendulum"
+    "phash": "0de153e655b2f1a478a1b9c69cc866e826ec666346630c99256dd331881ba91b",
+    "card_type": "standard"
   },
   {
     "id": 3115,
     "name": "暗黑武装龙・湮灭",
-    "phash": "f20c809b5892a4916061165066c2c0a58ca7ccaed2ceca8e9a9cbed686e3ceb3",
-    "card_type": "pendulum"
+    "phash": "896061a4e1cbb58dc7a4c9b464bcc6bcd6289f4a4786d3e689276c055c1648a6",
+    "card_type": "standard"
   },
   {
     "id": 3116,
     "name": "冰结界之龙胤 千枪龙",
-    "phash": "3dd33cc336d337a326c9c254cb6642594629519bd8f6cd46b6d9e4f8e41864a8",
-    "card_type": "pendulum"
+    "phash": "e42846a45435695149d368e54ecc5b34d963b370bbb432b5e59989d109784b3a",
+    "card_type": "standard"
   },
   {
     "id": 3180,
