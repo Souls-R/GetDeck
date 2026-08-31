@@ -1,6 +1,24 @@
 {
   "updates": [
     {
+      "version": "202608260009",
+      "sync_date": "2026-08-31T16:14:48Z",
+      "added_cards": [
+        {
+          "id": 22723,
+          "name": "绯暗红新星龙－燃烧之魂"
+        },
+        {
+          "id": 22789,
+          "name": "终击龙－电子终极龙"
+        }
+      ],
+      "updated_cards": [],
+      "total_cards": 14277,
+      "added_count": 2,
+      "updated_count": 0
+    },
+    {
       "version": "20260819",
       "sync_date": "2026-08-19T09:01:41Z",
       "added_cards": [

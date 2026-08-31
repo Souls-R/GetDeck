@@ -84984,6 +84984,12 @@
     "card_type": "standard"
   },
   {
+    "id": 22723,
+    "name": "绯暗红新星龙－燃烧之魂",
+    "phash": "21665d928609b406d466636a62cbc6924637823b07bb07b0a9f18cf1c3b33cf3",
+    "card_type": "standard"
+  },
+  {
     "id": 22728,
     "name": "四天之龙 凶饿猛毒结合龙",
     "phash": "9fa227e033715a38cc0cb42db21cd216ce15cc52022229ca614ce19971d129cd",
@@ -85011,6 +85017,12 @@
     "id": 22771,
     "name": "至爱－英雄 闪耀光焰翼人",
     "phash": "29388bcccb6cc35cc2368a0c9931b55966994495381b2b62cd4cd8383cb29c20",
+    "card_type": "standard"
+  },
+  {
+    "id": 22789,
+    "name": "终击龙－电子终极龙",
+    "phash": "73b313f7975c722af472b9f11bb30533c7258db5392e91789e38aef153f31373",
     "card_type": "standard"
   },
   {
