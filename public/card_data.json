@@ -102,6 +102,36 @@
     "card_type": "standard"
   },
   {
+    "id": 3117,
+    "name": "塞尼特的启示者－奈菲尔塔利",
+    "phash": "f90a532e4b462556a56699844c4d9649b999b93d8e79d35d7b36621a61167136",
+    "card_type": "standard"
+  },
+  {
+    "id": 3118,
+    "name": "塞尼特纳赫特・斯芬克斯",
+    "phash": "d1ceb7668f64e7f18f14530e675966978e9ade223c8c999c8a09cdd9c499b533",
+    "card_type": "standard"
+  },
+  {
+    "id": 3119,
+    "name": "盈彩月夜之天 西艾萝－一掷乾坤",
+    "phash": "01492723a631e7c46583c330e7921b2794cac68edb99b6c99b6699313d18734e",
+    "card_type": "standard"
+  },
+  {
+    "id": 3120,
+    "name": "盈彩月夜之望 斯奎兹－千金大奖",
+    "phash": "1f068f0d3718b3386a0833a74da34f874e9bcb1267127150cdc68eab030f068b",
+    "card_type": "standard"
+  },
+  {
+    "id": 3121,
+    "name": "虚蚀异解△灾罕纳姆",
+    "phash": "8550066136b346d36678449a4e69a1d9dad07ce4a154f14525132e1b198d29c6",
+    "card_type": "standard"
+  },
+  {
     "id": 3180,
     "name": "红莲的王者",
     "phash": "1e0e7b8e36a327198718c7a487c94e9a64b2304a991a3976736398778c735851",
@@ -387,6 +417,12 @@
     "id": 3895,
     "name": "神影依・米德拉什",
     "phash": "6c0a642a840e46466e2732879c8bccd8e4765c328bda25569471b821bc61f361",
+    "card_type": "standard"
+  },
+  {
+    "id": 3898,
+    "name": "电子龙无限",
+    "phash": "266d8c3789479b2ec61624cf79c2cd7695b6d864894df32c268d19c95c609631",
     "card_type": "standard"
   },
   {
@@ -15649,7 +15685,7 @@
   },
   {
     "id": 6734,
-    "name": "嵌合终结龙",
+    "name": "嵌合超载龙",
     "phash": "c66e1e2c1b8e37663d5365624e6a1ccc0655f0d2d88a782864c66960c931d391",
     "card_type": "standard"
   },
@@ -78120,6 +78156,12 @@
     "card_type": "standard"
   },
   {
+    "id": 19945,
+    "name": "限制解除",
+    "phash": "a7430b77257f919ed18eb1c631c38bc532c6556c4fb1ac7124954763a6416649",
+    "card_type": "standard"
+  },
+  {
     "id": 20029,
     "name": "魔法卡“死者苏生”",
     "phash": "ce16963b14215d18179ca7da935bd31ddb65cbe149a5cb94cece6a836a9f8af2",
@@ -81504,6 +81546,12 @@
     "card_type": "standard"
   },
   {
+    "id": 21224,
+    "name": "效果遮蒙者",
+    "phash": "cfcc2c0e4f0a63871ed70f745bd466920d93accd966e0d721379b88dfc90dad3",
+    "card_type": "standard"
+  },
+  {
     "id": 21226,
     "name": "访问码语者",
     "phash": "7009398dcbb3ce24cc35913b350c77181f0b6e936e839da6be3634d37485f664",
@@ -81543,6 +81591,12 @@
     "id": 21234,
     "name": "强欲且金满之壶",
     "phash": "33242ba4aa26b3f63387269726d574c764c3a4c46714ad65a7754e4b9f199cc4",
+    "card_type": "standard"
+  },
+  {
+    "id": 21235,
+    "name": "闪电风暴",
+    "phash": "e123e9c3fccdcecc77b15f7b837da35da30dc916cd83c8e4c864907172b1e278",
     "card_type": "standard"
   },
   {
@@ -83460,6 +83514,24 @@
     "card_type": "standard"
   },
   {
+    "id": 22063,
+    "name": "虚英雄迪斯盖斯",
+    "phash": "644cee159e399e394f39e770eb64ea48f2cee9dce4c662ce73c476471e8bd98e",
+    "card_type": "standard"
+  },
+  {
+    "id": 22064,
+    "name": "天魔伏圣剑",
+    "phash": "f48c6c0d6a4e76c7be648d25cd134fda661922b0b96c5cfc3afc9ddccddcc25a",
+    "card_type": "standard"
+  },
+  {
+    "id": 22065,
+    "name": "明灭骑士香巴尔",
+    "phash": "08672971135e46894eec336e46a6c6b625eed69c3179b978d83c979f274c6b58",
+    "card_type": "standard"
+  },
+  {
     "id": 22066,
     "name": "密林狩猎者弗赞",
     "phash": "be611e239e4b9e1626468917d99669942d1ba519a719c71dcf4dcf047b506d98",
@@ -83972,7 +84044,7 @@
   {
     "id": 22171,
     "name": "骚动",
-    "phash": "193d4e6b2adb269c34b96c8d5c9cd3b8d9704825302c726ed347c28b62cb32d3",
+    "phash": "193d4e6b2adb269c34b96c8ddc9cd3b8d9704825702c726ed347c28b62cb32d3",
     "card_type": "standard"
   },
   {
@@ -84032,7 +84104,7 @@
   {
     "id": 22181,
     "name": "舌尖短少",
-    "phash": "83cc68582a6c99e648662b3324724e948b98c330462c26d9a4185ceed925b3dd",
+    "phash": "83cc68582a6c99e648662b3324724e948398c330462c26d9a4185ceed925b3dd",
     "card_type": "standard"
   },
   {
@@ -84230,7 +84302,7 @@
   {
     "id": 22312,
     "name": "王者的鼓动",
-    "phash": "c33fb15dc04d6f072cd74ca7b689b330394c35943036b0c6b042b2129e82b882",
+    "phash": "c33f915dc04d6f072cd74ca7b689b330394c25943036b0c6b042b2129e82b882",
     "card_type": "standard"
   },
   {
@@ -84270,6 +84342,12 @@
     "card_type": "standard"
   },
   {
+    "id": 22319,
+    "name": "闪刀机－正义军刀",
+    "phash": "5d8e9f1a9c2ad65d52da51f271b66dacd9359969197379e560ac95a499b51b66",
+    "card_type": "standard"
+  },
+  {
     "id": 22320,
     "name": "恩底弥翁的侍女 杰妮",
     "phash": "b9493166d55a13f193d6cbff63f9dbda95721266102633b626b382d18a60ca66",
@@ -84291,6 +84369,24 @@
     "id": 22323,
     "name": "惊喜衍生物",
     "phash": "c331e308333f1df19df28964edc0f5b0f520f5703763c751e6d236f38ef18759",
+    "card_type": "standard"
+  },
+  {
+    "id": 22327,
+    "name": "机睿的机械调整师",
+    "phash": "930e4b2cc70d67cc65c96711b7047b06730efb0ffb079d07cd2ca7093f147f00",
+    "card_type": "standard"
+  },
+  {
+    "id": 22328,
+    "name": "翠铝之机龙",
+    "phash": "996c107cb43e635b6276b1359923cd58623ba529ac612c6b0ccf6a8d4b295b6e",
+    "card_type": "standard"
+  },
+  {
+    "id": 22329,
+    "name": "大狼的恶作剧",
+    "phash": "eb286b4dcb2cdb28c308cb184b64a54cc13e43365146f15cf60cde087318ff00",
     "card_type": "standard"
   },
   {
@@ -84321,6 +84417,12 @@
     "id": 22334,
     "name": "配对恶魔",
     "phash": "e6366726262cc511ed36d934f1316179a249154b19371b16af28a71ab2b54aeb",
+    "card_type": "standard"
+  },
+  {
+    "id": 22335,
+    "name": "岚忌龙 迪斯托比姆",
+    "phash": "76764b335c5bda32b5a23c6332c566e4cc7929cb390284fad31acc928e674f26",
     "card_type": "standard"
   },
   {
@@ -84458,25 +84560,25 @@
   {
     "id": 22510,
     "name": "暗冥共鸣者",
-    "phash": "3c225e004b03531a3572d9386b593697ccc9f171e35193433263473c8f8cbb40",
+    "phash": "3c225e004b03531a3572d9386b592697ccc9f171e35193433263473c8f8cbb40",
     "card_type": "standard"
   },
   {
     "id": 22511,
     "name": "力量恶龙",
-    "phash": "6484e42d81a573c74bc78de34be2ab698b219a55c43866ba675a7326736c766b",
+    "phash": "64a4e42d81a573c74bc789e34be2ab698b219a55c43866ba675a7326736c766b",
     "card_type": "standard"
   },
   {
     "id": 22512,
     "name": "噩块魔像",
-    "phash": "5513d9c2fca84e25e999f3ec26a666206c49a999275e8e5fdfdcd7824b063416",
+    "phash": "5513d9e2fca84e25e99973cc22a666206c49a999275e8e5fdfdcd7824b063416",
     "card_type": "standard"
   },
   {
     "id": 22513,
     "name": "绯暗红新星龙／爆裂",
-    "phash": "4d096723a783e79455bf29fcb8dd3259035e8530d3e8c3c99bd5df46472a0f25",
+    "phash": "4d096723a783e79455bf29fdb8dd3259035f8530d3e8c3c993d5df46472a0f25",
     "card_type": "standard"
   },
   {
@@ -84542,7 +84644,7 @@
   {
     "id": 22524,
     "name": "小丑戏帮 白脸",
-    "phash": "4a1bc38d61da73d266dbc491c4c49685468c4a9e4a936859ecd1680d381b5a1e",
+    "phash": "4a1bc38d61da72c266d9c491c4c49695468c4a9e4a936859ecd1680d381b5a1e",
     "card_type": "standard"
   },
   {
@@ -84626,7 +84728,7 @@
   {
     "id": 22538,
     "name": "小丑戏帮 弗蕾娅",
-    "phash": "da0ed1cc30bfb3972a9e328e86d3a6e78aa40eac31d1b2b346955bb82a7b3422",
+    "phash": "da0ed1cc30bfb3972a9e328e86d3a6e58aa40eac31d1b2b34e955bb82a7a3422",
     "card_type": "standard"
   },
   {
@@ -84644,7 +84746,7 @@
   {
     "id": 22541,
     "name": "小丑戏帮 迪亚波罗",
-    "phash": "4ec665b373a6318c948d568c4e921cc6ac4864913291d676d490c9e98659ac57",
+    "phash": "4ec665b37386318c948d568c4e929cc6ac4864913291d676d490cbe986592c57",
     "card_type": "standard"
   },
   {
@@ -84668,13 +84770,13 @@
   {
     "id": 22545,
     "name": "红莲的王者",
-    "phash": "1e0e7b0e36a327198718c7a487c94e9a6432304a981a3976736398778c735851",
+    "phash": "1e0e7b8e36a327198718c7a487c94e9a64b2304a991a3976736398778c735851",
     "card_type": "standard"
   },
   {
     "id": 22546,
     "name": "深红剑龙",
-    "phash": "8c728cc7ac829d210a212719131b933a3f6a0b5a4559216d6335d04cd8464e44",
+    "phash": "8c768cc7ac829d210a212719131b933a3f6a0b5a4559216d6335d04cd8464e44",
     "card_type": "standard"
   },
   {
@@ -84692,7 +84794,7 @@
   {
     "id": 22549,
     "name": "小丑戏帮 梅特欧",
-    "phash": "1e301143a18b92bd244d344932ce4cfeae909ab09a6d8a4fc2b76432d4621807",
+    "phash": "1e301143a18b92ad244d344932ce4cfeae909ab09a6d8a6fc2b66432d4621807",
     "card_type": "standard"
   },
   {
@@ -84728,7 +84830,7 @@
   {
     "id": 22555,
     "name": "小丑戏帮 德比鲁兹",
-    "phash": "5e69b5475a4b92cdaccd54c9308eb014429869dbc12f253f6919c9069a439c03",
+    "phash": "1e69b5475a4b92cdaccd54c9308eb014429869dbc12f253f6919cb869a439c03",
     "card_type": "standard"
   },
   {
@@ -84764,7 +84866,7 @@
   {
     "id": 22561,
     "name": "深红地狱呼唤",
-    "phash": "f54ac6c86c98733672b22633266336f5672e46e7c6df46bfc47c907c027f8e79",
+    "phash": "f54ac6c86c98733672b22633266336f5672e46e7c6df46bfc47c907c023f8e79",
     "card_type": "standard"
   },
   {
@@ -84806,19 +84908,19 @@
   {
     "id": 22568,
     "name": "小丑戏帮《排练》",
-    "phash": "17546f456b096f09b51b31333b36ab32e774d3f0d3ece2cdac4dbc69b7684fc0",
+    "phash": "07546f456a096f09b51a31333b36ab32e774d3f0d3ece2cdac4dbc69b7684fc0",
     "card_type": "standard"
   },
   {
     "id": 22569,
     "name": "小丑戏帮《开演》",
-    "phash": "d6255a6179d9fd98e938ef907a20fa627ad97e093ce13991ec9699b6a5f90cee",
+    "phash": "d6255a6179d9fd98e938eb907a20fa627ad97e093de13991cc9699b6a5f90cee",
     "card_type": "standard"
   },
   {
     "id": 22570,
     "name": "小丑戏帮《极艺》",
-    "phash": "8fe6079b47994bd1a770a749734318a31eb6db85630e938bdb086b16733637b4",
+    "phash": "8fe6079b47994bd1a770a749734318a31eb6db85634e938bdb086b16733637b4",
     "card_type": "standard"
   },
   {
@@ -84878,7 +84980,7 @@
   {
     "id": 22580,
     "name": "霸者之鸣动",
-    "phash": "cf666c37ae34b924192483f55c764cac4168438d66058c4613c62614d826ecff",
+    "phash": "cf666c37ae34b934192483f55c764cac4168438d66058c4713c62616d826ccff",
     "card_type": "standard"
   },
   {
@@ -84896,7 +84998,7 @@
   {
     "id": 22583,
     "name": "小丑戏帮《新加入》",
-    "phash": "46564676143094b19ed91bcd0b438e79dd24b7814e9a469ab9921fb20f329b71",
+    "phash": "46564676143094b19ed91bcd0b438e79dd24b7814eda669ab9921fb20f329b71",
     "card_type": "standard"
   },
   {
@@ -84984,9 +85086,39 @@
     "card_type": "standard"
   },
   {
+    "id": 22719,
+    "name": "终击龙－电子终极龙",
+    "phash": "923d2639ac9ea804f018b5690f499b6a152e258c9ad92e192e591e65fbd82fce",
+    "card_type": "standard"
+  },
+  {
+    "id": 22720,
+    "name": "机光龙－电子龙",
+    "phash": "b619f3223b162f813b8b9f2776931f9a0f37a6666356b337a12dd93a732ba349",
+    "card_type": "standard"
+  },
+  {
+    "id": 22721,
+    "name": "未来融合－永望结合・新星",
+    "phash": "af6ebc38399fb166e7009e051b03da53d84676066b046d0d2d592799b733b363",
+    "card_type": "standard"
+  },
+  {
+    "id": 22722,
+    "name": "赤龙 克察尔科亚特尔",
+    "phash": "6a667a6597242a8d2d5b546ad82d9d8498e664262686bcc5bccc5a69dec4c6cc",
+    "card_type": "standard"
+  },
+  {
     "id": 22723,
     "name": "绯暗红新星龙－燃烧之魂",
-    "phash": "21665d928609b406d466636a62cbc6924637823b07bb07b0a9f18cf1c3b33cf3",
+    "phash": "21665d928609b406d466636a62cbc6924637823b07bb07b0a9f18cf1c3b37cf3",
+    "card_type": "standard"
+  },
+  {
+    "id": 22724,
+    "name": "暗红恶魔锁链",
+    "phash": "cb1a4be233c95313b725c76cf66cd6316e22eee6d2e25dd61dcf1fc655236a02",
     "card_type": "standard"
   },
   {
@@ -85022,7 +85154,7 @@
   {
     "id": 22789,
     "name": "终击龙－电子终极龙",
-    "phash": "73b313f7975c722af472b9f11bb30533c7258db5392e91789e38aef153f31373",
+    "phash": "73b313f7975c722af472b9f11bb30733c7258db5392e91789e382ef153f31373",
     "card_type": "standard"
   },
   {
@@ -85044,10 +85176,22 @@
     "card_type": "standard"
   },
   {
+    "id": 22815,
+    "name": "嵌合巨舰龙",
+    "phash": "3d6ecc2c4c2c6ea25fecb6e473e46ea452f6a9f63dfe3c3d38cc9c4edb073907",
+    "card_type": "standard"
+  },
+  {
     "id": 22823,
     "name": "灵主王之波动",
     "phash": "93868e8c979c9d9e868db60c19eb676d536193c3d94ca4347432432a422e4f7a",
     "card_type": "standard"
+  },
+  {
+    "id": 22920,
+    "name": "小丑戏帮 哈特",
+    "phash": "190b8fb395b494d4a9ec6aa6d1f296b61c962c5ebcde565b1e271c4339415903",
+    "card_type": "pendulum"
   },
   {
     "id": 22922,
@@ -85059,6 +85203,12 @@
     "id": 22924,
     "name": "蜃欺龙",
     "phash": "60694ce69cec2c25e6d8c7d895c727ab67b0cb989bd996a996d192f346ed0a6d",
+    "card_type": "standard"
+  },
+  {
+    "id": 22926,
+    "name": "豪回游鲸 VIP鲸鱼",
+    "phash": "99653d751d67d966f06238d34565e92c3998361337c7734e4846ccc74d622966",
     "card_type": "standard"
   },
   {
@@ -85250,7 +85400,7 @@
   {
     "id": 22971,
     "name": "原初之神 法拉",
-    "phash": "714a224ee44dcb87dc06dc0626765c6f590ecc6a963649b74b0366452703ce59",
+    "phash": "714a224ee44dcb87dc06d40626765c6f590ecc6a963649b74b0366452703ce59",
     "card_type": "standard"
   },
   {
@@ -85262,7 +85412,7 @@
   {
     "id": 22973,
     "name": "沼地魔道王",
-    "phash": "ab0e0d5f8a1dc3e9f359bb361b278696ea9ee69d36573e53988e916c912e113f",
+    "phash": "ab0e0d5f8a1dc3e9f359bb361b278696e69ee69d36573e53988e916c912e113f",
     "card_type": "standard"
   },
   {
@@ -85484,7 +85634,7 @@
   {
     "id": 23010,
     "name": "怠慢之壶",
-    "phash": "923273324338ae9859e066a68dd48d52bce27c60d968eb316333633373196558",
+    "phash": "923273324338ae9859e166a68dd48d52bce27c60d968eb316333633373196558",
     "card_type": "standard"
   },
   {
@@ -85574,7 +85724,7 @@
   {
     "id": 23025,
     "name": "小丑戏帮《终演》",
-    "phash": "bf02df244f045b39cf3a5b1b111eb93bbb134f0bcb33c70b6343676ac712b301",
+    "phash": "bf02df244f045b39cf3a5b1b111eb93bbb134f0bcb33c70b6343676ac702b301",
     "card_type": "standard"
   },
   {
