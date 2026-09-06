@@ -5,7 +5,8 @@ export class Database {
   free(): void;
   [Symbol.dispose](): void;
   load_database(json: string): void;
-  find_best_match(hash_str: string, card_type: string): Array<any>;
+  find_best_match(hash_str: string, card_type: number): Array<any>;
+  load_database_from_buffer(bytes: Uint8Array): void;
   constructor();
 }
 
@@ -21,8 +22,9 @@ export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly __wbg_database_free: (a: number, b: number) => void;
   readonly compare_hashes: (a: number, b: number, c: number, d: number) => number;
-  readonly database_find_best_match: (a: number, b: number, c: number, d: number, e: number) => any;
+  readonly database_find_best_match: (a: number, b: number, c: number, d: number) => any;
   readonly database_load_database: (a: number, b: number, c: number) => void;
+  readonly database_load_database_from_buffer: (a: number, b: number, c: number) => void;
   readonly database_new: () => number;
   readonly get_phash: (a: number, b: number) => [number, number];
   readonly get_phash_raw: (a: number, b: number, c: number, d: number) => [number, number];
