@@ -132,24 +132,6 @@
     "card_type": "standard"
   },
   {
-    "id": 3180,
-    "name": "红莲的王者",
-    "phash": "1e0e7b8e36a327198718c7a487c94e9a64b2304a991a3976736398778c735851",
-    "card_type": "standard"
-  },
-  {
-    "id": 3182,
-    "name": "混绝狱神 皮托里姆",
-    "phash": "e710ec8876b9533b7b33a732e738ecc8b690d3344b2c4d8e4dcf8c4d9cc7ac9d",
-    "card_type": "pendulum"
-  },
-  {
-    "id": 3183,
-    "name": "小丑戏帮 白脸",
-    "phash": "4a1bc38d61da72c266d9c491c4c49695468c4a9e4a936859ecd1680d381b5a1e",
-    "card_type": "standard"
-  },
-  {
     "id": 3184,
     "name": "四花缭乱之灵使",
     "phash": "596b793e453957bbb4a6d2c5c924eca8e618393a596ce1f6e85ea91cb1b421b6",
@@ -196,12 +178,6 @@
     "name": "混沌三幻魔",
     "phash": "7b08e60cec9cacdacb52b2a7aac5a8c1b0b95834cc53cc899da9c360eca833a3",
     "card_type": "pendulum"
-  },
-  {
-    "id": 3193,
-    "name": "威斯卡・雷盟",
-    "phash": "53764d662499a6da43e1d2ecb78cd98d9ac213cb4a4960db63f6c8d4b0248606",
-    "card_type": "standard"
   },
   {
     "id": 3194,
