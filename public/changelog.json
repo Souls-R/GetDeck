@@ -1,6 +1,28 @@
 {
   "updates": [
     {
+      "version": "202609080120",
+      "sync_date": "2026-09-10T12:59:10Z",
+      "added_cards": [
+        {
+          "id": 3122,
+          "name": "尤贝尔"
+        },
+        {
+          "id": 3123,
+          "name": "邪心教典"
+        },
+        {
+          "id": 3124,
+          "name": "向未来的希望－永望荣合"
+        }
+      ],
+      "updated_cards": [],
+      "total_cards": 14301,
+      "added_count": 3,
+      "updated_count": 0
+    },
+    {
       "version": "20260903",
       "sync_date": "2026-09-03T12:55:31Z",
       "added_cards": [

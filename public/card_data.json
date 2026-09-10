@@ -132,6 +132,24 @@
     "card_type": "standard"
   },
   {
+    "id": 3122,
+    "name": "尤贝尔",
+    "phash": "014481c413ce17931f462f6717735729179b97161b4e4b4e8764da72d3699bb9",
+    "card_type": "standard"
+  },
+  {
+    "id": 3123,
+    "name": "邪心教典",
+    "phash": "38f3947b14fb80fc48ad29ebbd42e018ec847c963a32b112cb88d39190f318e3",
+    "card_type": "standard"
+  },
+  {
+    "id": 3124,
+    "name": "向未来的希望－永望荣合",
+    "phash": "53869e094c2b8d96a72671cf39c72bc32f8b32b378e35965639b6f59879e8f16",
+    "card_type": "standard"
+  },
+  {
     "id": 3184,
     "name": "四花缭乱之灵使",
     "phash": "596b793e453957bbb4a6d2c5c924eca8e618393a596ce1f6e85ea91cb1b421b6",
@@ -84649,7 +84667,7 @@
   },
   {
     "id": 22529,
-    "name": "纠罪巧γ’－欺瞒“tromarIA”",
+    "name": "纠罪巧γ’－欺瞒“exapatisIA”",
     "phash": "7246f684fe04f28823934e124e164e178e9686cb8e059e827ad1f38be781f6a9",
     "card_type": "pendulum"
   },
