@@ -2,7 +2,7 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import { RecognizedCard, CardInfo } from '../../types';
-import { globalCardInfoCache, isExtraDeck, fetchCardInfoBatch } from '../../utils/cardApi';
+import { globalCardInfoCache, isExtraDeck, fetchCardInfoBatch, fetchCardInfoByPasswords } from '../../utils/cardApi';
 import { useMobile } from '../../hooks/useMobile';
 import { useTranslation } from '@/app/i18n';
 import QRCode from 'qrcode';
@@ -33,15 +33,27 @@ export default function ShareModal({ isOpen, onClose, deckCode, recognizedCards 
     // 获取卡片信息（从缓存或API）— batch fetch missing
     const fetchAllCardInfo = async (cards: RecognizedCard[]) => {
         const entries: { id: number; name: string }[] = [];
+        const passwordEntries: { password: string; name: string }[] = [];
         for (const card of cards) {
             const match = card.matches[card.selectedMatchIndex];
             if (match && !globalCardInfoCache[match.name]) {
-                entries.push({ id: match.id, name: match.name });
+                match.id ? entries.push({ id: match.id, name: match.name })
+                    : passwordEntries.push({ password: match.password!.toString(), name: match.name });
             }
         }
-        if (entries.length > 0) {
-            await fetchCardInfoBatch(entries);
-        }
+        const [, passwordInfoMap] = await Promise.all([
+            entries.length > 0 ? fetchCardInfoBatch(entries) : Promise.resolve(),
+            passwordEntries.length > 0 ? fetchCardInfoByPasswords(passwordEntries.map((e) => e.password)) : Promise.resolve(new Map()),
+        ]);
+        passwordEntries.forEach(({ password, name }) => {
+            const info = passwordInfoMap.get(password);
+            if (info) {
+                globalCardInfoCache[name] = {
+                    ...info.cardInfo,
+                    name: { ...info.cardInfo.name, zh: name },
+                };
+            }
+        });
     };
 
     // 加载图片的辅助函数

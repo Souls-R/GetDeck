@@ -7,7 +7,8 @@ export interface Box {
 }
 
 export interface Match {
-  id: number;
+  id?: number;
+  password?: number;
   name: string;
   distance: number;
   cardType: string;

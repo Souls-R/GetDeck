@@ -199,16 +199,22 @@ export class Database {
     }
     /**
      * @param {string} hash_str
-     * @param {string} card_type
+     * @param {number} card_type
      * @returns {Array<any>}
      */
     find_best_match(hash_str, card_type) {
         const ptr0 = passStringToWasm0(hash_str, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len0 = WASM_VECTOR_LEN;
-        const ptr1 = passStringToWasm0(card_type, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len1 = WASM_VECTOR_LEN;
-        const ret = wasm.database_find_best_match(this.__wbg_ptr, ptr0, len0, ptr1, len1);
+        const ret = wasm.database_find_best_match(this.__wbg_ptr, ptr0, len0, card_type);
         return ret;
+    }
+    /**
+     * @param {Uint8Array} bytes
+     */
+    load_database_from_buffer(bytes) {
+        const ptr0 = passArray8ToWasm0(bytes, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        wasm.database_load_database_from_buffer(this.__wbg_ptr, ptr0, len0);
     }
     constructor() {
         const ret = wasm.database_new();

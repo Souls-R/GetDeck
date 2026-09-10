@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Suspense } from 'react';
+import * as bincode from 'bincode-ts';
 import BottomDrawer from '../components/ui/BottomDrawer';
 import HoloCard from '../components/ui/HoloCard';
 import { apiUrl, siteUrl, getCardImageUrl } from '../config';
@@ -40,11 +41,17 @@ async function loadCardData(): Promise<CardData[]> {
     if (cardDataCache) return cardDataCache;
     if (cardDataPromise) return cardDataPromise;
 
-    cardDataPromise = fetch('/card_data.json')
-        .then(res => res.json())
+    cardDataPromise = fetch('/card_data')
+        .then(res => res.arrayBuffer())
         .then(data => {
-            cardDataCache = data;
-            return data;
+            const result = bincode.decode(bincode.Collection(bincode.Struct({
+                id : bincode.u32,
+                name : bincode.String,
+                phash: bincode.String,
+                card_type: bincode.u8
+            })), data).value;
+            cardDataCache = result;
+            return result;
         });
 
     return cardDataPromise;

@@ -1,0 +1,118 @@
+name: Make CardData
+
+on:
+  schedule:
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  make-carddata:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
+
+    - name: Git Config
+      run: |
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "github-actions@github.com"
+
+    - name: Setup SSH
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      run: |
+        mkdir -p ~/.ssh
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
+        ssh-keyscan github.com >> ~/.ssh/known_hosts
+        ssh-keyscan gitee.com >> ~/.ssh/known_hosts
+
+    - name: Restore pics cache
+      uses: actions/cache/restore@v4
+      with:
+        path: pics
+        key: pics
+
+    - name: Clone repository
+      env:
+        SOURCE_REPO: ${{ secrets.PICS_REPO }}
+      run: |
+        set -euo pipefail
+        if [ -d pics ]; then
+          cd pics
+          git remote set-url origin "$SOURCE_REPO"
+          IS_FIRST_CLONE=false
+        else
+          git clone "$SOURCE_REPO" pics --depth 1
+          cd pics
+          IS_FIRST_CLONE=true
+        fi
+
+        git fetch --depth 1 --prune origin
+        if [ "$IS_FIRST_CLONE" = "true" ]; then
+          echo "repo_changed=true" >> "$GITHUB_ENV"
+        else
+          LOCAL_HEAD=$(git rev-parse HEAD)
+          REMOTE_HEAD=$(git rev-parse origin/HEAD)
+          if [ "$LOCAL_HEAD" = "$REMOTE_HEAD" ]; then
+            echo "repo_changed=false" >> "$GITHUB_ENV"
+          else
+            git reset --hard "$REMOTE_HEAD"
+            echo "repo_changed=true" >> "$GITHUB_ENV"
+          fi
+        fi
+
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@master
+      with:
+        toolchain: 1.95.0
+
+    - name: Restore mirror cache
+      uses: actions/cache/restore@v4
+      with:
+        path: core-wasm/target/release
+        key: Rust
+
+    - name: Hashing hdarts
+      run: |
+        if [ "$repo_changed" = "true" ]; then
+          set -euo pipefail
+          cd core-wasm
+          wget -O cards.cdb https://github.com/mycard/ygopro-database/raw/refs/heads/master/locales/zh-CN/cards.cdb
+          cargo run --release ../pics/arts cards.cdb ../public/card_data
+          rm -f cards.cdb
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add ../public/card_data
+          if ! git diff --cached --quiet; then
+            git commit -m "update card_data"
+            git push
+          else
+            echo "No tracked changes in ../public/card_data, skip commit."
+            git reset --soft HEAD
+          fi
+        fi
+
+    - name: Delete previous cache
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        gh cache delete "pics" || true
+        gh cache delete "Rust" || true
+
+    - name: Save rust cache
+      uses: actions/cache/save@v4
+      with:
+        path: core-wasm/target/release
+        key: Rust
+
+    - name: Save pics cache
+      uses: actions/cache/save@v4
+      with:
+        path: pics
+        key: pics

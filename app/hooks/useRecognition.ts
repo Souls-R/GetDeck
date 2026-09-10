@@ -14,12 +14,17 @@ import {
     EARLY_EXIT_DISTANCE
 } from '../utils/recognition';
 import { modelPath, getCardImageUrl } from '../config';
-import { globalCardInfoCache, fetchCardInfo as apiFetchCardInfo } from '../utils/cardApi';
+import { globalCardInfoCache, fetchCardInfo as apiFetchCardInfo, fetchCardInfoByPasswords } from '../utils/cardApi';
 
 export { globalCardInfoCache };
 
 const MODEL_PATH = modelPath;
-const HASH_DB_PATH = '/card_data.json';
+const HASH_DB_PATH = '/card_data';
+
+enum CARD_TYPE {
+    STANDARD = 0,
+    PENDULUM = 1
+};
 
 export type ProcessingStage = 'idle' | 'detecting' | 'identifying' | 'done';
 
@@ -73,7 +78,7 @@ export function useRecognition(): UseRecognitionReturn {
     const { t, locale } = useTranslation();
     // 会话状态
     const [session, setSession] = useState<ort.InferenceSession | null>(null);
-    const [hashDatabase, setHashDatabase] = useState<CardHashEntry[] | null>(null);
+    const [hashDatabase, setHashDatabase] = useState<Uint8Array | null>(null);
     const [wasmDb, setWasmDb] = useState<Database | null>(null);
     const [isInitializing, setIsInitializing] = useState(true);
     const [statusText, setStatusText] = useState('');
@@ -82,7 +87,7 @@ export function useRecognition(): UseRecognitionReturn {
     // 使用 ref 存储最新值，解决闭包陷阱问题
     // 在初始化完成时直接更新 ref（同步），确保 processImage 能立即访问到最新值
     const sessionRef = useRef<ort.InferenceSession | null>(null);
-    const hashDatabaseRef = useRef<CardHashEntry[] | null>(null);
+    const hashDatabaseRef = useRef<Uint8Array | null>(null);
     const wasmDbRef = useRef<Database | null>(null);
     const localeRef = useRef(locale);
     localeRef.current = locale;
@@ -218,7 +223,7 @@ export function useRecognition(): UseRecognitionReturn {
                 // 下载哈希数据库
                 const hashDbPromise = fetch(HASH_DB_PATH).then(r => {
                     if (!r.ok) throw new Error(`数据库加载失败: ${r.statusText}`);
-                    return r.json();
+                    return r.arrayBuffer();
                 });
 
                 // 初始化 core-wasm
@@ -231,6 +236,7 @@ export function useRecognition(): UseRecognitionReturn {
                     hashDbPromise,
                     wasmWarmupPromise // 不需要结果，只是确保 WASM 开始下载
                 ]);
+                const dbUint8Result = new Uint8Array(dbResult);
 
                 // 创建 ONNX Session（此时 WASM 应该已经缓存了）
                 const sessionResult = await ort.InferenceSession.create(modelBuffer, {
@@ -244,16 +250,16 @@ export function useRecognition(): UseRecognitionReturn {
                 }
 
                 const db = new Database();
-                db.load_database(JSON.stringify(dbResult));
+                db.load_database_from_buffer(dbUint8Result);
 
                 // 先更新 ref（同步），确保 processImage 能立即访问到最新值
                 sessionRef.current = sessionResult;
-                hashDatabaseRef.current = dbResult;
+                hashDatabaseRef.current = dbUint8Result;
                 wasmDbRef.current = db;
 
                 // 再更新 state（异步）
                 setSession(sessionResult);
-                setHashDatabase(dbResult);
+                setHashDatabase(dbUint8Result);
                 setWasmDb(db);
                 setIsInitializing(false);
                 setModelDownloadProgress(null);
@@ -302,6 +308,44 @@ export function useRecognition(): UseRecognitionReturn {
             return data;
         } catch (error) {
             console.error('获取卡片信息失败:', error);
+            if (updateUI && name === latestRequestedNameRef.current) {
+                setSelectedCardInfo(null);
+            }
+            return null;
+        } finally {
+            if (updateUI && name === latestRequestedNameRef.current) {
+                setIsDetailLoading(false);
+            }
+        }
+    }, []);
+
+    const fetchCardInfoByPassword = useCallback(async (name: string, password: number, updateUI: boolean = true) => {
+        if (globalCardInfoCache[name]) {
+            if (updateUI && name === latestRequestedNameRef.current) {
+                setSelectedCardInfo(globalCardInfoCache[name]);
+            }
+            return globalCardInfoCache[name];
+        }
+
+        if (updateUI) setIsDetailLoading(true);
+
+        try {
+            const passwordInfoMap = await fetchCardInfoByPasswords([password.toString()]);
+            const info = passwordInfoMap.get(password.toString());
+            if (!info) return null;
+
+            const cardInfo: CardInfo = {
+                ...info.cardInfo,
+                name: { ...info.cardInfo.name, zh: name },
+            };
+            globalCardInfoCache[name] = cardInfo;
+
+            if (updateUI && name === latestRequestedNameRef.current) {
+                setSelectedCardInfo(cardInfo);
+            }
+            return cardInfo;
+        } catch (error) {
+            console.error(error);
             if (updateUI && name === latestRequestedNameRef.current) {
                 setSelectedCardInfo(null);
             }
@@ -389,8 +433,8 @@ export function useRecognition(): UseRecognitionReturn {
                     const hashStandard = get_phash_raw(dataStandard, 128, 128);
                     const hashPendulum = get_phash_raw(dataPendulum, 128, 128);
 
-                    const matchesStandard = currentWasmDb.find_best_match(hashStandard, 'standard');
-                    const matchesPendulum = currentWasmDb.find_best_match(hashPendulum, 'pendulum');
+                    const matchesStandard = currentWasmDb.find_best_match(hashStandard, CARD_TYPE.STANDARD);
+                    const matchesPendulum = currentWasmDb.find_best_match(hashPendulum, CARD_TYPE.PENDULUM);
                     const allMatches = [...matchesStandard, ...matchesPendulum].sort(
                         (a: any, b: any) => a.distance - b.distance
                     );
@@ -402,7 +446,7 @@ export function useRecognition(): UseRecognitionReturn {
                         bestMatchResult = {
                             distance: bestDist,
                             matches: allMatches.slice(0, 3).map((m: any) => ({
-                                id: m.id,
+                                password: m.id,
                                 name: m.name,
                                 distance: m.distance,
                                 cardType: m.cardType,
@@ -457,16 +501,27 @@ export function useRecognition(): UseRecognitionReturn {
             setProcessingVisual(null);
 
             // 预加载卡片信息 — batch fetch (all matches including alternates)
-            const uniqueEntries = new Map<string, { id: number; name: string }>();
+            const uniquePasswords = new Set<string>();
             for (const c of finalResults) {
                 for (const m of c.matches) {
-                    if (m && !uniqueEntries.has(m.name)) {
-                        uniqueEntries.set(m.name, { id: m.id, name: m.name });
-                    }
+                    const password = m.password ?? m.id;
+                    if (password) uniquePasswords.add(String(password));
                 }
             }
-            const { fetchCardInfoBatch } = await import('../utils/cardApi');
-            await fetchCardInfoBatch(Array.from(uniqueEntries.values()));
+            const passwordInfoMap = await fetchCardInfoByPasswords(Array.from(uniquePasswords));
+            for (const c of finalResults) {
+                for (const m of c.matches) {
+                    const password = m.password ?? m.id;
+                    const info = password ? passwordInfoMap.get(String(password)) : undefined;
+                    if (!info) continue;
+                    globalCardInfoCache[m.name] = {
+                        ...info.cardInfo,
+                        name: { ...info.cardInfo.name, zh: m.name },
+                    };
+                    m.id = info.konamiId;
+                }
+            }
+            setRecognizedCards([...finalResults]);
 
             // 预加载首选匹配的卡图（不含备选）
             const seenIds = new Set<number>();
@@ -500,7 +555,10 @@ export function useRecognition(): UseRecognitionReturn {
         if (card.matches.length > 0) {
             const currentMatch = card.matches[card.selectedMatchIndex];
             latestRequestedNameRef.current = currentMatch.name;
-            await fetchCardInfo(currentMatch.name, currentMatch.id, true);
+            if (currentMatch.id)
+                await fetchCardInfo(currentMatch.name, currentMatch.id, true);
+            else if (currentMatch.password)
+                await fetchCardInfoByPassword(currentMatch.name, currentMatch.password, true);
         }
     }, [recognizedCards, fetchCardInfo]);
 
@@ -541,8 +599,8 @@ export function useRecognition(): UseRecognitionReturn {
             const hashStandard = get_phash_raw(dataStandard, 128, 128);
             const hashPendulum = get_phash_raw(dataPendulum, 128, 128);
 
-            const matchesStandard = currentWasmDb.find_best_match(hashStandard, 'standard');
-            const matchesPendulum = currentWasmDb.find_best_match(hashPendulum, 'pendulum');
+            const matchesStandard = currentWasmDb.find_best_match(hashStandard, CARD_TYPE.STANDARD);
+            const matchesPendulum = currentWasmDb.find_best_match(hashPendulum, CARD_TYPE.PENDULUM);
             const allMatches = [...matchesStandard, ...matchesPendulum].sort(
                 (a: any, b: any) => a.distance - b.distance
             );
@@ -553,7 +611,7 @@ export function useRecognition(): UseRecognitionReturn {
                 bestMatchResult = {
                     distance: bestDist,
                     matches: allMatches.slice(0, 3).map((m: any) => ({
-                        id: m.id,
+                        password: m.id,
                         name: m.name,
                         distance: m.distance,
                         cardType: m.cardType,
@@ -572,9 +630,27 @@ export function useRecognition(): UseRecognitionReturn {
 
         // console.log(`[Reprocess Card ${index}] Processed with ${sampleCount} samples, best distance: ${bestMatchResult.distance}. Time: ${(performance.now() - startTime).toFixed(1)}ms`);
 
-        const matches = bestMatchResult.matches;
+        let matches = bestMatchResult.matches;
         const hashStandard = bestMatchResult.hashStandard;
         const hashPendulum = bestMatchResult.hashPendulum;
+
+        if (matches.length > 0) {
+            const passwords = matches
+                .map(m => m.password ?? m.id)
+                .filter((password): password is number => Boolean(password))
+                .map(String);
+            const passwordInfoMap = await fetchCardInfoByPasswords(passwords);
+            matches = matches.map(m => {
+                const password = m.password ?? m.id;
+                const info = password ? passwordInfoMap.get(String(password)) : undefined;
+                if (!info) return m;
+                globalCardInfoCache[m.name] = {
+                    ...info.cardInfo,
+                    name: { ...info.cardInfo.name, zh: m.name },
+                };
+                return { ...m, id: info.konamiId };
+            });
+        }
 
         setRecognizedCards(prev => {
             const next = [...prev];
@@ -590,9 +666,12 @@ export function useRecognition(): UseRecognitionReturn {
 
         if (matches.length > 0) {
             latestRequestedNameRef.current = matches[0].name;
-            await fetchCardInfo(matches[0].name, matches[0].id, true);
+            if (matches[0].id)
+                await fetchCardInfo(matches[0].name, matches[0].id, true);
+            else if (matches[0].password)
+                await fetchCardInfoByPassword(matches[0].name, matches[0].password, true);
         }
-    }, [originalImage, recognizedCards, fetchCardInfo]);
+    }, [originalImage, recognizedCards, fetchCardInfo, fetchCardInfoByPassword]);
 
     // 选择备选匹配
     const handleSelectAltMatch = useCallback((matchIndex: number) => {
@@ -607,9 +686,12 @@ export function useRecognition(): UseRecognitionReturn {
         const newMatch = card.matches[matchIndex];
         if (newMatch) {
             latestRequestedNameRef.current = newMatch.name;
-            fetchCardInfo(newMatch.name, newMatch.id, true);
+            if (newMatch.id)
+                fetchCardInfo(newMatch.name, newMatch.id, true);
+            else if (newMatch.password)
+                fetchCardInfoByPassword(newMatch.name, newMatch.password, true);
         }
-    }, [selectedCardIndex, recognizedCards, fetchCardInfo]);
+    }, [selectedCardIndex, recognizedCards, fetchCardInfo, fetchCardInfoByPassword]);
 
     // 更新卡片框位置
     const updateCardBox = useCallback((index: number, box: Box) => {
