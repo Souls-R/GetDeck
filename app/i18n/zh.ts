@@ -116,6 +116,8 @@ const zh = {
   },
   recognition: {
     initModel: '正在初始化模型...',
+    readingModelCache: '正在读取本地模型...',
+    initializingEngine: '正在初始化识别引擎...',
     downloadingModel: '正在下载模型...',
     downloadingModelProgress: '正在下载模型... {progress}%',
     ready: '就绪',

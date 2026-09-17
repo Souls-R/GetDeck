@@ -25,7 +25,6 @@ export const viewport: Viewport = {
   userScalable: false,
 };
 
-import { modelPath } from './config';
 import { I18nProvider } from './i18n';
 
 export default function RootLayout({
@@ -35,15 +34,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN">
-      <head>
-        {/* 预加载 ONNX 模型，加速首次加载 */}
-        <link
-          rel="preload"
-          href={modelPath}
-          as="fetch"
-          crossOrigin="anonymous"
-        />
-      </head>
       <body
         className={`${inter.variable} ${geistMono.variable} antialiased`}
       >

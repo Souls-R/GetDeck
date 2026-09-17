@@ -118,6 +118,8 @@ const en: Translations = {
   },
   recognition: {
     initModel: 'Initializing model...',
+    readingModelCache: 'Reading cached model...',
+    initializingEngine: 'Initializing recognition engine...',
     downloadingModel: 'Downloading model...',
     downloadingModelProgress: 'Downloading model... {progress}%',
     ready: 'Ready',

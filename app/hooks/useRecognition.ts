@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from '@/app/i18n';
 import * as ort from 'onnxruntime-web';
-import init, { Database, get_phash_raw } from 'core-wasm';
+import { Database, get_phash_raw } from 'core-wasm';
 import { Box, CardHashEntry, RecognizedCard, CardInfo, Match } from '../types';
 import {
     preprocessImage,
@@ -13,13 +13,11 @@ import {
     SAMPLE_OFFSETS,
     EARLY_EXIT_DISTANCE
 } from '../utils/recognition';
-import { modelPath, getCardImageUrl } from '../config';
+import { getCardImageUrl } from '../config';
 import { globalCardInfoCache, fetchCardInfo as apiFetchCardInfo } from '../utils/cardApi';
+import { getRecognitionRuntime, subscribeRuntime } from '../utils/recognitionRuntime';
 
 export { globalCardInfoCache };
-
-const MODEL_PATH = modelPath;
-const HASH_DB_PATH = '/card_data.json';
 
 export type ProcessingStage = 'idle' | 'detecting' | 'identifying' | 'done';
 
@@ -63,12 +61,6 @@ export interface UseRecognitionReturn {
     cardInfoVersion: number;
 }
 
-// 初始化 Promise 的 resolve 函数引用
-let initResolve: (() => void) | null = null;
-const initPromise = new Promise<void>((resolve) => {
-    initResolve = resolve;
-});
-
 export function useRecognition(): UseRecognitionReturn {
     const { t, locale } = useTranslation();
     // 会话状态
@@ -88,7 +80,33 @@ export function useRecognition(): UseRecognitionReturn {
     localeRef.current = locale;
 
     // 等待初始化完成的方法
-    const waitForInit = useCallback(() => initPromise, []);
+    const translationRef = useRef(t);
+    translationRef.current = t;
+    const activeRef = useRef(false);
+    const waitForInit = useCallback(async () => {
+        if (activeRef.current) setIsInitializing(true);
+        try {
+            const runtime = await getRecognitionRuntime();
+            if (!activeRef.current) return;
+            sessionRef.current = runtime.session;
+            hashDatabaseRef.current = runtime.hashes;
+            wasmDbRef.current = runtime.database;
+            setSession(runtime.session);
+            setHashDatabase(runtime.hashes);
+            setWasmDb(runtime.database);
+            setStatusText(translationRef.current('recognition.ready'));
+        } catch (error) {
+            if (activeRef.current) setStatusText(translationRef.current('recognition.initFailed', {
+                message: error instanceof Error ? error.message : String(error),
+            }));
+            throw error;
+        } finally {
+            if (activeRef.current) {
+                setIsInitializing(false);
+                setModelDownloadProgress(null);
+            }
+        }
+    }, []);
 
     // 图像和处理状态
     const [originalImage, setOriginalImage] = useState<HTMLImageElement | null>(null);
@@ -105,172 +123,20 @@ export function useRecognition(): UseRecognitionReturn {
 
     const latestRequestedNameRef = useRef<string | null>(null);
 
-    // 初始化
+    // Share initialization across mounts; failures reject callers and can be retried.
     useEffect(() => {
-        async function initialize() {
-            try {
-                // 判断是否为国内用户，选择合适的 CDN
-                const isChinaUser = () => {
-                    // 1. 检查浏览器语言
-                    const lang = navigator.language || (navigator as any).userLanguage || '';
-                    if (lang.toLowerCase().startsWith('zh')) return true;
-
-                    // 2. 检查时区 (UTC+8)
-                    const offset = new Date().getTimezoneOffset();
-                    if (offset === -480) return true; // UTC+8
-
-                    return false;
-                };
-
-                // 国内用户使用 npmmirror，国外用户使用 jsdelivr (全球 CDN)
-                const wasmCdnPath = isChinaUser()
-                    ? 'https://registry.npmmirror.com/onnxruntime-web/1.23.2/files/dist/'
-                    : 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.23.2/dist/';
-
-                // 提前设置 ONNX Runtime WASM 路径
-                ort.env.wasm.wasmPaths = wasmCdnPath;
-                ort.env.wasm.numThreads = 1;
-
-                // 5秒后开始显示下载进度
-                let showProgressTimer: ReturnType<typeof setTimeout> | null = null;
-                let shouldShowProgress = false;
-
-                showProgressTimer = setTimeout(() => {
-                    shouldShowProgress = true;
-                    setModelDownloadProgress(0);
-                    setStatusText(t('recognition.downloadingModel'));
-                }, 5000);
-
-                // 并行下载所有资源：
-                // 1. core-wasm 初始化
-                // 2. ONNX 模型文件下载
-                // 3. 卡片哈希数据库下载
-                // 4. 预热 ONNX Runtime (触发 WASM 文件下载)
-
-                // 预热 ONNX Runtime - 创建一个最小 session 来触发 WASM 下载
-                // ONNX Runtime 会自动选择合适的 WASM 文件
-                const wasmWarmupPromise = (async () => {
-                    try {
-                        // 创建一个最小的有效 ONNX 模型来触发 WASM 加载
-                        // 这是一个只有一个 Identity 节点的最小模型
-                        const minimalModel = new Uint8Array([
-                            0x08, 0x08, 0x12, 0x0c, 0x6f, 0x6e, 0x6e, 0x78, 0x2d, 0x77, 0x61, 0x72,
-                            0x6d, 0x75, 0x70, 0x00, 0x1a, 0x23, 0x0a, 0x01, 0x78, 0x12, 0x01, 0x79,
-                            0x1a, 0x0b, 0x0a, 0x01, 0x78, 0x12, 0x01, 0x79, 0x22, 0x03, 0x41, 0x64,
-                            0x64, 0x22, 0x0e, 0x0a, 0x01, 0x78, 0x10, 0x01, 0x1a, 0x07, 0x0a, 0x01,
-                            0x31, 0x12, 0x02, 0x08, 0x01, 0x22, 0x0e, 0x0a, 0x01, 0x79, 0x10, 0x01,
-                            0x1a, 0x07, 0x0a, 0x01, 0x31, 0x12, 0x02, 0x08, 0x01
-                        ]);
-                        await ort.InferenceSession.create(minimalModel.buffer, {
-                            executionProviders: ['wasm']
-                        });
-                    } catch {
-                        // 模型可能无效，但 WASM 文件应该已经开始下载了
-                    }
-                })();
-
-                // 下载模型文件（带进度）
-                // 注意：layout.tsx 中已配置 <link rel="preload" crossOrigin="anonymous"> 来提前开始下载
-                // 这里的 fetch 必须使用相同的 credentials 模式才能复用 preload 的请求/缓存
-                const modelDownloadPromise = (async () => {
-                    const response = await fetch(MODEL_PATH, {
-                        // 与 preload 的 crossOrigin="anonymous" 匹配
-                        // credentials: 'omit',
-                        mode: 'cors'
-                    });
-                    if (!response.ok) throw new Error(`模型加载失败: ${response.statusText}`);
-
-                    const contentLength = response.headers.get('content-length');
-                    const total = contentLength ? parseInt(contentLength, 10) : 0;
-
-                    if (!response.body || !total) {
-                        return await response.arrayBuffer();
-                    }
-
-                    const reader = response.body.getReader();
-                    const chunks: Uint8Array[] = [];
-                    let received = 0;
-
-                    while (true) {
-                        const { done, value } = await reader.read();
-                        if (done) break;
-                        chunks.push(value);
-                        received += value.length;
-
-                        if (shouldShowProgress) {
-                            const progressPercent = Math.round((received / total) * 100);
-                            setModelDownloadProgress(progressPercent);
-                            setStatusText(t('recognition.downloadingModelProgress', { progress: progressPercent }));
-                        }
-                    }
-
-                    // 合并所有 chunks
-                    const buffer = new Uint8Array(received);
-                    let position = 0;
-                    for (const chunk of chunks) {
-                        buffer.set(chunk, position);
-                        position += chunk.length;
-                    }
-
-                    return buffer.buffer;
-                })();
-
-                // 下载哈希数据库
-                const hashDbPromise = fetch(HASH_DB_PATH).then(r => {
-                    if (!r.ok) throw new Error(`数据库加载失败: ${r.statusText}`);
-                    return r.json();
-                });
-
-                // 初始化 core-wasm
-                const wasmInitPromise = init();
-
-                // 并行等待所有下载完成
-                const [, modelBuffer, dbResult] = await Promise.all([
-                    wasmInitPromise,
-                    modelDownloadPromise,
-                    hashDbPromise,
-                    wasmWarmupPromise // 不需要结果，只是确保 WASM 开始下载
-                ]);
-
-                // 创建 ONNX Session（此时 WASM 应该已经缓存了）
-                const sessionResult = await ort.InferenceSession.create(modelBuffer, {
-                    executionProviders: ['wasm'],
-                    graphOptimizationLevel: 'all'
-                });
-
-                // 清除定时器
-                if (showProgressTimer) {
-                    clearTimeout(showProgressTimer);
-                }
-
-                const db = new Database();
-                db.load_database(JSON.stringify(dbResult));
-
-                // 先更新 ref（同步），确保 processImage 能立即访问到最新值
-                sessionRef.current = sessionResult;
-                hashDatabaseRef.current = dbResult;
-                wasmDbRef.current = db;
-
-                // 再更新 state（异步）
-                setSession(sessionResult);
-                setHashDatabase(dbResult);
-                setWasmDb(db);
-                setIsInitializing(false);
-                setModelDownloadProgress(null);
-                setStatusText(t('recognition.ready'));
-
-                // 通知等待初始化的代码
-                if (initResolve) {
-                    initResolve();
-                }
-            } catch (error: any) {
-                setStatusText(t('recognition.initFailed', { message: error.message }));
-                setModelDownloadProgress(null);
-                console.error(error);
-            }
-        }
-        initialize();
-    }, []);
+        activeRef.current = true;
+        const unsubscribe = subscribeRuntime(({ stage, percent }) => {
+            setModelDownloadProgress(stage === 'download' ? (percent ?? 0) : null);
+            const translate = translationRef.current;
+            setStatusText(stage === 'download'
+                ? (percent === null ? translate('recognition.downloadingModel')
+                    : translate('recognition.downloadingModelProgress', { progress: percent }))
+                : translate(stage === 'cache' ? 'recognition.readingModelCache' : 'recognition.initializingEngine'));
+        });
+        void waitForInit().catch(console.error);
+        return () => { activeRef.current = false; unsubscribe(); };
+    }, [waitForInit]);
 
     // 重置状态
     const resetState = useCallback(() => {

@@ -77,6 +77,7 @@ export default function DeckRecognizer() {
     const recognition = useRecognition();
     const {
         isInitializing,
+        statusText,
         processingStage,
         recognizedCards,
         selectedCardIndex,
@@ -1152,12 +1153,12 @@ export default function DeckRecognizer() {
                             <div className="w-12 h-12 rounded-full border-3 border-(--card-border) border-t-(--primary) animate-spin"></div>
                             <div className="text-center">
                                 <p className="text-(--foreground) font-medium mb-1">
-                                    {modelDownloadProgress !== null ? t('recognition.downloadingModelTitle') : t('recognition.loadingModel')}
+                                    {statusText || t('recognition.loadingModel')}
                                 </p>
                                 <p className="text-sm text-(--foreground-muted)">
                                     {modelDownloadProgress !== null
                                         ? `${modelDownloadProgress}%`
-                                        : t('recognition.firstVisitHint')}
+                                        : ''}
                                 </p>
                             </div>
                             {modelDownloadProgress !== null && (

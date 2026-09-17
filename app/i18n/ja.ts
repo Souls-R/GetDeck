@@ -118,6 +118,8 @@ const ja: Translations = {
   },
   recognition: {
     initModel: 'モデルを初期化中...',
+    readingModelCache: '保存済みモデルを読み込み中...',
+    initializingEngine: '認識エンジンを初期化中...',
     downloadingModel: 'モデルをダウンロード中...',
     downloadingModelProgress: 'モデルをダウンロード中... {progress}%',
     ready: '準備完了',

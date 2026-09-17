@@ -14,13 +14,10 @@ export const config = {
 
   // CDN 域名
   cdnUrl: 'https://api.get-deck.com',
-
-  // ONNX 模型路径
-  modelPath: 'https://api.get-deck.com/best.onnx',
 } as const;
 
 // 便捷导出
-export const { siteUrl, apiUrl, cdnUrl, modelPath } = config;
+export const { siteUrl, apiUrl, cdnUrl } = config;
 
 // 卡图多语言 URL
 type CardImageLang = 'zh' | 'ja' | 'en';
