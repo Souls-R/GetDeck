@@ -54,7 +54,7 @@ export async function loadModel(fallback: ModelManifest, report: (progress: Mode
 
     report({ stage: 'download', percent: 0 });
     // Cache API controls persistence; bypass potentially stale HTTP copies on a cache miss.
-    const response = await fetch(manifest.url, { mode: 'cors', cache: 'no-store', signal: AbortSignal.timeout(120000) });
+    const response = await fetch(manifest.url, { mode: 'cors', cache: 'no-store', signal: AbortSignal.timeout(10 * 60 * 1000) });
     if (!response.ok) throw new Error(`Model download failed: ${response.status}`);
     const total = Number(response.headers.get('content-length'));
     let buffer: ArrayBuffer;
