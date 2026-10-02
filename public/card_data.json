@@ -85128,6 +85128,12 @@
     "card_type": "standard"
   },
   {
+    "id": 22730,
+    "name": "四天之龙 暗反叛超量龙",
+    "phash": "78e77962d332c54a4952ce96c48e19993133a0bd8e599e5197199d3b9d3a87bb",
+    "card_type": "standard"
+  },
+  {
     "id": 22746,
     "name": "I：P百变莱娜",
     "phash": "564dd11889d99049994239633339f524e4c6c24c836a869b349be55199753195",
@@ -85743,6 +85749,12 @@
     "id": 23029,
     "name": "护石庭园",
     "phash": "b0885d99cb99523730353ad31cd3b4d930d370f150e0d178b14983279e81ae80",
+    "card_type": "standard"
+  },
+  {
+    "id": 23360,
+    "name": "召唤兽 迪・阿尼玛",
+    "phash": "0c031983bbc1b2f927744e3e750ea7c692099b1b6ad57cd779e6e4e6a4e7d161",
     "card_type": "standard"
   },
   {

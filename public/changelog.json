@@ -1,6 +1,24 @@
 {
   "updates": [
     {
+      "version": "202609291853",
+      "sync_date": "2026-10-02T10:30:26Z",
+      "added_cards": [
+        {
+          "id": 22730,
+          "name": "四天之龙 暗反叛超量龙"
+        },
+        {
+          "id": 23360,
+          "name": "召唤兽 迪・阿尼玛"
+        }
+      ],
+      "updated_cards": [],
+      "total_cards": 14303,
+      "added_count": 2,
+      "updated_count": 0
+    },
+    {
       "version": "202609080120",
       "sync_date": "2026-09-10T12:59:10Z",
       "added_cards": [
