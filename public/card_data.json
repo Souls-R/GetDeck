@@ -150,12 +150,6 @@
     "card_type": "standard"
   },
   {
-    "id": 3184,
-    "name": "四花缭乱之灵使",
-    "phash": "596b793e453957bbb4a6d2c5c924eca8e618393a596ce1f6e85ea91cb1b421b6",
-    "card_type": "standard"
-  },
-  {
     "id": 3185,
     "name": "水灵使 艾里雅",
     "phash": "b942ba42bc463d52b55c17cfc4898db19d279ca1899b5b8d9fcd199c780cf329",
@@ -198,12 +192,6 @@
     "card_type": "pendulum"
   },
   {
-    "id": 3194,
-    "name": "追忆之阿莱斯特",
-    "phash": "6d002a019d0349136106ac16391539159f34d66457e8676233babbbd3b957713",
-    "card_type": "standard"
-  },
-  {
     "id": 3195,
     "name": "青眼卡通究极龙",
     "phash": "e439d149362e2d2e4d565ce46c32dc90d39ccd45cdd8a59934a330d5a1486228",
@@ -237,6 +225,30 @@
     "id": 3401,
     "name": "拉之翼神龙",
     "phash": "037cc776cc1bcbd826d93d59934de7c6c9e6f161b0b156b566e463ede939e31a",
+    "card_type": "standard"
+  },
+  {
+    "id": 3403,
+    "name": "凭依装着－奥丝",
+    "phash": "c36c5338ca1cca0dda18deca4e589e169e35e465cc348a899a4b3616649bc789",
+    "card_type": "standard"
+  },
+  {
+    "id": 3404,
+    "name": "凭依装着－艾里雅",
+    "phash": "fb64ad6096bb9bb9b9ed0c294e5b795a795a71ba79eabedcff4f7e774ee3fd68",
+    "card_type": "standard"
+  },
+  {
+    "id": 3405,
+    "name": "凭依装着－希塔",
+    "phash": "6fce7fcedfe7cd70bb71ad73646256839bcd9dc9d39dc22c9a1e880e631fe719",
+    "card_type": "standard"
+  },
+  {
+    "id": 3406,
+    "name": "凭依装着－薇茵",
+    "phash": "4f664722673547924f5ba6cc83929bc217c765d625dfc766f31ef88e9c46b863",
     "card_type": "standard"
   },
   {
@@ -15152,7 +15164,7 @@
   {
     "id": 6627,
     "name": "学习妖精",
-    "phash": "18db6eecbe413b227f1e4f6267e3268d1b0f2d16ac258e25960759065d422d4f",
+    "phash": "18da6eecbe413b227f1e4f6267e3268d1b0f2d16ac258e25960759065d422d4f",
     "card_type": "standard"
   },
   {
@@ -15230,7 +15242,7 @@
   {
     "id": 6649,
     "name": "武装转生",
-    "phash": "eb6dcb349616d78c2f2b0d276b1defb4db54a70d470d4f6d6fc967cb6f836e0e",
+    "phash": "6b6dcb349616d78c2f2b0d276b1defb4db54a70d470d4f6d6fc967cb6f836e0e",
     "card_type": "standard"
   },
   {
@@ -78804,6 +78816,30 @@
     "card_type": "standard"
   },
   {
+    "id": 20263,
+    "name": "地灵使 奥丝",
+    "phash": "26c3644ac82e99e69ad0f4634c666564b1dd49e699b8ad9d29f979ed918d7d18",
+    "card_type": "standard"
+  },
+  {
+    "id": 20264,
+    "name": "水灵使 艾里雅",
+    "phash": "190f11265bf6ca72ca39581b51d7a18d830c132ea9edd3cdd2654236616e532e",
+    "card_type": "standard"
+  },
+  {
+    "id": 20265,
+    "name": "火灵使 希塔",
+    "phash": "3e099f1c5b524e333bf32df3267a9543b273f29665b913b9da3664b233663306",
+    "card_type": "standard"
+  },
+  {
+    "id": 20266,
+    "name": "风灵使 薇茵",
+    "phash": "4d97879bc742876c453634b624ebc4f64976496ba1f69536b1dcb8c9949bc6c7",
+    "card_type": "standard"
+  },
+  {
     "id": 20274,
     "name": "皮缇",
     "phash": "cf9763d276e6b7d2efd987221f369318931333563b54b9144bde5e3277d82bd8",
@@ -84092,7 +84128,7 @@
   {
     "id": 22180,
     "name": "武器库整理",
-    "phash": "170a531a013ee126e5666566752a7f9569e9865286b69b658a49ab4bab11af3b",
+    "phash": "170a531a813ee126e5666566752a7f9569e9865286b69b65aa49ab4bab11af3b",
     "card_type": "standard"
   },
   {
@@ -84279,6 +84315,12 @@
     "id": 22302,
     "name": "星尘龙／爆裂",
     "phash": "3d749d6dc40458ce8c8e9a4c2bcb59dbb0f330fb32f318f68937981b1c49ae0d",
+    "card_type": "standard"
+  },
+  {
+    "id": 22309,
+    "name": "武装转生衍生物",
+    "phash": "6b6dcb349616d78c2f2b0d276b1defb4db54a70d470d4f6d6fc967cb6f836e0e",
     "card_type": "standard"
   },
   {
@@ -84524,13 +84566,13 @@
   {
     "id": 22354,
     "name": "大轮之魔导书",
-    "phash": "37189b14ee2dbe28bc287c6179717b23fbe1f258725a765ae774ad3bedbd77c6",
+    "phash": "b718bb14ee2dbe28bc287c6179617b21fbe1f258725a765ae7742d7bedbf77c6",
     "card_type": "standard"
   },
   {
     "id": 22355,
     "name": "大轮之灵使",
-    "phash": "e068c4349c729075b24e47c658e23ce790ed98f8b978798ce859e8d058d852c8",
+    "phash": "e068c4349c739075b24e47c658e238e790ed98f8b978798ce859e8d058d852c8",
     "card_type": "standard"
   },
   {
@@ -84614,7 +84656,7 @@
   {
     "id": 22520,
     "name": "狱神影兽－涅尔绯多",
-    "phash": "c5d2dd4ebb4a33cbd2baf0b2650926692629471bcfa4cd4ccf1cc99cb2993693",
+    "phash": "c5d2dd4ebb4a33cbd2baf0b2650926692629471bcfa4cd4ccf1cc99cb2993293",
     "card_type": "pendulum"
   },
   {
@@ -84626,7 +84668,7 @@
   {
     "id": 22522,
     "name": "狱神影精－朱诺璐多",
-    "phash": "a706270e6f0e4b8f46cc1f294f094b6f68d9a8978097d29bc39f251e15decd5c",
+    "phash": "a706270e6f0e4b8f46cc1f294f094b6b28d9a8978097d29bc39f651e15decd5c",
     "card_type": "pendulum"
   },
   {
@@ -84650,7 +84692,7 @@
   {
     "id": 22526,
     "name": "精灵术的使役魔",
-    "phash": "37188b43c7c4c64c674e3d0d37073f667f72771c931b931ba31b079e4f9be7c1",
+    "phash": "37188b43c7c4c64c674e3d0d3707bf667f72771c931b931ba31b079e4f9be7c1",
     "card_type": "standard"
   },
   {
@@ -84818,7 +84860,7 @@
   {
     "id": 22554,
     "name": "终刻龙机ⅩⅢ－格拉弗雷欧",
-    "phash": "070ece4ad128d5363916bb059a4b9329e3340ab2842884281d3095d292511a87",
+    "phash": "070ece4ad128d5363916bb059a4b9329e3340ab2842884281d3095d292511aa7",
     "card_type": "standard"
   },
   {
@@ -84848,7 +84890,7 @@
   {
     "id": 22559,
     "name": "四花缭乱之灵使",
-    "phash": "596b793e453957bbb4a6d2c5c924eca8e618393a596ee1f6e85ea91cb1b421b6",
+    "phash": "596b793e453957bbb4a6d2c5c924eca8e618393a596ce1f6e85ea91cb1b421b6",
     "card_type": "standard"
   },
   {
@@ -84896,7 +84938,7 @@
   {
     "id": 22567,
     "name": "终刻反转《A.D.R.A.S.T.E.I.A.》",
-    "phash": "bb9279206e05de44da84bd82f788fa8c7b667c8e38855c0b6ea3e662c946da69",
+    "phash": "bb9279206e05de44da84bd82f788ea8c7b66788e38855c0b6ea3e662c946da69",
     "card_type": "standard"
   },
   {
@@ -85130,7 +85172,7 @@
   {
     "id": 22730,
     "name": "四天之龙 暗反叛超量龙",
-    "phash": "78e77962d332c54a4952ce96c48e19993133a0bd8e599e5197199d3b9d3a87bb",
+    "phash": "78e76962d332c54a4952cf96c48e19993133a0bd8e599e5197199d3b9d3a87bb",
     "card_type": "standard"
   },
   {
@@ -85182,9 +85224,21 @@
     "card_type": "standard"
   },
   {
+    "id": 22822,
+    "name": "精灵术的操控者",
+    "phash": "bb15ad14a716b512b633b7235629d654e5b19476186663c4ea0ce80d716d6331",
+    "card_type": "standard"
+  },
+  {
     "id": 22823,
     "name": "灵主王之波动",
     "phash": "93868e8c979c9d9e868db60c19eb676d536193c3d94ca4347432432a422e4f7a",
+    "card_type": "standard"
+  },
+  {
+    "id": 22829,
+    "name": "凭依共鸣－薇茵",
+    "phash": "9cd536a4a64ab346d97c78c939cf6ede3eda7e647cac3416352433bb67fcef7d",
     "card_type": "standard"
   },
   {
@@ -85204,6 +85258,12 @@
     "name": "蜃欺龙",
     "phash": "60694ce69cec2c25e6d8c7d895c727ab67b0cb989bd996a996d192f346ed0a6d",
     "card_type": "standard"
+  },
+  {
+    "id": 22925,
+    "name": "暗翳之信仰者 朦胧裘德",
+    "phash": "dfe48de59551b741333313b394939e939595164da36d9313393b296d996d9558",
+    "card_type": "pendulum"
   },
   {
     "id": 22926,
@@ -85358,7 +85418,7 @@
   {
     "id": 22964,
     "name": "追忆之阿莱斯特",
-    "phash": "6d002a019d0349136106ac16391539159b34d66457e8676233babbbd3b957713",
+    "phash": "6d002a019d0349136106ac16391539159f34d66457e8676233babbbd3b957713",
     "card_type": "standard"
   },
   {
@@ -85370,19 +85430,19 @@
   {
     "id": 22966,
     "name": "人工神灵 薇拉卡姆",
-    "phash": "f6906fa1db20b5052e05370e6d4e49c6db42c23138d949181e21af39a13c90e7",
+    "phash": "e6906f21db20b5052e05370e6d4e49c6db42c23138d949181e212f39a13c90e7",
     "card_type": "standard"
   },
   {
     "id": 22967,
     "name": "魅影骑士团衰朽斗篷",
-    "phash": "f1683ae3db964b95a338c3484c4b4c3a637761653b6db36a931a1b1edd12d531",
+    "phash": "f1683ae3db964b95a338c3484c4b4c3a637761653b6db36a931a1b1edd92d531",
     "card_type": "standard"
   },
   {
     "id": 22968,
     "name": "魅影骑士团末日护胫",
-    "phash": "0d313b6cf341e986a9b68f630e4f2e393d54164326176e25783cf33cc6198c32",
+    "phash": "0d313b6cf141e996a9b68f630e4f2e393d54164326176e25783cf33cc6198c32",
     "card_type": "standard"
   },
   {
@@ -85454,19 +85514,19 @@
   {
     "id": 22980,
     "name": "召唤兽 贝巴隆",
-    "phash": "fbb4eae092d19159cb6c7a2a3c1c08b71a2591259927302b61a998b734874b06",
+    "phash": "fbb4eae092d19159cb6c7a2a3c1c0cb71a2591259927382b61a998b734874b06",
     "card_type": "standard"
   },
   {
     "id": 22981,
     "name": "召唤兽 俄刻阿诺斯",
-    "phash": "1f1c1b113f4947d8e750e7c0e760c530a1b17311836d838ee912bc6536a33147",
+    "phash": "1f181b113f4947d8e750e7c0e760c570a1b17311836d838ee912bc6536a33167",
     "card_type": "standard"
   },
   {
     "id": 22982,
     "name": "超越召唤兽 埃翁",
-    "phash": "660d0eb32d273553265b1f0f2abb5aadcd6c2ccbc8c6c9f4da24cc8c849a916e",
+    "phash": "660d0e932d273553265b1f0f2aab5aadcd6c2ccbc8c6c9f4da24cc8c84da916e",
     "card_type": "standard"
   },
   {
@@ -85490,7 +85550,7 @@
   {
     "id": 22986,
     "name": "魅影骑士团凶恶之镰",
-    "phash": "4acd709a580edc19591a393e3a349b991397139d971f2f9b26344e96bb9231c2",
+    "phash": "4acd709ad80edc19591a393e3a349b991397139d971f2f9b26344e96bb9231c2",
     "card_type": "standard"
   },
   {
@@ -85502,7 +85562,7 @@
   {
     "id": 22988,
     "name": "无垢祈祷的狱神使",
-    "phash": "6162c33cc718ecc8cd48f32132196d0adc92f6a9b2a1f3e164e1ddf0ddd6e6ec",
+    "phash": "6166c33cc718ecc8cd48f32132196d0adc92f6a9b2a1f3e164e19cf0ddd6e6ec",
     "card_type": "standard"
   },
   {
@@ -85586,13 +85646,13 @@
   {
     "id": 23002,
     "name": "召唤魔术－“剑”",
-    "phash": "d93035043714d7581b181bab8b660b78e378b33a113765362337671b6f0d7f83",
+    "phash": "d93035043714d7581b181bab8b668b78e378b33a113745362337671b6f0d7f83",
     "card_type": "standard"
   },
   {
     "id": 23003,
     "name": "神灵剑 爱华斯",
-    "phash": "217b5ce4ccd42163306b6cd94d4d2d2b279ab4ee912cd7144ccd496963396619",
+    "phash": "217b5ce6ccd42163306b6cd94d4d2d2b279ab4ee912cd7144ccd49696b396619",
     "card_type": "standard"
   },
   {
@@ -85604,7 +85664,7 @@
   {
     "id": 23005,
     "name": "无预幻的牧歌日常",
-    "phash": "270e0f1c072e073e475e050e9d6e3d7c033c073f037e813dc33bf31e5f03df03",
+    "phash": "270e0f1c072e073e475e050e9d6e3d7c0338073f037e813dc33bf31e5f03df03",
     "card_type": "standard"
   },
   {
@@ -85628,7 +85688,7 @@
   {
     "id": 23009,
     "name": "灵力回复药",
-    "phash": "fd93fa6afbc2bb819901db096d833d951c1137216e325c2a7b0c720c770a7604",
+    "phash": "fd93fa6afbc2bb819901db096d833d951c1137216e325c2a7b0c720c770a7606",
     "card_type": "standard"
   },
   {
@@ -85688,7 +85748,7 @@
   {
     "id": 23019,
     "name": "魔法名－“洛萨门蒂”新世界的开始",
-    "phash": "cdb0dbd8afd96f995f140f6c67683ed82f892dcdbf183b9a6e533d59334c6694",
+    "phash": "cdb0dbd8afd9ef995f140f6c67683ed82f892dcdbd18bb9a6e533d59334c6694",
     "card_type": "standard"
   },
   {
@@ -85749,6 +85809,30 @@
     "id": 23029,
     "name": "护石庭园",
     "phash": "b0885d99cb99523730353ad31cd3b4d930d370f150e0d178b14983279e81ae80",
+    "card_type": "standard"
+  },
+  {
+    "id": 23031,
+    "name": "极花之大耀圣衍生物",
+    "phash": "4b0317002f182f0c1f0c5e0c6f186f156ed91b1b59bac4eaa659931e195a929e",
+    "card_type": "standard"
+  },
+  {
+    "id": 23137,
+    "name": "伟魔少女 圣魔之阿耳忒弥斯",
+    "phash": "7e023e84bd049f0c671a71227d531e9e8b66637213f64b9d8b2d9b2fb78eb343",
+    "card_type": "standard"
+  },
+  {
+    "id": 23138,
+    "name": "魅影雾剑",
+    "phash": "792ffee83b6ba9466f1ce798d35cd326634e673c87d445afe18f992619860f98",
+    "card_type": "standard"
+  },
+  {
+    "id": 23301,
+    "name": "魔解骑士 通灵晶簇",
+    "phash": "bfa47f965e5217b4d7d456d673371323b9e0259533db1b8b991990335367696d",
     "card_type": "standard"
   },
   {
