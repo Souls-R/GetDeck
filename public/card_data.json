@@ -150,6 +150,48 @@
     "card_type": "standard"
   },
   {
+    "id": 3125,
+    "name": "暗黑太阳神－拉之翼神龙",
+    "phash": "b792971292328d9b4331d33631513113da04d2349973b9dda7ca8b5550598c4d",
+    "card_type": "standard"
+  },
+  {
+    "id": 3126,
+    "name": "神鹰女郎三姐妹・三角狂欢",
+    "phash": "b9660c2b2789d306d216512eb19c813588691ec13697ee4ee5cc6c59643131cd",
+    "card_type": "standard"
+  },
+  {
+    "id": 3127,
+    "name": "轮回虫龙・铜身三戟龙",
+    "phash": "f4723cb14a930a9b098d4996286c134be34e44ded01a91319c670cc9238ceb8e",
+    "card_type": "standard"
+  },
+  {
+    "id": 3128,
+    "name": "白鸦之森的女主人 迪亚贝尔赛",
+    "phash": "9ba7d22486338f8d3b855b0e615ed079862bce3a62b330e5984c58961c938c0b",
+    "card_type": "standard"
+  },
+  {
+    "id": 3129,
+    "name": "六花深圣泪滴花束",
+    "phash": "29219309994bb54e9b7ad36ecd4bce19cfb18f7d89390d35376b336a99671567",
+    "card_type": "standard"
+  },
+  {
+    "id": 3130,
+    "name": "无垢奥艺之绊 神艺",
+    "phash": "3e6e1cfe1cbb0cf385e6ccc44c8e4c0c9c398c338c6ececec3dee3ec98f908db",
+    "card_type": "standard"
+  },
+  {
+    "id": 3131,
+    "name": "驰骋横越炎之平原的百兽之王",
+    "phash": "3e3c3e323e22bd5694668d1ba80ab61b4c2525ad3b99536919f9117b84fb94db",
+    "card_type": "standard"
+  },
+  {
     "id": 3185,
     "name": "水灵使 艾里雅",
     "phash": "b942ba42bc463d52b55c17cfc4898db19d279ca1899b5b8d9fcd199c780cf329",
@@ -15205,7 +15247,7 @@
   },
   {
     "id": 6643,
-    "name": "元素－英雄 野蛮翼侠",
+    "name": "元素－英雄 野蛮翼人",
     "phash": "916c95f60a7e097f41dc41cca0c670c6dcc9c8d4c87648f2cc668c63cd26cbac",
     "card_type": "standard"
   },
