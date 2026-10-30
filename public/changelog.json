@@ -1,6 +1,32 @@
 {
   "updates": [
     {
+      "version": "202610271023",
+      "sync_date": "2026-10-30T15:08:09Z",
+      "added_cards": [
+        {
+          "id": 22768,
+          "name": "王之仆从－黑魔导"
+        },
+        {
+          "id": 22770,
+          "name": "黑之魔导的帘布"
+        },
+        {
+          "id": 23165,
+          "name": "魔女工艺掌门・大魔女桑德里永"
+        },
+        {
+          "id": 23852,
+          "name": "六花深圣泪滴花束"
+        }
+      ],
+      "updated_cards": [],
+      "total_cards": 14327,
+      "added_count": 4,
+      "updated_count": 0
+    },
+    {
       "version": "202610231157",
       "sync_date": "2026-10-26T15:18:52Z",
       "added_cards": [
