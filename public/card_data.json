@@ -152,7 +152,37 @@
   {
     "id": 3131,
     "name": "驰骋横越炎之平原的百兽之王",
-    "phash": "3e3c3e323e22bd5694668d1ba80ab61b4c2525ad3b99532919f9117b84fb94db",
+    "phash": "3e3c3e323e22bd5694668d1ba80ab61b4c2525ad3b99536919f9117b84fb94db",
+    "card_type": "standard"
+  },
+  {
+    "id": 3132,
+    "name": "创世方界超神 圣辉神魂・无量",
+    "phash": "55a09d831c155e0c9a24827675d233a36393ca9268f069cc51492430448c834c",
+    "card_type": "standard"
+  },
+  {
+    "id": 3133,
+    "name": "暗黑方界邪神 深红新星・三相",
+    "phash": "246130371b973ed2e3d8d2b88496972ebb2e2f53a40ed8e4b07233631997ac93",
+    "card_type": "standard"
+  },
+  {
+    "id": 3134,
+    "name": "海晶少女 真实之心",
+    "phash": "1b1ea39e863b9639874cc726cc3f8c3f8d1a6572b265ba99b2d164e266623363",
+    "card_type": "standard"
+  },
+  {
+    "id": 3135,
+    "name": "海晶少女 魔泡大堡礁",
+    "phash": "9f168f4e478e47864ef24cd318cb5999391f1ac408c96cc9064126720e569b6e",
+    "card_type": "standard"
+  },
+  {
+    "id": 3136,
+    "name": "鬼计主宰 阿尔卡德",
+    "phash": "8b901d1009318911d151534210ec61c44cc559d6adc69fec927cc27af175ba57",
     "card_type": "standard"
   },
   {
@@ -73273,7 +73303,7 @@
   },
   {
     "id": 18150,
-    "name": "深渊之相剑龙",
+    "name": "深渊的相剑龙",
     "phash": "0c67094653d6e48572e978e138d9989bc9d4e2e8f47670f4302b938f131ea9fe",
     "card_type": "standard"
   },
@@ -85116,6 +85146,18 @@
     "card_type": "standard"
   },
   {
+    "id": 22696,
+    "name": "星尘龙－牺牲者圣域",
+    "phash": "b73bb369b324792c592e3107ae27e242c5529e83128d5ecd259fdbe64d8fed0d",
+    "card_type": "standard"
+  },
+  {
+    "id": 22702,
+    "name": "四天之龙 异色眼灵摆龙",
+    "phash": "469c5291ab21c333cb23c124e134e39ece898ac5c693ced2bb2c57442e0e6ea7",
+    "card_type": "pendulum"
+  },
+  {
     "id": 22715,
     "name": "W：P变幻舞夜",
     "phash": "0b3003a10b2941fb69650dd9745b5576c8b0a6e43cc83e912cc58db60717073e",
@@ -85592,7 +85634,7 @@
   {
     "id": 22989,
     "name": "超元特防队 暗夜屠杀者",
-    "phash": "39de3d369dada48d6691878baef22066743a66c733c334cb306178b16498b344",
+    "phash": "39de3d369dada48d6691878baef22064743a66d733c334cb30617cb16498b344",
     "card_type": "standard"
   },
   {
@@ -85848,6 +85890,12 @@
     "card_type": "standard"
   },
   {
+    "id": 23035,
+    "name": "混沌三幻魔",
+    "phash": "d9cdd209b2a99a396a696e6c47234bd1cfd3e185f39019c291aab35cbadc3df0",
+    "card_type": "standard"
+  },
+  {
     "id": 23128,
     "name": "鲁库纳斯之吸雷 布利泽",
     "phash": "7c21ff101b2279459dc298c63861914b115e19535973586134633323c7918e89",
@@ -85959,6 +86007,12 @@
     "id": 23416,
     "name": "魔女工艺・育种希德",
     "phash": "3dc166527266762e710ce205e6c44ea6a8d82899c05a9158a93199854bc20471",
+    "card_type": "standard"
+  },
+  {
+    "id": 23419,
+    "name": "异色眼凌驾龙",
+    "phash": "c32493b36736cb649ad339d926998c962c36285b33df719679963a36dd169711",
     "card_type": "standard"
   },
   {
