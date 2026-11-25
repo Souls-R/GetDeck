@@ -19790,7 +19790,7 @@
   {
     "id": 7513,
     "name": "剧毒蝮蛇",
-    "phash": "308fd91bdb70d378777947698d66b144e114ed3839303730771cf31277129c13",
+    "phash": "308fd91bdb78d378777947698d66b144e114ed3839303730771cf31277929c13",
     "card_type": "standard"
   },
   {
@@ -79008,6 +79008,12 @@
     "card_type": "standard"
   },
   {
+    "id": 20387,
+    "name": "一对一",
+    "phash": "9733c31b43d9455b8d078c8f9aeb10e91899f52ca72acf2619f7b1263d3c3f3d",
+    "card_type": "standard"
+  },
+  {
     "id": 20388,
     "name": "叹息石版",
     "phash": "fc6277365706374aa712c319f73077357130687659417d496e46e52bd179f15e",
@@ -83545,26 +83551,32 @@
   },
   {
     "id": 22067,
-    "name": "密林狩猎者修弗鲁依由",
+    "name": "密林狩猎者须鲁依",
     "phash": "37ce3d395e663346906e145b6d633c3c3c88143d19162d139d299405ce85ed06",
     "card_type": "standard"
   },
   {
     "id": 22068,
-    "name": "狩猎笛",
+    "name": "狩猎号角",
     "phash": "7fb656934f854c4d864bb6c21f61cd60dca51894302c3126232387254c249eb1",
     "card_type": "standard"
   },
   {
     "id": 22069,
-    "name": "红镰华",
+    "name": "彼岸花·莉莉帕",
     "phash": "f618567956634c64ccc0ce4d4e8789c2873b1e0f99a4859be69387b19f61df09",
     "card_type": "standard"
   },
   {
     "id": 22070,
-    "name": "丝绸炸弹蛾",
+    "name": "丝绸爆弹蛾",
     "phash": "e7706ceb6fa8c619844969e65b0e2c15a405c660868ca665e275c339969c674c",
+    "card_type": "standard"
+  },
+  {
+    "id": 22071,
+    "name": "魔术师之空华",
+    "phash": "cc614d598d5b18383ec076ca2d8b2f139b39b1f163efc6ce3bcd19454947598b",
     "card_type": "standard"
   },
   {
@@ -84421,7 +84433,7 @@
   },
   {
     "id": 22327,
-    "name": "机睿的机械调整师",
+    "name": "机睿之机械协调",
     "phash": "930e4b2cc70d67cc65c96711b7047b06730efb0ffb079d07cd2ca7093f147f00",
     "card_type": "standard"
   },
@@ -85152,9 +85164,45 @@
     "card_type": "standard"
   },
   {
+    "id": 22697,
+    "name": "星废品同步士",
+    "phash": "6330b330d864ccc8d334d9645962f860d36cd964e9a8e298c75c278b36d7cd66",
+    "card_type": "standard"
+  },
+  {
+    "id": 22698,
+    "name": "同步紧急",
+    "phash": "0dd9da7db23d3376d36ec128530866c8ce7394538e8893b718a52c24137348d9",
+    "card_type": "standard"
+  },
+  {
     "id": 22702,
     "name": "四天之龙 异色眼灵摆龙",
     "phash": "469c5291ab21c333cb23c124e134e39ece898ac5c693ced2bb2c57442e0e6ea7",
+    "card_type": "pendulum"
+  },
+  {
+    "id": 22703,
+    "name": "星读的魔术师－天宫图魔术士",
+    "phash": "8f099e88fca23d169b048226861ed59fa10de30ec395a692ae10afce77873313",
+    "card_type": "pendulum"
+  },
+  {
+    "id": 22704,
+    "name": "星霜的魔术师－宙读阵魔术士",
+    "phash": "54f96cbf19972bdb5fcb5eb39f355b0dd88accd6c9d4c3e5e3a5b18df986e186",
+    "card_type": "pendulum"
+  },
+  {
+    "id": 22710,
+    "name": "虹之桥",
+    "phash": "76013b8138332926772e1ace5cced3dc719c759cae3ce83f586e74af9937997c",
+    "card_type": "standard"
+  },
+  {
+    "id": 22714,
+    "name": "大精灵机巧军－灵摆统御者",
+    "phash": "e728ce1198d0b862f330c78c9314b3326331e518af4e9e068e1e151f1335e328",
     "card_type": "pendulum"
   },
   {
@@ -85236,6 +85284,42 @@
     "card_type": "standard"
   },
   {
+    "id": 22749,
+    "name": "黑魔女 迪亚贝尔斯塔",
+    "phash": "0a5d826da8e4c6994596698ab8a125e1c027e224ca52d05f04b34c33466665ce",
+    "card_type": "standard"
+  },
+  {
+    "id": 22752,
+    "name": "神灭兵器－天霆号 扼宙斯",
+    "phash": "ad2ba72d892f2193c56a4f6b65a782d3927bc3196f9ba99aad372e339626856e",
+    "card_type": "standard"
+  },
+  {
+    "id": 22760,
+    "name": "白银城的迷宫主・拉比丽斯",
+    "phash": "9546a5e6e66427e1b741f360bae164a1f4e496823678b5467d06cf994ed3c976",
+    "card_type": "standard"
+  },
+  {
+    "id": 22761,
+    "name": "原罪的迪亚贝尔赛",
+    "phash": "ce634a63ff62db585f53cf54e706870bdf43e64de00df8137c43d809191a290b",
+    "card_type": "standard"
+  },
+  {
+    "id": 22764,
+    "name": "神兵灾星－厄咒弑 堤・丰",
+    "phash": "72732323b1b1ce984f9c679b25f980f9675fa216c64c465a5c3c68359939511d",
+    "card_type": "standard"
+  },
+  {
+    "id": 22766,
+    "name": "月女神之镞",
+    "phash": "66674b6df12c736d272e25a4a4cdd4685b320e439ec90c529d0b9c48d9a95949",
+    "card_type": "standard"
+  },
+  {
     "id": 22768,
     "name": "王之仆从－黑魔导",
     "phash": "66ee63c666f237e0316721d7871d9d3c3fc93c4d9926855cd6b693cc38f04736",
@@ -85269,6 +85353,12 @@
     "id": 22805,
     "name": "唤醒你的元素－英雄",
     "phash": "e38392e76667ee60da90d258225a12d331930c4b16d339b12cb11563b165aa82",
+    "card_type": "standard"
+  },
+  {
+    "id": 22806,
+    "name": "流天类星龙",
+    "phash": "3718c81c881d0729702e256c17ce30cbe49b318b364c651c709699969dc64183",
     "card_type": "standard"
   },
   {
@@ -85312,6 +85402,12 @@
     "name": "小丑戏帮 哈特",
     "phash": "190b8fb395b494d4a9ec6aa6d1f296b61c962c5ebcde565b1e271c4339415903",
     "card_type": "pendulum"
+  },
+  {
+    "id": 22921,
+    "name": "黑蔷薇龙／爆裂",
+    "phash": "90aeb8e599659bcb93a9b319732299a6203b26d9cce74976b33f596f1a6d9bb3",
+    "card_type": "standard"
   },
   {
     "id": 22922,
@@ -85424,31 +85520,31 @@
   {
     "id": 22954,
     "name": "劫火之三幻魔－神炎皇乌利亚",
-    "phash": "3d16cf13062f8ccd127d203b31cd316db13c231ce18cc18ecc17614f1f6e2f0f",
+    "phash": "3d17cf13062f8ccd127d203b31cd316db13c231ce18cc18ecc17614f1f6e2f0f",
     "card_type": "standard"
   },
   {
     "id": 22955,
     "name": "罪祸之三幻魔－降雷皇哈蒙",
-    "phash": "c7b347b347e9b0f2b072307b306330317334689a481344818d51d276859672c6",
+    "phash": "c7b347b347e9b0f2b072307b306330317334689a481344818d51d272859672c6",
     "card_type": "standard"
   },
   {
     "id": 22956,
     "name": "无穷之三幻魔－幻魔皇拉比艾尔",
-    "phash": "1b4ff34e31271d25896521e393634162a1ba9638432b190a19238f65d7399390",
+    "phash": "1b4fd34e31271d25896521e393634162a1ba9638432b190a19238f65d7399390",
     "card_type": "standard"
   },
   {
     "id": 22957,
     "name": "三幻魔操世者",
-    "phash": "f710392730d3b0d2d4ec6ce94cd99c569c5696163b6794d7c4dcd95cc91c9514",
+    "phash": "f710392730d3b4d2c4ec6ce94cd99c569c5696163b6794d7c4dcd95cc91c9514",
     "card_type": "standard"
   },
   {
     "id": 22958,
     "name": "三幻魔殉教者",
-    "phash": "6cceedcc37a1cf44c3305d636ec68687a685f68a26932a19635159f37899ce0c",
+    "phash": "6cceeccc37a1cf44c3305d636ec68687a685f68a26932a19635559f37899ce0c",
     "card_type": "standard"
   },
   {
@@ -85514,7 +85610,7 @@
   {
     "id": 22969,
     "name": "超元特防队 征义",
-    "phash": "983fca6df394f392ed868ece1e319671cde5a5c5929db4a2e04278e2e0f2f4b2",
+    "phash": "983fca6df394f392ed868ecf1e119671cde5a5c5929db4a2e06278e2e0f2f4b2",
     "card_type": "standard"
   },
   {
@@ -85544,13 +85640,13 @@
   {
     "id": 22974,
     "name": "薄明之魔 雷拉曙",
-    "phash": "da53ec51e850f150e550a359374b234363c1c793c7eb57da67b2bd702bb46730",
+    "phash": "d253ec51e850f150e550a359374b234363c1c793c7eb57da67b2bd702bb467b0",
     "card_type": "pendulum"
   },
   {
     "id": 22975,
     "name": "灰层",
-    "phash": "f0643063187d577c17730b55e37df53926d320c7d1e7c0b6c11bc0a46a9a18f1",
+    "phash": "f0663063187d577c17730b55e37df53926d320c7d1e7c0b6c11ac0846a9a18f1",
     "card_type": "standard"
   },
   {
@@ -85610,7 +85706,7 @@
   {
     "id": 22985,
     "name": "无现坏收 无之获取者",
-    "phash": "b7c05f923f96344d752c1a1e9b3596f98d710535275b6749ef68da69126d3878",
+    "phash": "b7c05f923f86344d752c1a1e9b3596f98d710535275b6749ef68da69326d3878",
     "card_type": "standard"
   },
   {
@@ -85640,7 +85736,7 @@
   {
     "id": 22990,
     "name": "超元特防队 诡义",
-    "phash": "f8c49c8cce8dc49898b8ccbce15ad034c8348894d4b4c0b409952ea736274d13",
+    "phash": "f8c49c8cce0dc4989838ccbce15ad034c8348894d4b4c0b409952ea736274513",
     "card_type": "standard"
   },
   {
@@ -85676,13 +85772,13 @@
   {
     "id": 22996,
     "name": "三幻魔解放",
-    "phash": "9d919f815d024e798e48ed1ca59eb756073b1770ff60f330e311628b3f870ce7",
+    "phash": "9d919f815d024e798e48ed5ca59eb756073b1770ff60f330e311628b3f870ce7",
     "card_type": "standard"
   },
   {
     "id": 22997,
     "name": "三幻魔之失乐园",
-    "phash": "b922ce8add9c373365b2a4b4c6bec6b8863c2635073f074d39cc30dce2e4e8d4",
+    "phash": "b922ee8add9c373365b2a4b4c6bec6b8863c2635073f074d39cc30dce2f4e0d4",
     "card_type": "standard"
   },
   {
@@ -85742,7 +85838,7 @@
   {
     "id": 23007,
     "name": "超元特防队 本源",
-    "phash": "8219809c81960112071583192732663a6c3458347235aa30ac30a1392c3f0c1e",
+    "phash": "8219809c81960112071583192732663a6c3658347235aa30ac30a1392c3f0c1e",
     "card_type": "standard"
   },
   {
@@ -85790,13 +85886,13 @@
   {
     "id": 23015,
     "name": "三幻魔合杀",
-    "phash": "e7f966da6ce3f1fa539d3fb44fc2dec63d34732a736a576657f51737af62dde6",
+    "phash": "e7f966da6ce3f3fa539d3fb44fc2de863d34732a736a576657f51737af62dde6",
     "card_type": "standard"
   },
   {
     "id": 23016,
     "name": "三幻魔之神渊",
-    "phash": "7630531a3b12570dc3162327410fc64a1e360c9c1967a7359a1e9a8fe76e42bf",
+    "phash": "7618535a3912570dc3162327430fc64a1e360c9c1965a7359f1e9a8fe76e42bf",
     "card_type": "standard"
   },
   {
@@ -85838,7 +85934,7 @@
   {
     "id": 23023,
     "name": "超元特防队 理序世界",
-    "phash": "613c6d34cf160d275d30f930f152469344821c003d122416ac949d94cc16c5b5",
+    "phash": "613c6d34cf160d275d30f930f152469344821c003d122416ac949d94cc16c595",
     "card_type": "standard"
   },
   {
@@ -85856,7 +85952,7 @@
   {
     "id": 23026,
     "name": "呜呼落穴",
-    "phash": "446e66af2379173a55cd4b2d564dca4458cd898443eeb325939ac6c67cbc8936",
+    "phash": "446e66ef2379173a55cd4b2d564dca4458cd898443eea325939ac6c67cbc8936",
     "card_type": "standard"
   },
   {
@@ -85874,7 +85970,7 @@
   {
     "id": 23029,
     "name": "护石庭园",
-    "phash": "b0885d99cb99523730353ad31cd3b4d930d370f150e0d178b14983279e81ae80",
+    "phash": "b0885d99cb99533730353ad31cd3b4d930d370f150e0d178b14983279e81ae80",
     "card_type": "standard"
   },
   {
@@ -85968,6 +86064,18 @@
     "card_type": "standard"
   },
   {
+    "id": 23297,
+    "name": "猜疑神 帕拉诺亚",
+    "phash": "f419e1c471725043dbd3db62633857317536b7306734474f874fc33863732f16",
+    "card_type": "standard"
+  },
+  {
+    "id": 23298,
+    "name": "炎幻星 尤玛古阿",
+    "phash": "36368a4cf218b331bb69ff4c1b5e4e0e2717320ebaac1ab25b927796ae267e46",
+    "card_type": "standard"
+  },
+  {
     "id": 23299,
     "name": "崩电稻草人",
     "phash": "3a071b1f973ae7c26696a4c7ac6da8ed3c9e5a9a32b7a47932391ad8485a44aa",
@@ -85986,6 +86094,18 @@
     "card_type": "standard"
   },
   {
+    "id": 23303,
+    "name": "冒名者替换",
+    "phash": "1c3e3c60b8c478dc38b69aa2fa60e633c624e64c32d3a39bc64d336d3d6f0a0c",
+    "card_type": "standard"
+  },
+  {
+    "id": 23314,
+    "name": "冒名者衍生物",
+    "phash": "1c3e3c60b8c478dc38b69aa2fa60e633c624e64c32d3a39bc64d336d3d6f0a0c",
+    "card_type": "standard"
+  },
+  {
     "id": 23353,
     "name": "秘召刻漏淑女",
     "phash": "c3c90c873c24cc38ed796d61e605640d650fe419642de437d203b717261d4e0b",
@@ -85995,6 +86115,12 @@
     "id": 23360,
     "name": "召唤兽 迪・阿尼玛",
     "phash": "0c031983bbc1b2f927744e3e750ea7c692099b1b6ad57cd779e6e4e6a4e7d161",
+    "card_type": "standard"
+  },
+  {
+    "id": 23387,
+    "name": "三幻魔之天坏",
+    "phash": "9c6c9627d740671c3b363341bd58bd4a5d2e2f3126300392e3db43195348568e",
     "card_type": "standard"
   },
   {
